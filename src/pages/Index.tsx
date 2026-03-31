@@ -835,10 +835,10 @@ export default function Index() {
                 {PRO_CONTENT_TYPES.map((ct) => (
                   <Pill
                     key={ct.value}
-                    selected={hasProAccess && contentType === ct.value}
-                    locked={!hasProAccess}
+                    selected={contentType === ct.value}
+                    locked={!hasProAccess && !isProMode}
                     onClick={() => {
-                      if (hasProAccess) setContentType(ct.value);
+                      if (hasProAccess || isProMode) setContentType(ct.value);
                       else openUpgrade(`Unlock "${ct.label}" content type for specialized output.`);
                     }}
                   >
