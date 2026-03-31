@@ -18,6 +18,7 @@ import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
+import { useProStatus } from "@/hooks/useProStatus";
 
 // ── Constants ───────────────────────────────────────────────────────
 
