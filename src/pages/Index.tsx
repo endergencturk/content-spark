@@ -732,7 +732,7 @@ export default function Index() {
                 isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
-              <Crown className="h-4 w-4" />{hasProAccess ? "Pro" : "Pro ✨"}
+              <Crown className="h-4 w-4" />{t("mode.pro", locale)} {!hasProAccess && "✨"}
             </button>
           </div>
 
