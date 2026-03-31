@@ -709,10 +709,10 @@ export default function Index() {
           {/* HEADER */}
           <div className="text-center space-y-2 pt-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              AI Content Engine
+              {t("app.title", locale)}
             </h1>
             <p className="text-muted-foreground text-sm">
-              Generate viral hooks, scripts & captions in seconds.
+              {t("app.subtitle", locale)}
             </p>
           </div>
 
