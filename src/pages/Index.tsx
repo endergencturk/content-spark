@@ -784,11 +784,11 @@ export default function Index() {
 
             {/* 2. Topic */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Topic</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("input.topic", locale)}</p>
               <Input
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g. fitness tips, AI tools, crypto..."
+                placeholder={t("input.topic.placeholder", locale)}
                 className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
                 onKeyDown={(e) => e.key === "Enter" && generateContent()}
               />
