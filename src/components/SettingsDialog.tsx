@@ -1,0 +1,118 @@
+import React, { memo } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useSettings } from "@/contexts/SettingsContext";
+import { t } from "@/lib/i18n";
+
+function SettingsRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-3">
+      <span className="text-sm font-medium text-foreground">{label}</span>
+      {children}
+    </div>
+  );
+}
+
+export const SettingsDialog = memo(function SettingsDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const { settings, updateSettings } = useSettings();
+  const locale = settings.language;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-bold">{t("settings.title", locale)}</DialogTitle>
+        </DialogHeader>
+        <div className="divide-y divide-border">
+          {/* Theme */}
+          <SettingsRow label={t("settings.theme", locale)}>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                {settings.theme === "light" ? t("settings.theme.light", locale) : t("settings.theme.dark", locale)}
+              </span>
+              <Switch
+                checked={settings.theme === "dark"}
+                onCheckedChange={(v) => updateSettings({ theme: v ? "dark" : "light" })}
+              />
+            </div>
+          </SettingsRow>
+
+          {/* Language */}
+          <SettingsRow label={t("settings.language", locale)}>
+            <Select value={settings.language} onValueChange={(v) => updateSettings({ language: v as any })}>
+              <SelectTrigger className="w-32 h-8 text-xs rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="tr">Türkçe</SelectItem>
+              </SelectContent>
+            </Select>
+          </SettingsRow>
+
+          {/* Output Style */}
+          <SettingsRow label={t("settings.outputStyle", locale)}>
+            <Select value={settings.outputStyle} onValueChange={(v) => updateSettings({ outputStyle: v as any })}>
+              <SelectTrigger className="w-32 h-8 text-xs rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="minimal">{t("settings.outputStyle.minimal", locale)}</SelectItem>
+                <SelectItem value="detailed">{t("settings.outputStyle.detailed", locale)}</SelectItem>
+              </SelectContent>
+            </Select>
+          </SettingsRow>
+
+          {/* Default Platform */}
+          <SettingsRow label={t("settings.defaultPlatform", locale)}>
+            <Select value={settings.defaultPlatform} onValueChange={(v) => updateSettings({ defaultPlatform: v })}>
+              <SelectTrigger className="w-32 h-8 text-xs rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="tiktok">TikTok</SelectItem>
+                <SelectItem value="youtube-shorts">YouTube Shorts</SelectItem>
+                <SelectItem value="instagram-reels">Instagram Reels</SelectItem>
+              </SelectContent>
+            </Select>
+          </SettingsRow>
+
+          {/* Default Script Length */}
+          <SettingsRow label={t("settings.defaultLength", locale)}>
+            <Select value={settings.defaultScriptLength} onValueChange={(v) => updateSettings({ defaultScriptLength: v })}>
+              <SelectTrigger className="w-32 h-8 text-xs rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="15">15s</SelectItem>
+                <SelectItem value="30">30s</SelectItem>
+                <SelectItem value="60">60s</SelectItem>
+              </SelectContent>
+            </Select>
+          </SettingsRow>
+
+          {/* Hook Style */}
+          <SettingsRow label={t("settings.hookStyle", locale)}>
+            <Select value={settings.hookStyle} onValueChange={(v) => updateSettings({ hookStyle: v as any })}>
+              <SelectTrigger className="w-32 h-8 text-xs rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="safe">{t("settings.hookStyle.safe", locale)}</SelectItem>
+                <SelectItem value="balanced">{t("settings.hookStyle.balanced", locale)}</SelectItem>
+                <SelectItem value="aggressive">{t("settings.hookStyle.aggressive", locale)}</SelectItem>
+              </SelectContent>
+            </Select>
+          </SettingsRow>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+});
