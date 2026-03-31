@@ -570,7 +570,7 @@ export default function Index() {
   const { settings } = useSettings();
   const locale = settings.language;
   const { remaining, isAtLimit, isNearLimit, increment, nextRefillLabel } = useUsageLimit();
-  const { hasProAccess: hasProAccess, openGumroad } = useProStatus();
+  const { isPro: hasProAccess, openGumroad } = useProStatus();
 
   const [mode, setMode] = useState<Mode>(hasProAccess ? "pro" : "general");
   const [topic, setTopic] = useState("");
