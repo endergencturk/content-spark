@@ -35,6 +35,7 @@ async function fakeGenerateApi(topic: string): Promise<GeneratedResult> {
 
 export default function Index() {
   const [topic, setTopic] = useState("");
+  const [style, setStyle] = useState("viral");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState("");
   const [result, setResult] = useState<GeneratedResult>({
