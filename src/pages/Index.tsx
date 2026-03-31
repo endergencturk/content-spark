@@ -616,7 +616,7 @@ export default function Index() {
   const copyToClipboard = useCallback(async (key: string, text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(key);
-    toast.success("Copied — ready to post 🚀");
+    toast.success(t("toast.copied", locale));
     setTimeout(() => setCopied(""), 1200);
   }, []);
 
