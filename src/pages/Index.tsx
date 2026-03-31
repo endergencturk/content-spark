@@ -1016,8 +1016,8 @@ export default function Index() {
 
             {!hasProAccess && !isAtLimit && (
               <p className="text-center text-[11px] text-muted-foreground">
-                {remaining} free generation{remaining === 1 ? "" : "s"} available
-                {nextRefillLabel ? ` · Next credit in ${nextRefillLabel}` : ""}
+                {t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
+                {nextRefillLabel ? ` · ${t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)}` : ""}
               </p>
             )}
           </div>
