@@ -661,7 +661,12 @@ export default function Index() {
       }
     } catch (error: any) {
       console.error("Generation failed:", error);
-      toast.error(error?.message || "Generation failed. Please try again.");
+      const msg = error?.message || "";
+      if (/temporarily busy|try again/i.test(msg)) {
+        toast.error("AI is temporarily busy — please try again in a few seconds.");
+      } else {
+        toast.error(msg || "Generation failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
