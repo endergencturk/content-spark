@@ -802,12 +802,9 @@ export default function Index() {
                 {PRO_STYLES.map((s) => (
                   <Pill
                     key={s.value}
-                    selected={isPro && style === s.value}
+                    selected={style === s.value}
                     locked={!isPro}
-                    onClick={() => {
-                      if (isPro) setStyle(s.value);
-                      else openUpgrade(`Unlock "${s.label}" style — ${s.label === "High Retention" ? "fast pacing, pattern interrupts, open loops" : "advanced content style for higher performance"}`);
-                    }}
+                    onClick={() => setStyle(s.value)}
                   >
                     {s.label}
                   </Pill>
