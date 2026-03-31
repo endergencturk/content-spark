@@ -715,10 +715,7 @@ export default function Index() {
               <Zap className="h-4 w-4" />Free
             </button>
             <button
-              onClick={() => {
-                if (isPro) setMode("pro");
-                else openUpgrade("Unlock Pro mode for advanced styles, better hooks, editing plans, and unlimited generations.");
-              }}
+              onClick={() => setMode("pro")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
