@@ -18,6 +18,7 @@ import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
+import { useProStatus } from "@/hooks/useProStatus";
 
 // ── Constants ───────────────────────────────────────────────────────
 
@@ -567,8 +568,9 @@ export default function Index() {
   const { settings } = useSettings();
   const locale = settings.language;
   const { remaining, isAtLimit, isNearLimit, increment } = useUsageLimit();
+  const { isPro, openGumroad } = useProStatus();
 
-  const [mode, setMode] = useState<Mode>("general");
+  const [mode, setMode] = useState<Mode>(isPro ? "pro" : "general");
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState("viral");
   const [platform, setPlatform] = useState(settings.defaultPlatform);
@@ -587,7 +589,7 @@ export default function Index() {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [upgradeTrigger, setUpgradeTrigger] = useState("");
 
-  const isPro = mode === "pro";
+  const isProMode = mode === "pro";
 
   const openUpgrade = useCallback((trigger?: string) => {
     setUpgradeTrigger(trigger || "");
@@ -619,7 +621,7 @@ export default function Index() {
 
     setLoading(true);
     try {
-      const body = isPro
+      const body = isProMode
         ? {
             mode: "pro", topic, platforms, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", imagePromptCount, outputDepth,
@@ -634,13 +636,13 @@ export default function Index() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      if (isPro) {
+      if (isProMode) {
         setProResult(data as ProResult);
         setGeneralResult(null);
       } else {
         setGeneralResult(data as GeneralResult);
         setProResult(null);
-        increment();
+        if (!isPro) increment();
       }
     } catch (error: any) {
       console.error("Generation failed:", error);
@@ -653,20 +655,20 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isPro, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, openUpgrade]);
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, openUpgrade]);
 
-  const hasResults = isPro ? proResult !== null : generalResult !== null;
+  const hasResults = isProMode ? proResult !== null : generalResult !== null;
 
   const copyAll = useCallback(() => {
     let all = "";
-    if (!isPro && generalResult) {
+    if (!isProMode && generalResult) {
       all = [
         generalResult.hooks.map((h, i) => `Hook ${i + 1}: ${h}`).join("\n"),
         `Script:\n${generalResult.script}`,
         `Caption:\n${generalResult.caption}`,
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
       ].filter(Boolean).join("\n\n");
-    } else if (isPro && proResult) {
+    } else if (isProMode && proResult) {
       const s = proResult.script;
       all = [
         `🏆 BEST HOOK:\n${proResult.bestHook}`,
@@ -681,7 +683,7 @@ export default function Index() {
       ].filter(Boolean).join("\n\n");
     }
     copyToClipboard("all", all);
-  }, [isPro, generalResult, proResult, copyToClipboard]);
+  }, [isProMode, generalResult, proResult, copyToClipboard]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -705,18 +707,21 @@ export default function Index() {
             <button
               onClick={() => setMode("general")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                !isPro ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                !isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
               <Zap className="h-4 w-4" />Free
             </button>
             <button
-              onClick={() => setMode("pro")}
+              onClick={() => {
+                if (isPro) setMode("pro");
+                else openUpgrade("Unlock Pro mode for advanced styles, better hooks, editing plans, and unlimited generations.");
+              }}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                isPro ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
-              <Crown className="h-4 w-4" />Pro
+              <Crown className="h-4 w-4" />{isPro ? "Pro" : "Pro 🔒"}
             </button>
           </div>
 
@@ -733,11 +738,11 @@ export default function Index() {
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Platform</p>
               <div className="flex gap-2">
                 {PLATFORM_OPTIONS.map((o) => {
-                  const sel = isPro ? platforms.includes(o.value) : platform === o.value;
+                  const sel = isProMode ? platforms.includes(o.value) : platform === o.value;
                   return (
                     <button
                       key={o.value}
-                      onClick={() => isPro ? togglePlatform(o.value) : setPlatform(o.value)}
+                      onClick={() => isProMode ? togglePlatform(o.value) : setPlatform(o.value)}
                       className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-medium transition-all ${
                         sel
                           ? "bg-primary text-primary-foreground shadow-sm"
@@ -750,7 +755,7 @@ export default function Index() {
                   );
                 })}
               </div>
-              {isPro && <p className="text-[10px] text-muted-foreground text-center">Select multiple platforms</p>}
+              {isProMode && <p className="text-[10px] text-muted-foreground text-center">Select multiple platforms</p>}
             </div>
 
             {/* 2. Topic */}
@@ -966,7 +971,7 @@ export default function Index() {
               ) : !isPro && isAtLimit ? (
                 <><Lock className="h-5 w-5" />Upgrade to continue</>
               ) : (
-                <><Sparkles className="h-5 w-5" />{isPro ? "Generate Full Pipeline" : "Generate Content"}</>
+                <><Sparkles className="h-5 w-5" />{isProMode ? "Generate Full Pipeline" : "Generate Content"}</>
               )}
             </Button>
 
@@ -991,10 +996,10 @@ export default function Index() {
 
           {loading && <LoadingState mode={mode} />}
 
-          {!loading && !isPro && generalResult && (
+          {!loading && !isProMode && generalResult && (
             <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} />
           )}
-          {!loading && isPro && proResult && (
+          {!loading && isProMode && proResult && (
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} />
           )}
 
