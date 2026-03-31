@@ -844,7 +844,7 @@ export default function Index() {
 
             {/* 5. Content Type */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Content Type</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.content", locale)}</p>
               <div className="flex gap-2 flex-wrap">
                 {FREE_CONTENT_TYPES.map((ct) => (
                   <Pill key={ct.value} selected={contentType === ct.value} onClick={() => setContentType(ct.value)}>
