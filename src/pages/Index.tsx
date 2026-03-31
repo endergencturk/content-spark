@@ -730,8 +730,21 @@ export default function Index() {
             </button>
           </div>
 
-          {/* USAGE BANNER (Free) */}
-          {!hasProAccess && (
+          {/* PRO PREVIEW BANNER */}
+          {isProPreview && (
+            <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20 flex items-center gap-3">
+              <div className="shrink-0 h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Crown className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-foreground">Previewing Pro mode</p>
+                <p className="text-xs text-muted-foreground">Explore all Pro features — upgrade to generate content.</p>
+              </div>
+            </div>
+          )}
+
+          {/* USAGE BANNER (Free mode only) */}
+          {!hasProAccess && !isProMode && (
             <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} onUpgrade={() => openUpgrade()} />
           )}
 
