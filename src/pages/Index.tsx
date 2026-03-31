@@ -134,6 +134,26 @@ export default function Index() {
 
         {/* Results */}
         <div className="space-y-4">
+          {/* Copy All */}
+          {(result.hooks.length > 0 || result.script || result.caption) && (
+            <div className="flex justify-end">
+              <Button
+                variant="copyBtn"
+                size="sm"
+                onClick={() => {
+                  const all = [
+                    result.hooks.map((h, i) => `Hook ${i + 1}: ${h}`).join("\n"),
+                    result.script ? `Script:\n${result.script}` : "",
+                    result.caption ? `Caption:\n${result.caption}` : "",
+                  ].filter(Boolean).join("\n\n");
+                  copyToClipboard("all", all);
+                }}
+              >
+                <Copy className="h-3 w-3" />
+                {copied === "all" ? "Copied All" : "Copy All"}
+              </Button>
+            </div>
+          )}
           {/* Hooks */}
           <Card className="border-border/60">
             <CardHeader className="pb-3">
