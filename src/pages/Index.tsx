@@ -592,6 +592,7 @@ export default function Index() {
   const [upgradeTrigger, setUpgradeTrigger] = useState("");
 
   const isProMode = mode === "pro";
+  const isProPreview = isProMode && !hasProAccess;
 
   const openUpgrade = useCallback((trigger?: string) => {
     setUpgradeTrigger(trigger || "");
