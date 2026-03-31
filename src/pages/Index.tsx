@@ -216,32 +216,33 @@ const UsageBanner = memo(function UsageBanner({
 // ── General Results ─────────────────────────────────────────────────
 
 const GeneralResults = memo(function GeneralResults({
-  result, copied, onCopy, onUpgrade,
-}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; onUpgrade: () => void }) {
+  result, copied, onCopy, onUpgrade, locale = "en",
+}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; onUpgrade: () => void; locale?: Locale }) {
   return (
     <div className="space-y-5">
       {/* Hooks */}
       <section className="space-y-2.5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">Hooks</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.hooks", locale)}</h3>
         {result.hooks.map((hook, i) => (
           <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
             <p className="text-sm text-foreground leading-relaxed">
               <span className="text-primary font-bold mr-1.5">#{i + 1}</span>{hook}
             </p>
-            <CopyBtn text={hook} label={`hook-${i}`} copied={copied} onCopy={onCopy} />
+            <CopyBtn text={hook} label={`hook-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
           </div>
         ))}
         <UpsellBanner
-          message="Get 10 higher-converting hooks with Pro — scroll-stopping variations that increase retention"
+          message={t("upsell.hooks", locale)}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
       </section>
 
       {/* Script */}
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Script</h3>
-          <CopyBtn text={result.script} label="script" copied={copied} onCopy={onCopy} />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("result.script", locale)}</h3>
+          <CopyBtn text={result.script} label="script" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4">
           {result.script.split("\n").map((line, i) => (
@@ -249,16 +250,17 @@ const GeneralResults = memo(function GeneralResults({
           ))}
         </div>
         <UpsellBanner
-          message="Make this script voiceover-ready with structured beats and pro editing plan"
+          message={t("upsell.script", locale)}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
       </section>
 
       {/* Caption */}
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Caption</h3>
-          <CopyBtn text={result.caption} label="caption" copied={copied} onCopy={onCopy} />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("result.caption", locale)}</h3>
+          <CopyBtn text={result.caption} label="caption" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4">
           <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.caption}</p>
@@ -267,13 +269,13 @@ const GeneralResults = memo(function GeneralResults({
 
       {/* Image Prompts */}
       <section className="space-y-2.5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">Image Prompts</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.imagePrompts", locale)}</h3>
         {result.imagePrompts.map((p, i) => (
           <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
             <p className="text-xs text-muted-foreground leading-relaxed">
               <span className="text-foreground font-semibold mr-1">{i + 1}.</span>{p}
             </p>
-            <CopyBtn text={p} label={`img-${i}`} copied={copied} onCopy={onCopy} />
+            <CopyBtn text={p} label={`img-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
           </div>
         ))}
       </section>
@@ -282,54 +284,58 @@ const GeneralResults = memo(function GeneralResults({
       <div className="space-y-5 pt-3">
         <div className="flex items-center gap-2 px-1">
           <Crown className="h-3.5 w-3.5 text-primary" />
-          <p className="text-[10px] uppercase tracking-widest font-bold text-primary">Available with Pro</p>
+          <p className="text-[10px] uppercase tracking-widest font-bold text-primary">{t("result.proAvailable", locale)}</p>
         </div>
 
         <BlurredPreview
-          title="Hook variations that increase retention"
+          title={t("blurred.hookVariations", locale)}
           previewLines={[
             "V1: " + (result.hooks[0]?.slice(0, 50) || "What if everything you knew was wrong?") + "…",
             "V2: A completely different angle that hooks in 0.5 seconds",
             "V3: The emotional rewrite that keeps viewers watching",
           ]}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
 
         <BlurredPreview
-          title="Scene-by-scene editing plan"
+          title={t("blurred.editingPlan", locale)}
           previewLines={[
             "Scene 1 (0-3s): Quick zoom with trending audio drop",
             "Scene 2 (3-8s): B-roll montage with text overlay",
             "Scene 3 (8-15s): Direct-to-camera with cinematic shift",
           ]}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
 
         <BlurredPreview
-          title="Voice style recommendation"
+          title={t("blurred.voiceStyle", locale)}
           previewLines={["Dark & slow — dramatic pauses, low energy open"]}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
 
         <BlurredPreview
-          title="Posting strategy & timing"
+          title={t("blurred.postingStrategy", locale)}
           previewLines={[
             "Best time: Tuesday 7-9 PM EST",
             "Platform tip: Use trending sounds within first 2 hours",
           ]}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
       </div>
 
       {/* Bottom CTA */}
       <div className="text-center py-4 space-y-2">
-        <p className="text-xs text-muted-foreground">Creators using Pro get 3× more engagement</p>
+        <p className="text-xs text-muted-foreground">{t("upsell.bottom", locale)}</p>
         <button
           onClick={onUpgrade}
           className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all"
         >
           <Crown className="h-4 w-4" />
-          Upgrade to stand out
+          {t("upsell.bottomBtn", locale)}
         </button>
       </div>
     </div>
