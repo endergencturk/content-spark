@@ -880,7 +880,7 @@ export default function Index() {
               </p>
               <div className="flex gap-2">
                 {["Low", "Medium", "High"].map((label, lvl) => {
-                  const isLocked = !hasProAccess && lvl === 2;
+                  const isLocked = !hasProAccess && !isProMode && lvl === 2;
                   return (
                     <button
                       key={lvl}
