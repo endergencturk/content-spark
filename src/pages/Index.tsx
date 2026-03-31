@@ -2,7 +2,16 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, Loader2, Sparkles, Lightbulb, FileText, MessageSquare } from "lucide-react";
+
+const STYLE_OPTIONS = [
+  { value: "viral", label: "Viral (general)" },
+  { value: "dark", label: "Dark / Mystery" },
+  { value: "educational", label: "Educational" },
+  { value: "storytelling", label: "Storytelling" },
+  { value: "aggressive", label: "Aggressive / Controversial" },
+];
 
 interface GeneratedResult {
   hooks: string[];
