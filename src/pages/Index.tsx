@@ -937,7 +937,7 @@ export default function Index() {
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Depth</p>
               <div className="flex gap-2">
                 {DEPTH_OPTIONS.map((d) => {
-                  const isLocked = d.value === "detailed" && !hasProAccess;
+                  const isLocked = d.value === "detailed" && !hasProAccess && !isProMode;
                   return (
                     <Pill
                       key={d.value}
