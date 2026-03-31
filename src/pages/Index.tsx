@@ -907,9 +907,9 @@ export default function Index() {
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
                 <Image className="h-3 w-3" />Image Prompts
-                {!hasProAccess && <span className="text-muted-foreground/60 ml-1">(fixed: 3)</span>}
+                {!hasProAccess && !isProMode && <span className="text-muted-foreground/60 ml-1">(fixed: 3)</span>}
               </p>
-              {hasProAccess ? (
+              {(hasProAccess || isProMode) ? (
                 <div className="space-y-1.5">
                   <Slider
                     value={[imagePromptCount]}
