@@ -898,7 +898,7 @@ export default function Index() {
                 <Flame className="h-3 w-3" />{t("selector.hookIntensity", locale)}
               </p>
               <div className="flex gap-2">
-                {["Low", "Medium", "High"].map((label, lvl) => {
+                {[t("hook.low", locale), t("hook.medium", locale), t("hook.high", locale)].map((label, lvl) => {
                   const isLocked = !hasProAccess && !isProMode && lvl === 2;
                   return (
                     <button
