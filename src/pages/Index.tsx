@@ -68,6 +68,11 @@ export default function Index() {
           <p className="text-muted-foreground max-w-md mx-auto">
             Enter a topic and generate quick content ideas with a clean, simple UI.
           </p>
+          <p className="text-center font-semibold text-foreground max-w-sm mx-auto pt-2 leading-relaxed">
+            Your content isn't bad.<br />
+            Your hook is.<br />
+            Fix it in seconds.
+          </p>
         </div>
 
         {/* Input Section */}
