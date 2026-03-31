@@ -810,10 +810,10 @@ export default function Index() {
                 {PRO_STYLES.map((s) => (
                   <Pill
                     key={s.value}
-                    selected={hasProAccess && style === s.value}
-                    locked={!hasProAccess}
+                    selected={style === s.value}
+                    locked={!hasProAccess && !isProMode}
                     onClick={() => {
-                      if (hasProAccess) setStyle(s.value);
+                      if (hasProAccess || isProMode) setStyle(s.value);
                       else openUpgrade(`Unlock "${s.label}" style with Pro for higher-performing content.`);
                     }}
                   >
