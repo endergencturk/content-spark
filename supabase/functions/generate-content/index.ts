@@ -17,17 +17,74 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { mode, topic, platform, contentType, style, scriptLength, goal, hookIntensity, imageFormat } = await req.json();
+    const { mode, topic, platform, contentType, style, scriptLength, goal, hookIntensity, imageFormat, outputStyle } = await req.json();
 
-    const platformLabel = { tiktok: "TikTok", "youtube-shorts": "YouTube Shorts", "instagram-reels": "Instagram Reels" }[platform] || platform;
-    const intensityLabel = ["Low", "Medium", "High"][hookIntensity] || "Medium";
+    const platformLabel = { tiktok: "TikTok", "youtube-shorts": "YouTube Shorts", "instagram-reels": "Instagram Reels" }[platform as string] || platform;
+    const intensityLabel = ["Low", "Medium", "High"][hookIntensity as number] || "Medium";
+    const detailLevel = outputStyle === "minimal" ? "Keep outputs concise and minimal." : "Provide rich, detailed outputs.";
+
+    const styleGuide: Record<string, string> = {
+      viral: "broad curiosity, universally engaging",
+      dark: "mysterious, unsettling, shadow-filled",
+      educational: "clear, authoritative, insight-driven",
+      storytelling: "emotional, narrative arc, human connection",
+      aggressive: "bold, confrontational, provocative",
+    };
+
+    const goalGuide: Record<string, string> = {
+      viral: "maximize curiosity and shareability",
+      followers: "relatable, identity-driven, community feel",
+      sell: "subtle persuasion, desire-building, urgency",
+      story: "narrative-driven, emotional journey",
+    };
+
+    const lengthGuide: Record<string, string> = {
+      "15": "ultra-fast pacing, 4-6 lines max, instant punch",
+      "30": "balanced pacing, 8-12 lines, build and payoff",
+      "60": "detailed pacing, 15-20 lines, full story arc",
+    };
+
+    const baseRules = `You are a high-level viral content engine.
+
+CRITICAL SCRIPT RULES:
+- Script must be VOICEOVER format
+- Each line = 1 short sentence
+- Max 6-8 words per line
+- Each line on its own line
+- Dramatic pacing
+- No paragraphs, no filler
+- Ready for ElevenLabs / CapCut
+
+HOOK RULES:
+- No generic hooks
+- No "3 tips", "here's how", "did you know"
+- Must create curiosity, tension, or mystery
+- Make it feel human, not AI-generated
+- Hook intensity: ${intensityLabel}
+
+IMAGE PROMPT RULES:
+- Cinematic quality
+- Aspect ratio: ${imageFormat}
+- No text overlay
+- No human faces
+- Strong atmosphere and mood
+
+ADAPTATION:
+- Platform: ${platformLabel}
+- Style: ${style} → ${styleGuide[style as string] || "engaging"}
+- Content type: ${contentType}
+- Goal: ${goal} → ${goalGuide[goal as string] || "engage audience"}
+- Script length: ${scriptLength}s → ${lengthGuide[scriptLength as string] || "balanced"}
+- ${detailLevel}
+
+RETURN ONLY THE RESULT. No explanations. No analysis. No extra text.`;
 
     let systemPrompt: string;
 
     if (mode === "pro") {
-      systemPrompt = `You are a world-class viral content strategist. You create content that stops the scroll and drives massive engagement.
+      systemPrompt = `${baseRules}
 
-RETURN ONLY valid JSON with this exact structure (no markdown, no explanation, no extra text):
+RETURN ONLY valid JSON with this exact structure (no markdown fences, no explanation):
 {
   "topics": [
     {
@@ -46,25 +103,19 @@ RETURN ONLY valid JSON with this exact structure (no markdown, no explanation, n
   "imagePrompts": ["prompt1", "prompt2", "prompt3", "prompt4", "prompt5"]
 }
 
-RULES:
+SPECIFIC PRO RULES:
 - Generate exactly 5 viral topics related to the user's subject
-- Each topic gets 3 hooks: NORMAL, DISRUPTION, QUESTION
+- Each topic gets exactly 3 hooks: NORMAL, DISRUPTION, QUESTION
 - Mark the single best hook per topic with "best": true
-- Hooks must create tension, curiosity, or disruption. NO generic hooks. NO "3 tips". NO "here's how".
-- Hook intensity: ${intensityLabel}
-- Script must be voiceover format: each sentence on new line, max 6-8 words per line, dramatic pacing, ready for ElevenLabs
-- Script length: ${scriptLength} seconds
-- Platform: ${platformLabel} — adapt tone accordingly
-- Content type: ${contentType}
-- Style: ${style}
-- Goal: ${goal}
-- Image prompts: cinematic, ${imageFormat} ratio, no text overlay, no human faces, strong atmosphere
-- YouTube title should be click-worthy and SEO-optimized
-- TikTok caption should include relevant trending hashtags`;
+- Script: full voiceover, line-by-line, max 6-8 words per line
+- 5 image prompts: cinematic, ${imageFormat} ratio, no text, no faces
+- YouTube title: click-worthy, SEO-optimized
+- YouTube description: engaging, with keywords
+- TikTok caption: with trending hashtags`;
     } else {
-      systemPrompt = `You are a viral content creator. Generate engaging content that stops the scroll.
+      systemPrompt = `${baseRules}
 
-RETURN ONLY valid JSON with this exact structure (no markdown, no explanation, no extra text):
+RETURN ONLY valid JSON with this exact structure (no markdown fences, no explanation):
 {
   "hooks": ["hook1", "hook2", "hook3"],
   "script": "line1\\nline2\\nline3",
@@ -72,17 +123,11 @@ RETURN ONLY valid JSON with this exact structure (no markdown, no explanation, n
   "imagePrompts": ["prompt1", "prompt2", "prompt3"]
 }
 
-RULES:
-- 3 hooks that create tension or curiosity. NO generic hooks. NO "3 tips". NO "here's how".
-- Hook intensity: ${intensityLabel}
-- Script: voiceover format, each sentence on new line, max 6-8 words per line, dramatic pacing
-- Script length: ${scriptLength} seconds
-- Platform: ${platformLabel}
-- Content type: ${contentType}
-- Style: ${style}
-- Goal: ${goal}
-- Image prompts: cinematic, ${imageFormat} ratio, no text, no faces, strong atmosphere
-- Caption: engaging with relevant hashtags`;
+SPECIFIC RULES:
+- 3 hooks that create tension or curiosity
+- Script: voiceover format, line-by-line, max 6-8 words per line
+- Caption: engaging with relevant hashtags
+- 3 image prompts: cinematic, ${imageFormat} ratio, no text, no faces`;
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -121,7 +166,6 @@ RULES:
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
-    // Parse JSON from the response, stripping markdown fences if present
     let parsed;
     try {
       let jsonStr = content.trim();
