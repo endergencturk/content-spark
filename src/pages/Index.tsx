@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Copy, Loader2, Sparkles, Lightbulb, FileText, MessageSquare, RefreshCw, Image, Clock, Flame, Star, Zap, Crown, Hash, Youtube, ImageIcon } from "lucide-react";
+import { Copy, Loader2, Sparkles, Lightbulb, FileText, MessageSquare, RefreshCw, Image, Clock, Flame, Star, Zap, Crown, Hash, Youtube, ImageIcon, Mic, Film, CalendarClock, Target, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
