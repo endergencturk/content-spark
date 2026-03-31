@@ -878,19 +878,27 @@ export default function Index() {
                 <Flame className="h-3 w-3" />Hook Intensity
               </p>
               <div className="flex gap-2">
-                {["Low", "Medium", "High"].map((label, lvl) => (
-                  <button
-                    key={lvl}
-                    onClick={() => setHookIntensity(lvl)}
-                    className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                      hookIntensity === lvl
-                        ? "bg-primary/10 text-primary border border-primary/30"
-                        : "bg-muted/60 text-muted-foreground border border-transparent"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+                {["Low", "Medium", "High"].map((label, lvl) => {
+                  const isLocked = !hasProAccess && lvl === 2;
+                  return (
+                    <button
+                      key={lvl}
+                      onClick={() => {
+                        if (isLocked) openUpgrade("Unlock High intensity hooks with Pro.");
+                        else setHookIntensity(lvl);
+                      }}
+                      className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+                        isLocked
+                          ? "bg-muted/30 text-muted-foreground/50 border border-dashed border-border/50 cursor-pointer"
+                          : hookIntensity === lvl
+                            ? "bg-primary/10 text-primary border border-primary/30"
+                            : "bg-muted/60 text-muted-foreground border border-transparent"
+                      }`}
+                    >
+                      {label}{isLocked && " 🔒"}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
