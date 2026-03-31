@@ -978,7 +978,7 @@ export default function Index() {
             {(hasProAccess || isProMode) && (
               <div className="space-y-2">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-                  Describe your video <span className="text-muted-foreground/60">(optional)</span>
+                  {t("selector.customDesc", locale)} <span className="text-muted-foreground/60">{t("selector.customDesc.optional", locale)}</span>
                 </p>
                 <textarea
                   value={customDescription}
