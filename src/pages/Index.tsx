@@ -1037,7 +1037,7 @@ export default function Index() {
           {loading && <LoadingState mode={mode} locale={locale} />}
 
           {!loading && !isProMode && generalResult && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} locale={locale} />
           )}
           {!loading && isProMode && proResult && (
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} />
