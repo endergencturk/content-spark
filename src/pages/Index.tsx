@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Copy, Loader2, Sparkles, Lightbulb, FileText, MessageSquare } from "lucide-react";
+import { Copy, Loader2, Sparkles, Lightbulb, FileText, MessageSquare, RefreshCw } from "lucide-react";
 
 const STYLE_OPTIONS = [
   { value: "viral", label: "Viral (general)" },
@@ -136,7 +136,16 @@ export default function Index() {
         <div className="space-y-4">
           {/* Copy All */}
           {(result.hooks.length > 0 || result.script || result.caption) && (
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="copyBtn"
+                size="sm"
+                disabled={loading}
+                onClick={generateContent}
+              >
+                <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
+                Regenerate
+              </Button>
               <Button
                 variant="copyBtn"
                 size="sm"
