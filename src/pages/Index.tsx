@@ -1026,10 +1026,10 @@ export default function Index() {
           {hasResults && !loading && (
             <div className="flex justify-center gap-3">
               <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <RefreshCw className="h-3 w-3" />Regenerate
+                <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
               </button>
               <button onClick={copyAll} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <Copy className="h-3 w-3" />{copied === "all" ? "Copied!" : "Copy All"}
+                <Copy className="h-3 w-3" />{copied === "all" ? t("btn.copied", locale) : t("btn.copyAll", locale)}
               </button>
             </div>
           )}
