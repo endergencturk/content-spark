@@ -123,7 +123,7 @@ export default function Index() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating...
+                  Generating viral content...
                 </>
               ) : (
                 "Generate"
