@@ -724,7 +724,7 @@ export default function Index() {
                 !isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
-              <Zap className="h-4 w-4" />Free
+              <Zap className="h-4 w-4" />{t("mode.free", locale)}
             </button>
             <button
               onClick={() => setMode("pro")}
