@@ -664,7 +664,7 @@ export default function Index() {
       if (/temporarily busy|try again/i.test(msg)) {
         toast.error(t("toast.error.busy", locale));
       } else {
-        toast.error(msg || "Generation failed. Please try again.");
+        toast.error(msg || t("toast.error.generic", locale));
       }
     } finally {
       setLoading(false);
