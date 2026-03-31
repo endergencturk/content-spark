@@ -53,3 +53,4 @@ export function useProStatus() {
 
   return { isPro: hasProAccess, isAdmin, openGumroad, resetPro };
 }
+
