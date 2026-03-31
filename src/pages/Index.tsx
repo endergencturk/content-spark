@@ -955,8 +955,8 @@ export default function Index() {
               </div>
             </div>
 
-            {/* 10. PRO ONLY: Custom description */}
-            {hasProAccess && (
+            {/* 10. Custom description (visible in Pro mode or real Pro) */}
+            {(hasProAccess || isProMode) && (
               <div className="space-y-2">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                   Describe your video <span className="text-muted-foreground/60">(optional)</span>
@@ -970,7 +970,7 @@ export default function Index() {
                 />
               </div>
             )}
-            {!hasProAccess && (
+            {!hasProAccess && !isProMode && (
               <button
                 onClick={() => openUpgrade("Describe your exact video intent with Pro — get AI-tailored output.")}
                 className="w-full py-2.5 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
