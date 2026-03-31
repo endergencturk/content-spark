@@ -963,7 +963,7 @@ export default function Index() {
                       selected={outputDepth === d.value}
                       locked={isLocked}
                       onClick={() => {
-                        if (isLocked) openUpgrade("Unlock Detailed depth for maximum output quality.");
+                        if (isLocked) openUpgrade(t("trigger.detailed", locale));
                         else setOutputDepth(d.value);
                       }}
                     >
