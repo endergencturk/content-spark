@@ -991,11 +991,11 @@ export default function Index() {
             )}
             {!hasProAccess && !isProMode && (
               <button
-                onClick={() => openUpgrade("Describe your exact video intent with Pro — get AI-tailored output.")}
+                onClick={() => openUpgrade(t("trigger.customDesc", locale))}
                 className="w-full py-2.5 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
               >
                 <Lock className="h-3 w-3" />
-                Describe your video (Pro only)
+                {t("selector.customDesc.locked", locale)}
               </button>
             )}
 
