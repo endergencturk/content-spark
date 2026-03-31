@@ -170,42 +170,44 @@ const ScriptBlock = memo(function ScriptBlock({
 // ── Usage limit banner ──────────────────────────────────────────────
 
 const UsageBanner = memo(function UsageBanner({
-  remaining, isNearLimit, isAtLimit, onUpgrade,
-}: { remaining: number; isNearLimit: boolean; isAtLimit: boolean; onUpgrade: () => void }) {
-  if (!isNearLimit && !isAtLimit) return null;
-
+  remaining, isAtLimit, nextRefillLabel, onUpgrade,
+}: { remaining: number; isAtLimit: boolean; nextRefillLabel: string; onUpgrade: () => void }) {
   return (
     <div className={`rounded-2xl p-4 flex items-start gap-3 ${
       isAtLimit
         ? "bg-destructive/10 border border-destructive/20"
-        : "bg-primary/5 border border-primary/15"
+        : "bg-muted/60 border border-border/50"
     }`}>
       <div className={`shrink-0 h-8 w-8 rounded-xl flex items-center justify-center ${
         isAtLimit ? "bg-destructive/15" : "bg-primary/10"
       }`}>
         {isAtLimit
           ? <Lock className="h-4 w-4 text-destructive" />
-          : <AlertTriangle className="h-4 w-4 text-primary" />
+          : <Zap className="h-4 w-4 text-primary" />
         }
       </div>
       <div className="flex-1 space-y-1.5">
         <p className="text-sm font-semibold text-foreground">
           {isAtLimit
-            ? "Daily limit reached"
-            : `${remaining} generation${remaining === 1 ? "" : "s"} left today`}
+            ? "No credits left"
+            : `${remaining} free generation${remaining === 1 ? "" : "s"} available`}
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed">
           {isAtLimit
             ? "Upgrade to Pro for unlimited generations and premium outputs."
-            : "You're close to your limit. Upgrade for unlimited access + better outputs."}
+            : nextRefillLabel
+              ? `Next free credit in ${nextRefillLabel}`
+              : "Credits refill every 2 hours"}
         </p>
-        <button
-          onClick={onUpgrade}
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors mt-1"
-        >
-          <Crown className="h-3 w-3" />
-          Upgrade to continue
-        </button>
+        {isAtLimit && (
+          <button
+            onClick={onUpgrade}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors mt-1"
+          >
+            <Crown className="h-3 w-3" />
+            Upgrade for unlimited
+          </button>
+        )}
       </div>
     </div>
   );
