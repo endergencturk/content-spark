@@ -642,7 +642,7 @@ export default function Index() {
       } else {
         setGeneralResult(data as GeneralResult);
         setProResult(null);
-        increment();
+        if (!isPro) increment();
       }
     } catch (error: any) {
       console.error("Generation failed:", error);
