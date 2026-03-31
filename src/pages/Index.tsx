@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   Copy, Loader2, Sparkles, FileText, MessageSquare, RefreshCw,
@@ -20,12 +21,43 @@ import { useUsageLimit } from "@/hooks/useUsageLimit";
 
 // ── Constants ───────────────────────────────────────────────────────
 
-const STYLE_OPTIONS = [
+const FREE_STYLES = [
   { value: "viral", label: "Viral" },
-  { value: "dark", label: "Dark" },
   { value: "educational", label: "Educational" },
-  { value: "storytelling", label: "Story" },
-  { value: "aggressive", label: "Aggressive" },
+  { value: "story", label: "Story" },
+];
+
+const PRO_STYLES = [
+  { value: "high-retention", label: "High Retention" },
+  { value: "emotional", label: "Emotional" },
+  { value: "suspense", label: "Suspense / Mystery" },
+  { value: "controversial", label: "Controversial" },
+  { value: "curiosity", label: "Curiosity Driven" },
+];
+
+const FREE_CONTENT_TYPES = [
+  { value: "story", label: "Story" },
+  { value: "educational", label: "Educational" },
+  { value: "entertainment", label: "Entertainment" },
+];
+
+const PRO_CONTENT_TYPES = [
+  { value: "selling", label: "Selling" },
+  { value: "personal-brand", label: "Personal Brand" },
+  { value: "hooks-only", label: "Hooks Only" },
+  { value: "script-only", label: "Script Only" },
+];
+
+const FREE_GOALS = [
+  { value: "viral", label: "Go viral" },
+  { value: "followers", label: "Get followers" },
+];
+
+const PRO_GOALS = [
+  { value: "sell", label: "Sell product" },
+  { value: "brand", label: "Build brand" },
+  { value: "leads", label: "Lead generation" },
+  { value: "storytelling", label: "Advanced storytelling" },
 ];
 
 const PLATFORM_OPTIONS = [
@@ -34,23 +66,8 @@ const PLATFORM_OPTIONS = [
   { value: "instagram-reels", label: "Reels", icon: Instagram },
 ];
 
-const CONTENT_TYPE_OPTIONS = [
-  { value: "story", label: "Story" },
-  { value: "educational", label: "Edu" },
-  { value: "selling", label: "Selling" },
-  { value: "entertainment", label: "Fun" },
-];
+const LENGTH_OPTIONS = ["15", "30", "60", "90"];
 
-const GOAL_OPTIONS = [
-  { value: "viral", label: "Go viral" },
-  { value: "followers", label: "Followers" },
-  { value: "sell", label: "Sell" },
-  { value: "story", label: "Story" },
-];
-
-const LENGTH_OPTIONS_FREE = ["15", "30", "60"];
-const LENGTH_OPTIONS_PRO = ["15", "30", "60", "90"];
-const IMAGE_COUNT_OPTIONS = ["2", "4", "6"];
 const DEPTH_OPTIONS = [
   { value: "concise", label: "Concise" },
   { value: "standard", label: "Standard" },
@@ -114,52 +131,23 @@ const CopyBtn = memo(function CopyBtn({
 });
 
 const Pill = memo(function Pill({
-  selected, onClick, children,
-}: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
+  selected, onClick, children, locked, icon,
+}: { selected: boolean; onClick: () => void; children: React.ReactNode; locked?: boolean; icon?: React.ReactNode }) {
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-        selected
-          ? "bg-primary text-primary-foreground shadow-sm"
-          : "bg-muted text-muted-foreground hover:text-foreground"
+      className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 ${
+        locked
+          ? "bg-muted/30 text-muted-foreground/50 border border-dashed border-border/50 cursor-pointer"
+          : selected
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "bg-muted/60 text-muted-foreground hover:text-foreground"
       }`}
     >
+      {icon}
       {children}
+      {locked && <Lock className="h-3 w-3 ml-0.5" />}
     </button>
-  );
-});
-
-const MiniSelect = memo(function MiniSelect({
-  label, value, options, onChange, locked, onLocked,
-}: { label: string; value: string; options: { value: string; label: string }[]; onChange: (v: string) => void; locked?: boolean; onLocked?: () => void }) {
-  return (
-    <div className="space-y-1">
-      <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground flex items-center gap-1">
-        {label}
-        {locked && <Lock className="h-2.5 w-2.5 text-primary" />}
-      </p>
-      <div className="flex gap-1.5 flex-wrap">
-        {options.map((o) => (
-          <button
-            key={o.value}
-            onClick={() => {
-              if (locked && onLocked) onLocked();
-              else onChange(o.value);
-            }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              !locked && value === o.value
-                ? "bg-primary/10 text-primary border border-primary/30"
-                : locked
-                  ? "bg-muted/40 text-muted-foreground/60 border border-transparent cursor-not-allowed"
-                  : "bg-muted/60 text-muted-foreground hover:text-foreground border border-transparent"
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-    </div>
   );
 });
 
@@ -240,9 +228,8 @@ const GeneralResults = memo(function GeneralResults({
             <CopyBtn text={hook} label={`hook-${i}`} copied={copied} onCopy={onCopy} />
           </div>
         ))}
-        {/* Upsell after hooks */}
         <UpsellBanner
-          message="Get higher-converting hooks with Pro — scroll-stopping variations that increase retention"
+          message="Get 10 higher-converting hooks with Pro — scroll-stopping variations that increase retention"
           onUpgrade={onUpgrade}
         />
       </section>
@@ -258,7 +245,6 @@ const GeneralResults = memo(function GeneralResults({
             <p key={i} className="text-sm text-foreground leading-loose">{line || <br />}</p>
           ))}
         </div>
-        {/* Upsell after script */}
         <UpsellBanner
           message="Make this script voiceover-ready with structured beats and pro editing plan"
           onUpgrade={onUpgrade}
@@ -299,9 +285,9 @@ const GeneralResults = memo(function GeneralResults({
         <BlurredPreview
           title="Hook variations that increase retention"
           previewLines={[
-            "V1: " + (result.hooks[0]?.slice(0, 50) || "What if everything you knew about this was wrong?") + "…",
-            "V2: A completely different angle that hooks in the first 0.5 seconds",
-            "V3: The emotional rewrite that keeps viewers watching till the end",
+            "V1: " + (result.hooks[0]?.slice(0, 50) || "What if everything you knew was wrong?") + "…",
+            "V2: A completely different angle that hooks in 0.5 seconds",
+            "V3: The emotional rewrite that keeps viewers watching",
           ]}
           onUpgrade={onUpgrade}
         />
@@ -309,9 +295,24 @@ const GeneralResults = memo(function GeneralResults({
         <BlurredPreview
           title="Scene-by-scene editing plan"
           previewLines={[
-            "Scene 1 (0-3s): Quick zoom into subject with trending audio drop",
-            "Scene 2 (3-8s): B-roll montage with text overlay animation",
-            "Scene 3 (8-15s): Direct-to-camera with cinematic lighting shift",
+            "Scene 1 (0-3s): Quick zoom with trending audio drop",
+            "Scene 2 (3-8s): B-roll montage with text overlay",
+            "Scene 3 (8-15s): Direct-to-camera with cinematic shift",
+          ]}
+          onUpgrade={onUpgrade}
+        />
+
+        <BlurredPreview
+          title="Voice style recommendation"
+          previewLines={["Dark & slow — dramatic pauses, low energy open"]}
+          onUpgrade={onUpgrade}
+        />
+
+        <BlurredPreview
+          title="Posting strategy & timing"
+          previewLines={[
+            "Best time: Tuesday 7-9 PM EST",
+            "Platform tip: Use trending sounds within first 2 hours",
           ]}
           onUpgrade={onUpgrade}
         />
@@ -319,9 +320,7 @@ const GeneralResults = memo(function GeneralResults({
 
       {/* Bottom CTA */}
       <div className="text-center py-4 space-y-2">
-        <p className="text-xs text-muted-foreground">
-          Creators using Pro get 3× more engagement
-        </p>
+        <p className="text-xs text-muted-foreground">Creators using Pro get 3× more engagement</p>
         <button
           onClick={onUpgrade}
           className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all"
@@ -344,8 +343,6 @@ const ProResults = memo(function ProResults({
 
   return (
     <div className="space-y-6">
-      {/* ─── FIRST SCREEN: Core visible output ─── */}
-
       {/* Best Hook — hero card */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5">
         <div className="flex items-start gap-3">
@@ -377,7 +374,7 @@ const ProResults = memo(function ProResults({
         </div>
       </section>
 
-      {/* Platform captions — only selected */}
+      {/* Platform captions */}
       {platforms.includes("tiktok") && result.tiktokCaption && (
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
@@ -425,7 +422,7 @@ const ProResults = memo(function ProResults({
         </section>
       )}
 
-      {/* ─── VIEW FULL CONTENT PACK BUTTON ─── */}
+      {/* VIEW FULL CONTENT PACK */}
       {!showPack && (
         <button
           onClick={() => setShowPack(true)}
@@ -437,27 +434,18 @@ const ProResults = memo(function ProResults({
         </button>
       )}
 
-      {/* ─── FULL CONTENT PACK (collapsible) ─── */}
       {showPack && (
         <div className="space-y-4 pt-2">
           <div className="flex items-center justify-between px-1">
             <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Full Content Pack</p>
-            <button
-              onClick={() => setShowPack(false)}
-              className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Hide
-            </button>
+            <button onClick={() => setShowPack(false)} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">Hide</button>
           </div>
 
           <Accordion type="multiple" defaultValue={["hooks"]} className="space-y-2.5">
-            {/* Hook Variations */}
             {result.hookVariations?.length > 0 && (
               <AccordionItem value="hooks" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2">
-                    <Target className="h-4 w-4 text-primary" />Hooks that increase retention
-                  </span>
+                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />Hook Variations ({result.hookVariations.length})</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2">
@@ -474,21 +462,17 @@ const ProResults = memo(function ProResults({
               </AccordionItem>
             )}
 
-            {/* Editing Plan */}
             {result.editingPlan?.length > 0 && (
               <AccordionItem value="editing" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2">
-                    <Film className="h-4 w-4 text-primary" />Scene-by-scene editing plan
-                  </span>
+                  <span className="flex items-center gap-2"><Film className="h-4 w-4 text-primary" />Editing Plan</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2.5">
                     {result.editingPlan.map((scene, i) => (
                       <div key={i} className="bg-muted/40 rounded-xl p-3 space-y-1">
                         <p className="text-xs font-bold text-primary">
-                          Scene {scene.scene}
-                          <span className="text-muted-foreground font-normal ml-2">{scene.duration}</span>
+                          Scene {scene.scene}<span className="text-muted-foreground font-normal ml-2">{scene.duration}</span>
                         </p>
                         <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{scene.visual}</p>
                         <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Audio:</span>{scene.audio}</p>
@@ -499,12 +483,9 @@ const ProResults = memo(function ProResults({
               </AccordionItem>
             )}
 
-            {/* Image Prompts */}
             <AccordionItem value="images" className="border border-border/50 rounded-2xl overflow-hidden">
               <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                <span className="flex items-center gap-2">
-                  <Image className="h-4 w-4 text-primary" />Cinematic image prompts ({result.imagePrompts.length})
-                </span>
+                <span className="flex items-center gap-2"><Image className="h-4 w-4 text-primary" />Image Prompts ({result.imagePrompts.length})</span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
                 <div className="space-y-2">
@@ -520,13 +501,10 @@ const ProResults = memo(function ProResults({
               </AccordionContent>
             </AccordionItem>
 
-            {/* Voice Style */}
             {result.voiceStyle && (
               <AccordionItem value="voice" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2">
-                    <Mic className="h-4 w-4 text-primary" />Voice style recommendation
-                  </span>
+                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />Voice Style</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="bg-muted/40 rounded-xl p-3">
@@ -536,13 +514,10 @@ const ProResults = memo(function ProResults({
               </AccordionItem>
             )}
 
-            {/* Posting Strategy */}
             {result.postingStrategy && (
               <AccordionItem value="posting" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2">
-                    <CalendarClock className="h-4 w-4 text-primary" />Growth strategy & timing
-                  </span>
+                  <span className="flex items-center gap-2"><CalendarClock className="h-4 w-4 text-primary" />Posting Strategy</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2">
@@ -602,14 +577,17 @@ export default function Index() {
   const [scriptLength, setScriptLength] = useState(settings.defaultScriptLength);
   const [goal, setGoal] = useState("viral");
   const [hookIntensity, setHookIntensity] = useState(1);
-  const [imagePromptCount, setImagePromptCount] = useState("4");
+  const [imagePromptCount, setImagePromptCount] = useState(3);
   const [outputDepth, setOutputDepth] = useState("standard");
+  const [customDescription, setCustomDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState("");
   const [generalResult, setGeneralResult] = useState<GeneralResult | null>(null);
   const [proResult, setProResult] = useState<ProResult | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [upgradeTrigger, setUpgradeTrigger] = useState("");
+
+  const isPro = mode === "pro";
 
   const openUpgrade = useCallback((trigger?: string) => {
     setUpgradeTrigger(trigger || "");
@@ -627,37 +605,42 @@ export default function Index() {
   const copyToClipboard = useCallback(async (key: string, text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(key);
-    toast.success(t("btn.copied", locale));
+    toast.success("Copied — ready to post 🚀");
     setTimeout(() => setCopied(""), 1200);
-  }, [locale]);
+  }, []);
 
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
 
-    // Check free limit
-    if (mode === "general" && isAtLimit) {
+    if (!isPro && isAtLimit) {
       openUpgrade("You've reached your daily free limit. Upgrade to Pro for unlimited generations and premium outputs.");
       return;
     }
 
     setLoading(true);
     try {
-      const body =
-        mode === "pro"
-          ? { mode, topic, platforms, contentType, style, scriptLength, goal, hookIntensity, imageFormat: "9:16", imagePromptCount: parseInt(imagePromptCount), outputDepth }
-          : { mode, topic, platform, contentType, style, scriptLength, goal, hookIntensity, imageFormat: "9:16", outputStyle: settings.outputStyle };
+      const body = isPro
+        ? {
+            mode: "pro", topic, platforms, contentType, style, scriptLength, goal, hookIntensity,
+            imageFormat: "9:16", imagePromptCount, outputDepth,
+            customDescription: customDescription.trim() || undefined,
+          }
+        : {
+            mode: "general", topic, platform, contentType, style, scriptLength, goal, hookIntensity,
+            imageFormat: "9:16", outputStyle: settings.outputStyle,
+          };
 
       const { data, error } = await supabase.functions.invoke("generate-content", { body });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      if (mode === "pro") {
+      if (isPro) {
         setProResult(data as ProResult);
         setGeneralResult(null);
       } else {
         setGeneralResult(data as GeneralResult);
         setProResult(null);
-        increment(); // Count free usage
+        increment();
       }
     } catch (error: any) {
       console.error("Generation failed:", error);
@@ -670,20 +653,20 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [mode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, settings.outputStyle, isAtLimit, increment, openUpgrade]);
+  }, [isPro, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, openUpgrade]);
 
-  const hasResults = mode === "general" ? generalResult !== null : proResult !== null;
+  const hasResults = isPro ? proResult !== null : generalResult !== null;
 
   const copyAll = useCallback(() => {
     let all = "";
-    if (mode === "general" && generalResult) {
+    if (!isPro && generalResult) {
       all = [
         generalResult.hooks.map((h, i) => `Hook ${i + 1}: ${h}`).join("\n"),
         `Script:\n${generalResult.script}`,
         `Caption:\n${generalResult.caption}`,
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
       ].filter(Boolean).join("\n\n");
-    } else if (mode === "pro" && proResult) {
+    } else if (isPro && proResult) {
       const s = proResult.script;
       all = [
         `🏆 BEST HOOK:\n${proResult.bestHook}`,
@@ -698,14 +681,7 @@ export default function Index() {
       ].filter(Boolean).join("\n\n");
     }
     copyToClipboard("all", all);
-  }, [mode, generalResult, proResult, copyToClipboard]);
-
-  const hookLabel = useMemo(
-    () => [t("hook.low", locale), t("hook.medium", locale), t("hook.high", locale)][hookIntensity],
-    [hookIntensity, locale]
-  );
-
-  const lengthOpts = mode === "pro" ? LENGTH_OPTIONS_PRO : LENGTH_OPTIONS_FREE;
+  }, [isPro, generalResult, proResult, copyToClipboard]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -714,22 +690,22 @@ export default function Index() {
       <div className="py-8 px-4">
         <div className="mx-auto max-w-lg space-y-7">
 
-          {/* ─── HEADER ─── */}
+          {/* HEADER */}
           <div className="text-center space-y-2 pt-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              What do you want to create?
+              AI Content Engine
             </h1>
             <p className="text-muted-foreground text-sm">
-              Pick a platform, drop your topic, and let AI do the rest.
+              Generate viral hooks, scripts & captions in seconds.
             </p>
           </div>
 
-          {/* ─── MODE TOGGLE ─── */}
+          {/* MODE TOGGLE */}
           <div className="flex gap-2 p-1 rounded-2xl bg-muted/60">
             <button
               onClick={() => setMode("general")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                mode === "general" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                !isPro ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
               <Zap className="h-4 w-4" />Free
@@ -737,24 +713,19 @@ export default function Index() {
             <button
               onClick={() => setMode("pro")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                mode === "pro" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                isPro ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
               <Crown className="h-4 w-4" />Pro
             </button>
           </div>
 
-          {/* ─── USAGE BANNER (Free mode) ─── */}
-          {mode === "general" && (
-            <UsageBanner
-              remaining={remaining}
-              isNearLimit={isNearLimit}
-              isAtLimit={isAtLimit}
-              onUpgrade={() => openUpgrade()}
-            />
+          {/* USAGE BANNER (Free) */}
+          {!isPro && (
+            <UsageBanner remaining={remaining} isNearLimit={isNearLimit} isAtLimit={isAtLimit} onUpgrade={() => openUpgrade()} />
           )}
 
-          {/* ─── INPUT AREA ─── */}
+          {/* INPUT AREA */}
           <div className="space-y-5">
 
             {/* 1. Platform */}
@@ -762,14 +733,11 @@ export default function Index() {
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Platform</p>
               <div className="flex gap-2">
                 {PLATFORM_OPTIONS.map((o) => {
-                  const sel = mode === "pro" ? platforms.includes(o.value) : platform === o.value;
+                  const sel = isPro ? platforms.includes(o.value) : platform === o.value;
                   return (
                     <button
                       key={o.value}
-                      onClick={() => {
-                        if (mode === "pro") togglePlatform(o.value);
-                        else setPlatform(o.value);
-                      }}
+                      onClick={() => isPro ? togglePlatform(o.value) : setPlatform(o.value)}
                       className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-medium transition-all ${
                         sel
                           ? "bg-primary text-primary-foreground shadow-sm"
@@ -782,9 +750,7 @@ export default function Index() {
                   );
                 })}
               </div>
-              {mode === "pro" && (
-                <p className="text-[10px] text-muted-foreground text-center">Select multiple platforms</p>
-              )}
+              {isPro && <p className="text-[10px] text-muted-foreground text-center">Select multiple platforms</p>}
             </div>
 
             {/* 2. Topic */}
@@ -799,21 +765,104 @@ export default function Index() {
               />
             </div>
 
-            {/* 3. Controls */}
-            <div className="grid grid-cols-2 gap-4">
-              <MiniSelect label="Length" value={scriptLength} options={lengthOpts.map(v => ({ value: v, label: `${v}s` }))} onChange={setScriptLength} />
-              <MiniSelect label="Style" value={style} options={STYLE_OPTIONS} onChange={setStyle} />
-              <MiniSelect label="Type" value={contentType} options={CONTENT_TYPE_OPTIONS} onChange={setContentType} />
-              <MiniSelect label="Goal" value={goal} options={GOAL_OPTIONS} onChange={setGoal} />
+            {/* 3. Length */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Length</p>
+              <div className="flex gap-2">
+                {LENGTH_OPTIONS.map((len) => (
+                  <Pill
+                    key={len}
+                    selected={scriptLength === len}
+                    onClick={() => setScriptLength(len)}
+                  >
+                    {len}s
+                  </Pill>
+                ))}
+              </div>
             </div>
 
-            {/* Hook intensity */}
+            {/* 4. Style */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Style</p>
+              <div className="flex gap-2 flex-wrap">
+                {FREE_STYLES.map((s) => (
+                  <Pill key={s.value} selected={style === s.value} onClick={() => setStyle(s.value)}>
+                    {s.label}
+                  </Pill>
+                ))}
+                {PRO_STYLES.map((s) => (
+                  <Pill
+                    key={s.value}
+                    selected={isPro && style === s.value}
+                    locked={!isPro}
+                    onClick={() => {
+                      if (isPro) setStyle(s.value);
+                      else openUpgrade(`Unlock "${s.label}" style — ${s.label === "High Retention" ? "fast pacing, pattern interrupts, open loops" : "advanced content style for higher performance"}`);
+                    }}
+                  >
+                    {s.label}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+
+            {/* 5. Content Type */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Content Type</p>
+              <div className="flex gap-2 flex-wrap">
+                {FREE_CONTENT_TYPES.map((ct) => (
+                  <Pill key={ct.value} selected={contentType === ct.value} onClick={() => setContentType(ct.value)}>
+                    {ct.label}
+                  </Pill>
+                ))}
+                {PRO_CONTENT_TYPES.map((ct) => (
+                  <Pill
+                    key={ct.value}
+                    selected={isPro && contentType === ct.value}
+                    locked={!isPro}
+                    onClick={() => {
+                      if (isPro) setContentType(ct.value);
+                      else openUpgrade(`Unlock "${ct.label}" content type for specialized output.`);
+                    }}
+                  >
+                    {ct.label}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+
+            {/* 6. Goal */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Goal</p>
+              <div className="flex gap-2 flex-wrap">
+                {FREE_GOALS.map((g) => (
+                  <Pill key={g.value} selected={goal === g.value} onClick={() => setGoal(g.value)}>
+                    {g.label}
+                  </Pill>
+                ))}
+                {PRO_GOALS.map((g) => (
+                  <Pill
+                    key={g.value}
+                    selected={isPro && goal === g.value}
+                    locked={!isPro}
+                    onClick={() => {
+                      if (isPro) setGoal(g.value);
+                      else openUpgrade(`Unlock "${g.label}" goal for targeted content.`);
+                    }}
+                  >
+                    {g.label}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+
+            {/* 7. Hook Intensity */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
                 <Flame className="h-3 w-3" />Hook Intensity
               </p>
               <div className="flex gap-2">
-                {[0, 1, 2].map((lvl) => (
+                {["Low", "Medium", "High"].map((label, lvl) => (
                   <button
                     key={lvl}
                     onClick={() => setHookIntensity(lvl)}
@@ -823,111 +872,144 @@ export default function Index() {
                         : "bg-muted/60 text-muted-foreground border border-transparent"
                     }`}
                   >
-                    {[t("hook.low", locale), t("hook.medium", locale), t("hook.high", locale)][lvl]}
+                    {label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Pro-only controls */}
-            {mode === "pro" && (
-              <div className="grid grid-cols-2 gap-4 pt-1 border-t border-border/40">
-                <MiniSelect label="Image Prompts" value={imagePromptCount} options={IMAGE_COUNT_OPTIONS.map(v => ({ value: v, label: v }))} onChange={setImagePromptCount} />
-                <MiniSelect label="Depth" value={outputDepth} options={DEPTH_OPTIONS} onChange={setOutputDepth} />
+            {/* 8. Image Prompts */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
+                <Image className="h-3 w-3" />Image Prompts
+                {!isPro && <span className="text-muted-foreground/60 ml-1">(fixed: 3)</span>}
+              </p>
+              {isPro ? (
+                <div className="space-y-1.5">
+                  <Slider
+                    value={[imagePromptCount]}
+                    onValueChange={(v) => setImagePromptCount(v[0])}
+                    min={1}
+                    max={10}
+                    step={1}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-muted-foreground text-center">{imagePromptCount} prompt{imagePromptCount !== 1 ? "s" : ""}</p>
+                </div>
+              ) : (
+                <button
+                  onClick={() => openUpgrade("Unlock custom image prompt count (1–10) with Pro.")}
+                  className="w-full py-2 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
+                >
+                  <Lock className="h-3 w-3" />
+                  Slider unlocked with Pro (1–10)
+                </button>
+              )}
+            </div>
+
+            {/* 9. Depth */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Depth</p>
+              <div className="flex gap-2">
+                {DEPTH_OPTIONS.map((d) => {
+                  const isLocked = d.value === "detailed" && !isPro;
+                  return (
+                    <Pill
+                      key={d.value}
+                      selected={outputDepth === d.value}
+                      locked={isLocked}
+                      onClick={() => {
+                        if (isLocked) openUpgrade("Unlock Detailed depth for maximum output quality.");
+                        else setOutputDepth(d.value);
+                      }}
+                    >
+                      {d.label}
+                    </Pill>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 10. PRO ONLY: Custom description */}
+            {isPro && (
+              <div className="space-y-2">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                  Describe your video <span className="text-muted-foreground/60">(optional)</span>
+                </p>
+                <textarea
+                  value={customDescription}
+                  onChange={(e) => setCustomDescription(e.target.value)}
+                  placeholder="e.g. I want to sell my course, target 18-25 year olds, use dark humor..."
+                  rows={3}
+                  className="w-full rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                />
               </div>
             )}
-
-            {/* Locked Pro controls in Free mode */}
-            {mode === "general" && (
-              <div className="grid grid-cols-2 gap-4 pt-1 border-t border-border/40 opacity-60">
-                <MiniSelect
-                  label="Image Prompts"
-                  value=""
-                  options={IMAGE_COUNT_OPTIONS.map(v => ({ value: v, label: v }))}
-                  onChange={() => {}}
-                  locked
-                  onLocked={() => openUpgrade("Customize image prompt count with Pro — generate up to 6 cinematic prompts per topic.")}
-                />
-                <MiniSelect
-                  label="Depth"
-                  value=""
-                  options={DEPTH_OPTIONS}
-                  onChange={() => {}}
-                  locked
-                  onLocked={() => openUpgrade("Control output depth with Pro — get concise or detailed content based on your needs.")}
-                />
-              </div>
+            {!isPro && (
+              <button
+                onClick={() => openUpgrade("Describe your exact video intent with Pro — get AI-tailored output.")}
+                className="w-full py-2.5 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
+              >
+                <Lock className="h-3 w-3" />
+                Describe your video (Pro only)
+              </button>
             )}
 
             {/* Generate */}
             <Button
-              variant="generate"
-              className="w-full h-13 text-base rounded-2xl"
-              disabled={!topic.trim() || loading || (mode === "general" && isAtLimit)}
+              className="w-full h-13 text-base rounded-2xl font-bold"
+              disabled={!topic.trim() || loading || (!isPro && isAtLimit)}
               onClick={generateContent}
             >
               {loading ? (
                 <><Loader2 className="h-5 w-5 animate-spin" />Generating…</>
-              ) : mode === "general" && isAtLimit ? (
+              ) : !isPro && isAtLimit ? (
                 <><Lock className="h-5 w-5" />Upgrade to continue</>
               ) : (
-                <><Sparkles className="h-5 w-5" />{mode === "pro" ? "Generate Full Pipeline" : "Generate Content"}</>
+                <><Sparkles className="h-5 w-5" />{isPro ? "Generate Full Pipeline" : "Generate Content"}</>
               )}
             </Button>
 
-            {/* Free remaining indicator */}
-            {mode === "general" && !isAtLimit && !isNearLimit && remaining < 4 && (
+            {!isPro && !isAtLimit && !isNearLimit && remaining < 4 && (
               <p className="text-center text-[11px] text-muted-foreground">
                 {remaining} free generation{remaining === 1 ? "" : "s"} remaining today
               </p>
             )}
           </div>
 
-          {/* ─── ACTION BAR ─── */}
+          {/* ACTION BAR */}
           {hasResults && !loading && (
             <div className="flex justify-center gap-3">
-              <button
-                onClick={generateContent}
-                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                 <RefreshCw className="h-3 w-3" />Regenerate
               </button>
-              <button
-                onClick={copyAll}
-                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <button onClick={copyAll} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                 <Copy className="h-3 w-3" />{copied === "all" ? "Copied!" : "Copy All"}
               </button>
             </div>
           )}
 
-          {/* ─── LOADING ─── */}
           {loading && <LoadingState mode={mode} />}
 
-          {/* ─── RESULTS ─── */}
-          {!loading && mode === "general" && generalResult && (
+          {!loading && !isPro && generalResult && (
             <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} />
           )}
-          {!loading && mode === "pro" && proResult && (
+          {!loading && isPro && proResult && (
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} />
           )}
 
-          {/* Empty */}
           {!hasResults && !loading && (
             <div className="text-center py-16 space-y-2">
               <div className="mx-auto h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-muted-foreground" />
               </div>
-              <p className="text-sm text-muted-foreground">
-                {t("empty.text", locale)}
-              </p>
+              <p className="text-sm text-muted-foreground">{t("empty.text", locale)}</p>
             </div>
           )}
 
         </div>
       </div>
 
-      {/* ─── UPGRADE DIALOG ─── */}
       <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} trigger={upgradeTrigger} />
     </div>
   );
