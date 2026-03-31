@@ -614,7 +614,7 @@ export default function Index() {
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
 
-    if (!isProMode && isAtLimit) {
+    if (!isPro && isAtLimit) {
       openUpgrade("You've reached your daily free limit. Upgrade to Pro for unlimited generations and premium outputs.");
       return;
     }
