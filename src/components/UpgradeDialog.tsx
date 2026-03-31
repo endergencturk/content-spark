@@ -11,14 +11,12 @@ import { Crown, Zap, Target, Film, Mic, CalendarClock, Image, Sparkles, SlidersH
 import { PAYMENTS_ENABLED } from "@/hooks/useProStatus";
 
 const FEATURES = [
-  { icon: Target, label: "10 higher-converting hook variations" },
-  { icon: Mic, label: "Voiceover-ready structured scripts" },
-  { icon: Film, label: "Scene-by-scene editing plan" },
-  { icon: Sparkles, label: "Advanced styles (Suspense, Emotional, etc.)" },
-  { icon: SlidersHorizontal, label: "Custom video description input" },
+  { icon: Sparkles, label: "Advanced viral styles (emotional, suspense, controversy)" },
+  { icon: Target, label: "High-converting hooks (10 variations)" },
+  { icon: Film, label: "Scene-by-scene editing plans" },
+  { icon: Mic, label: "Advanced storytelling & selling scripts" },
   { icon: Image, label: "Up to 10 cinematic image prompts" },
-  { icon: CalendarClock, label: "Posting strategy & timing" },
-  { icon: Zap, label: "Unlimited daily generations" },
+  { icon: Zap, label: "Unlimited generations" },
 ];
 
 interface UpgradeDialogProps {
