@@ -616,6 +616,11 @@ export default function Index() {
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
 
+    if (isProMode && !isPro) {
+      openUpgrade("Unlock Pro to generate advanced hooks, voiceover-ready scripts, editing plans, and platform-specific content.");
+      return;
+    }
+
     if (!isPro && isAtLimit) {
       openUpgrade("You've reached your daily free limit. Upgrade to Pro for unlimited generations and premium outputs.");
       return;
