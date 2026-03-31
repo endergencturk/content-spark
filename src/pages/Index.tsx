@@ -778,15 +778,22 @@ export default function Index() {
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Length</p>
               <div className="flex gap-2">
-                {LENGTH_OPTIONS.map((len) => (
-                  <Pill
-                    key={len}
-                    selected={scriptLength === len}
-                    onClick={() => setScriptLength(len)}
-                  >
-                    {len}s
-                  </Pill>
-                ))}
+                {LENGTH_OPTIONS.map((len) => {
+                  const isLocked = !hasProAccess && (len === "60" || len === "90");
+                  return (
+                    <Pill
+                      key={len}
+                      selected={scriptLength === len}
+                      locked={isLocked}
+                      onClick={() => {
+                        if (isLocked) openUpgrade(`Unlock ${len}s scripts with Pro.`);
+                        else setScriptLength(len);
+                      }}
+                    >
+                      {len}s
+                    </Pill>
+                  );
+                })}
               </div>
             </div>
 
