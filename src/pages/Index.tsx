@@ -624,7 +624,7 @@ export default function Index() {
     if (!topic.trim()) return;
 
     if (isProMode && !hasProAccess) {
-      openUpgrade("Unlock Pro to generate advanced hooks, voiceover-ready scripts, editing plans, and platform-specific content.");
+      openUpgrade(t("trigger.proGenerate", locale));
       return;
     }
 
