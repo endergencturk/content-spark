@@ -846,12 +846,9 @@ export default function Index() {
                 {PRO_GOALS.map((g) => (
                   <Pill
                     key={g.value}
-                    selected={isPro && goal === g.value}
+                    selected={goal === g.value}
                     locked={!isPro}
-                    onClick={() => {
-                      if (isPro) setGoal(g.value);
-                      else openUpgrade(`Unlock "${g.label}" goal for targeted content.`);
-                    }}
+                    onClick={() => setGoal(g.value)}
                   >
                     {g.label}
                   </Pill>
