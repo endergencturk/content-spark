@@ -759,7 +759,7 @@ export default function Index() {
 
             {/* 1. Platform */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Platform</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.platform", locale)}</p>
               <div className="flex gap-2">
                 {PLATFORM_OPTIONS.map((o) => {
                   const sel = isProMode ? platforms.includes(o.value) : platform === o.value;
