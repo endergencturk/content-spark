@@ -616,6 +616,11 @@ export default function Index() {
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
 
+    if (isProMode && !isPro) {
+      openUpgrade("Unlock Pro to generate advanced hooks, voiceover-ready scripts, editing plans, and platform-specific content.");
+      return;
+    }
+
     if (!isPro && isAtLimit) {
       openUpgrade("You've reached your daily free limit. Upgrade to Pro for unlimited generations and premium outputs.");
       return;
@@ -715,15 +720,12 @@ export default function Index() {
               <Zap className="h-4 w-4" />Free
             </button>
             <button
-              onClick={() => {
-                if (isPro) setMode("pro");
-                else openUpgrade("Unlock Pro mode for advanced styles, better hooks, editing plans, and unlimited generations.");
-              }}
+              onClick={() => setMode("pro")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
-              <Crown className="h-4 w-4" />{isPro ? "Pro" : "Pro 🔒"}
+              <Crown className="h-4 w-4" />{isPro ? "Pro" : "Pro ✨"}
             </button>
           </div>
 
@@ -800,12 +802,9 @@ export default function Index() {
                 {PRO_STYLES.map((s) => (
                   <Pill
                     key={s.value}
-                    selected={isPro && style === s.value}
+                    selected={style === s.value}
                     locked={!isPro}
-                    onClick={() => {
-                      if (isPro) setStyle(s.value);
-                      else openUpgrade(`Unlock "${s.label}" style — ${s.label === "High Retention" ? "fast pacing, pattern interrupts, open loops" : "advanced content style for higher performance"}`);
-                    }}
+                    onClick={() => setStyle(s.value)}
                   >
                     {s.label}
                   </Pill>
@@ -825,12 +824,9 @@ export default function Index() {
                 {PRO_CONTENT_TYPES.map((ct) => (
                   <Pill
                     key={ct.value}
-                    selected={isPro && contentType === ct.value}
+                    selected={contentType === ct.value}
                     locked={!isPro}
-                    onClick={() => {
-                      if (isPro) setContentType(ct.value);
-                      else openUpgrade(`Unlock "${ct.label}" content type for specialized output.`);
-                    }}
+                    onClick={() => setContentType(ct.value)}
                   >
                     {ct.label}
                   </Pill>
@@ -850,12 +846,9 @@ export default function Index() {
                 {PRO_GOALS.map((g) => (
                   <Pill
                     key={g.value}
-                    selected={isPro && goal === g.value}
+                    selected={goal === g.value}
                     locked={!isPro}
-                    onClick={() => {
-                      if (isPro) setGoal(g.value);
-                      else openUpgrade(`Unlock "${g.label}" goal for targeted content.`);
-                    }}
+                    onClick={() => setGoal(g.value)}
                   >
                     {g.label}
                   </Pill>
