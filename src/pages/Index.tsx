@@ -819,7 +819,7 @@ export default function Index() {
 
             {/* 4. Style */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Style</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.style", locale)}</p>
               <div className="flex gap-2 flex-wrap">
                 {FREE_STYLES.map((s) => (
                   <Pill key={s.value} selected={style === s.value} onClick={() => setStyle(s.value)}>
