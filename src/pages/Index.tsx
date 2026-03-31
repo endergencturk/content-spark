@@ -118,15 +118,15 @@ interface ProResult {
 // ── Micro components ────────────────────────────────────────────────
 
 const CopyBtn = memo(function CopyBtn({
-  text, label, copied, onCopy,
-}: { text: string; label: string; copied: string; onCopy: (k: string, t: string) => void }) {
+  text, label, copied, onCopy, locale = "en",
+}: { text: string; label: string; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
   return (
     <button
       className="shrink-0 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
       onClick={() => onCopy(label, text)}
     >
       <Copy className="h-3 w-3 inline mr-1" />
-      {copied === label ? "Copied" : "Copy"}
+      {copied === label ? t("btn.copied", locale) : t("btn.copy", locale)}
     </button>
   );
 });
