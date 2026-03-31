@@ -15,6 +15,8 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        generate: "bg-primary text-primary-foreground hover:bg-primary/85 shadow-[var(--shadow-warm)] rounded-2xl font-semibold",
+        copyBtn: "bg-accent text-accent-foreground hover:bg-accent/70 rounded-xl text-xs font-medium",
       },
       size: {
         default: "h-10 px-4 py-2",
