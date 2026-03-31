@@ -65,36 +65,66 @@ serve(async (req) => {
 
     const schema = mode === "pro" ? buildProSchema(selectedPlatforms, imgCount) : buildFreeSchema();
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000);
+    const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+    const geminiBody = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: mode === "pro" ? 0.8 : 0.7,
+        responseMimeType: "application/json",
+        responseSchema: schema,
+      },
+    };
 
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-goog-api-key": GEMINI_API_KEY,
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: mode === "pro" ? 0.8 : 0.7,
-            responseMimeType: "application/json",
-            responseSchema: schema,
+    let response: Response | null = null;
+    let lastError: any = null;
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 25000);
+        response = await fetch(geminiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-goog-api-key": GEMINI_API_KEY,
           },
-        }),
-        signal: controller.signal,
+          body: JSON.stringify(geminiBody),
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
+        if (response.ok) break;
+
+        const errBody = await response.text();
+        if (/high demand|overloaded|unavailable|503|429/i.test(errBody)) {
+          console.warn(`Gemini attempt ${attempt + 1} failed (transient): ${response.status}`);
+          lastError = errBody;
+          response = null;
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
+
+        // Non-transient error, don't retry
+        console.error("Gemini API error:", errBody);
+        throw new Error(errBody || "Gemini request failed");
+      } catch (e) {
+        if (e instanceof Error && e.name === "AbortError") {
+          lastError = e;
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
+        throw e;
       }
-    );
-
-    clearTimeout(timeout);
-    const result = await response.json();
-
-    if (!response.ok) {
-      console.error("Gemini API error:", result);
-      throw new Error(result?.error?.message || "Gemini request failed");
     }
+
+    if (!response || !response.ok) {
+      return new Response(
+        JSON.stringify({ error: "Model temporarily busy. Please try again in a moment." }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const result = await response.json();
 
     const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error("Gemini returned empty response");
