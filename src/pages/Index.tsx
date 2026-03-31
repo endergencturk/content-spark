@@ -1034,7 +1034,7 @@ export default function Index() {
             </div>
           )}
 
-          {loading && <LoadingState mode={mode} />}
+          {loading && <LoadingState mode={mode} locale={locale} />}
 
           {!loading && !isProMode && generalResult && (
             <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} />
