@@ -743,8 +743,8 @@ export default function Index() {
                 <Crown className="h-4 w-4 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">Previewing Pro mode</p>
-                <p className="text-xs text-muted-foreground">Explore all Pro features — upgrade to generate content.</p>
+                <p className="text-sm font-semibold text-foreground">{t("proPreview.title", locale)}</p>
+                <p className="text-xs text-muted-foreground">{t("proPreview.subtitle", locale)}</p>
               </div>
             </div>
           )}
