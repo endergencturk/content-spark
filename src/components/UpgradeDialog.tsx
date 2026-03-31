@@ -38,10 +38,10 @@ export const UpgradeDialog = memo(function UpgradeDialog({
             <Crown className="h-7 w-7 text-primary" />
           </div>
           <DialogTitle className="text-xl font-bold">
-            {PAYMENTS_ENABLED ? "Upgrade to Pro" : "Pro Features"}
+            {PAYMENTS_ENABLED ? "Unlock Pro" : "Pro Features"}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-            {trigger || "Get access to the full content pipeline — better hooks, editing plans, and more."}
+            {trigger || "Upgrade to create content that actually performs."}
           </DialogDescription>
         </DialogHeader>
 
