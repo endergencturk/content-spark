@@ -170,8 +170,8 @@ const ScriptBlock = memo(function ScriptBlock({
 // ── Usage limit banner ──────────────────────────────────────────────
 
 const UsageBanner = memo(function UsageBanner({
-  remaining, isAtLimit, nextRefillLabel, onUpgrade,
-}: { remaining: number; isAtLimit: boolean; nextRefillLabel: string; onUpgrade: () => void }) {
+  remaining, isAtLimit, nextRefillLabel, onUpgrade, locale = "en",
+}: { remaining: number; isAtLimit: boolean; nextRefillLabel: string; onUpgrade: () => void; locale?: Locale }) {
   return (
     <div className={`rounded-2xl p-4 flex items-start gap-3 ${
       isAtLimit
@@ -189,15 +189,15 @@ const UsageBanner = memo(function UsageBanner({
       <div className="flex-1 space-y-1.5">
         <p className="text-sm font-semibold text-foreground">
           {isAtLimit
-            ? "No credits left"
-            : `${remaining} free generation${remaining === 1 ? "" : "s"} available`}
+            ? t("usage.noCredits", locale)
+            : t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed">
           {isAtLimit
-            ? "Upgrade to Pro for unlimited generations and premium outputs."
+            ? t("usage.upgradeMsg", locale)
             : nextRefillLabel
-              ? `Next free credit in ${nextRefillLabel}`
-              : "Credits refill every 2 hours"}
+              ? t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)
+              : t("usage.refillInfo", locale)}
         </p>
         {isAtLimit && (
           <button
@@ -205,7 +205,7 @@ const UsageBanner = memo(function UsageBanner({
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors mt-1"
           >
             <Crown className="h-3 w-3" />
-            Upgrade for unlimited
+            {t("usage.upgradeBtn", locale)}
           </button>
         )}
       </div>
