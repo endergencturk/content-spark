@@ -65,8 +65,21 @@ interface ProTopic {
   hooks: { type: string; text: string; best: boolean }[];
 }
 
+interface EditingScene {
+  scene: number;
+  visual: string;
+  audio: string;
+  duration: string;
+}
+
 interface ProResult {
+  bestHook: string;
   topics: ProTopic[];
+  videoIdea: string;
+  editingPlan: EditingScene[];
+  hookVariations: string[];
+  voiceStyle: string;
+  postingStrategy: { bestTime: string; platformTip: string };
   script: string;
   youtubeTitle: string;
   youtubeDescription: string;
