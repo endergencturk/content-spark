@@ -41,8 +41,8 @@ export function useProStatus() {
     }
   }, []);
 
-  // When payments disabled, everyone has Pro access
-  const hasProAccess = !PAYMENTS_ENABLED || isPro || isAdmin;
+  // Real Pro access requires actual entitlement (purchase or admin preview)
+  const hasProAccess = isPro || isAdmin;
 
   const openGumroad = () => {
     if (PAYMENTS_ENABLED) {
