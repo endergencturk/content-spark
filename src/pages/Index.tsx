@@ -796,7 +796,7 @@ export default function Index() {
 
             {/* 3. Length */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Length</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.length", locale)}</p>
               <div className="flex gap-2">
                 {LENGTH_OPTIONS.map((len) => {
                   const isLocked = !hasProAccess && !isProMode && (len === "60" || len === "90");
