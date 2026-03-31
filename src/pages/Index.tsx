@@ -97,6 +97,21 @@ export default function Index() {
                 className="h-12 rounded-2xl"
               />
             </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Style</label>
+              <Select value={style} onValueChange={setStyle}>
+                <SelectTrigger className="h-12 rounded-2xl">
+                  <SelectValue placeholder="Select a style" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STYLE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Button
               variant="generate"
               size="lg"
