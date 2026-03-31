@@ -904,7 +904,7 @@ export default function Index() {
                     <button
                       key={lvl}
                       onClick={() => {
-                        if (isLocked) openUpgrade("Unlock High intensity hooks with Pro.");
+                        if (isLocked) openUpgrade(t("trigger.highIntensity", locale));
                         else setHookIntensity(lvl);
                       }}
                       className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
