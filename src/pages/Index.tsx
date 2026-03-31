@@ -1,10 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Sparkles, Loader2, Lightbulb, FileText, MessageSquare } from "lucide-react";
-
-const API_URL = "https://api.openai.com/v1/chat/completions";
+import { Copy, Loader2, Sparkles, Lightbulb, FileText, MessageSquare } from "lucide-react";
 
 interface GeneratedResult {
   hooks: string[];
@@ -12,98 +10,48 @@ interface GeneratedResult {
   caption: string;
 }
 
-export default function Index() {
-  const [topic, setTopic] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [result, setResult] = useState<GeneratedResult | null>(null);
-  const [copied, setCopied] = useState("");
-
-  const canGenerate = useMemo(() => {
-    return topic.trim().length > 0 && apiKey.trim().length > 0 && !loading;
-  }, [topic, apiKey, loading]);
-
-  async function copyText(label: string, text: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(label);
-      setTimeout(() => setCopied(""), 1500);
-    } catch {
-      setCopied("");
-    }
-  }
-
-  async function generateContent() {
-    if (!topic.trim()) {
-      setError("Please enter a topic.");
-      return;
-    }
-    if (!apiKey.trim()) {
-      setError("Please enter your API key.");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-    setResult(null);
-
-    const prompt = `You are a helpful content writing assistant.
-
-Topic: ${topic}
-
-Return valid JSON with this exact structure:
-{
-  "hooks": ["hook 1", "hook 2", "hook 3"],
-  "script": "short beginner-friendly video script",
-  "caption": "short social media caption"
+// Beginner-friendly mock API. Swap with a real fetch call when you connect an API.
+async function fakeGenerateApi(topic: string): Promise<GeneratedResult> {
+  await new Promise((resolve) => setTimeout(resolve, 900));
+  return {
+    hooks: [
+      `Nobody talks about this part of ${topic}...`,
+      `3 things I wish I knew earlier about ${topic}`,
+      `The easiest way to get started with ${topic}`,
+    ],
+    script: `Here's a simple way to think about ${topic}. First, focus on the basics instead of trying to do everything at once. Then, practice consistently and keep things simple. If you stay consistent, you'll improve much faster than you think.`,
+    caption: `${topic}, made simple. Save this for later.`,
+  };
 }
 
-Rules:
-- Hooks should be punchy and scroll-stopping.
-- Script should be clear, short, and easy to speak on camera.
-- Caption should be concise and engaging.
-- Do not include markdown.
-- Return JSON only.`;
+export default function Index() {
+  const [topic, setTopic] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState("");
+  const [result, setResult] = useState<GeneratedResult>({
+    hooks: [],
+    script: "",
+    caption: "",
+  });
 
+  const copyToClipboard = async (key: string, text: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopied(key);
+    setTimeout(() => setCopied(""), 1200);
+  };
+
+  const generateContent = async () => {
+    if (!topic.trim()) return;
+    setLoading(true);
     try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4.1-mini",
-          messages: [
-            { role: "system", content: "You generate short-form content ideas in clean JSON." },
-            { role: "user", content: prompt },
-          ],
-          temperature: 0.8,
-          response_format: { type: "json_object" },
-        }),
-      });
-
-      if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || "Request failed.");
-      }
-
-      const data = await response.json();
-      const parsed = JSON.parse(data.choices[0].message.content);
-
-      setResult({
-        hooks: Array.isArray(parsed.hooks) ? parsed.hooks.slice(0, 3) : [],
-        script: parsed.script || "",
-        caption: parsed.caption || "",
-      });
-    } catch (err) {
-      setError("Something went wrong while generating content. Check your API key and try again.");
-      console.error(err);
+      const response = await fakeGenerateApi(topic);
+      setResult(response);
+    } catch (error) {
+      console.error("Generation failed:", error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background py-8 px-4 sm:px-6">
@@ -118,62 +66,38 @@ Rules:
             Generate hooks, a script, and a caption
           </h1>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Enter a topic, connect your API key, and generate short-form content ideas in one click.
+            Enter a topic and generate quick content ideas with a clean, simple UI.
           </p>
         </div>
 
         {/* Input Section */}
         <Card className="border-border/60 shadow-lg">
           <CardContent className="p-6 space-y-4">
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Topic</label>
-                <Input
-                  placeholder='e.g. "meal prep for students"'
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  className="h-12 rounded-2xl"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">API Key</label>
-                <Input
-                  type="password"
-                  placeholder="sk-..."
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="h-12 rounded-2xl"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Topic</label>
+              <Input
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="Example: fitness tips for beginners"
+                className="h-12 rounded-2xl"
+              />
             </div>
-
-            <div className="space-y-2">
-              <Button
-                variant="generate"
-                size="lg"
-                className="w-full h-12"
-                disabled={!canGenerate}
-                onClick={generateContent}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  "Generate"
-                )}
-              </Button>
-              <p className="text-xs text-muted-foreground text-center">
-                No login system. Your key is used only for the API request from this page.
-              </p>
-            </div>
-
-            {error && (
-              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
+            <Button
+              variant="generate"
+              size="lg"
+              className="w-full h-12"
+              disabled={!topic.trim() || loading}
+              onClick={generateContent}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                "Generate"
+              )}
+            </Button>
           </CardContent>
         </Card>
 
@@ -188,7 +112,7 @@ Rules:
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {result?.hooks?.length ? (
+              {result.hooks.length > 0 ? (
                 <div className="space-y-3">
                   {result.hooks.map((hook, index) => (
                     <div key={index} className="flex items-start justify-between gap-3 rounded-xl bg-surface-warm p-3">
@@ -198,7 +122,7 @@ Rules:
                       <Button
                         variant="copyBtn"
                         size="sm"
-                        onClick={() => copyText(`hook-${index}`, hook)}
+                        onClick={() => copyToClipboard(`hook-${index}`, hook)}
                       >
                         <Copy className="h-3 w-3" />
                         {copied === `hook-${index}` ? "Copied" : "Copy"}
@@ -207,7 +131,7 @@ Rules:
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">Your hooks will appear here.</p>
+                <p className="text-sm text-muted-foreground italic">Hooks will appear here.</p>
               )}
             </CardContent>
           </Card>
@@ -221,7 +145,7 @@ Rules:
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {result?.script ? (
+              {result.script ? (
                 <div className="space-y-3">
                   <div className="rounded-xl bg-surface-warm p-4">
                     <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{result.script}</p>
@@ -229,14 +153,14 @@ Rules:
                   <Button
                     variant="copyBtn"
                     size="sm"
-                    onClick={() => copyText("script", result.script)}
+                    onClick={() => copyToClipboard("script", result.script)}
                   >
                     <Copy className="h-3 w-3" />
                     {copied === "script" ? "Copied" : "Copy"}
                   </Button>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">Your script will appear here.</p>
+                <p className="text-sm text-muted-foreground italic">Script will appear here.</p>
               )}
             </CardContent>
           </Card>
@@ -250,37 +174,24 @@ Rules:
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {result?.caption ? (
+              {result.caption ? (
                 <div className="space-y-3">
                   <p className="text-sm text-foreground leading-relaxed">{result.caption}</p>
                   <Button
                     variant="copyBtn"
                     size="sm"
-                    onClick={() => copyText("caption", result.caption)}
+                    onClick={() => copyToClipboard("caption", result.caption)}
                   >
                     <Copy className="h-3 w-3" />
                     {copied === "caption" ? "Copied" : "Copy"}
                   </Button>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">Your caption will appear here.</p>
+                <p className="text-sm text-muted-foreground italic">Caption will appear here.</p>
               )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Beginner Notes */}
-        <Card className="border-border/60 bg-accent/30">
-          <CardContent className="p-5">
-            <p className="text-sm font-semibold text-foreground mb-2">Beginner notes</p>
-            <ul className="space-y-1.5 text-sm text-muted-foreground list-disc list-inside">
-              <li>Type a topic like "meal prep for students" or "freelance design tips".</li>
-              <li>Paste your API key to make the request.</li>
-              <li>Click Generate to get 3 hooks, 1 script, and 1 caption.</li>
-              <li>Use the Copy buttons to quickly reuse any output.</li>
-            </ul>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
