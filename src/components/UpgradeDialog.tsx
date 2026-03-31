@@ -7,7 +7,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Crown, Zap, Target, Film, Mic, CalendarClock, Image, Sparkles, SlidersHorizontal } from "lucide-react";
+import { Crown, Zap, Target, Film, Mic, Image, Sparkles } from "lucide-react";
 import { PAYMENTS_ENABLED } from "@/hooks/useProStatus";
 
 const FEATURES = [
