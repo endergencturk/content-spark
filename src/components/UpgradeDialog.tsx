@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Crown, Zap, Target, Film, Mic, CalendarClock, Image, Sparkles, SlidersHorizontal } from "lucide-react";
+import { PAYMENTS_ENABLED } from "@/hooks/useProStatus";
 
 const FEATURES = [
   { icon: Target, label: "10 higher-converting hook variations" },
@@ -38,7 +39,9 @@ export const UpgradeDialog = memo(function UpgradeDialog({
           <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
             <Crown className="h-7 w-7 text-primary" />
           </div>
-          <DialogTitle className="text-xl font-bold">Upgrade to Pro</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {PAYMENTS_ENABLED ? "Upgrade to Pro" : "Pro Features"}
+          </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
             {trigger || "Get access to the full content pipeline — better hooks, editing plans, and more."}
           </DialogDescription>
@@ -59,15 +62,17 @@ export const UpgradeDialog = memo(function UpgradeDialog({
           <Button
             className="w-full h-12 rounded-2xl text-base font-bold"
             onClick={() => {
-              window.open("https://endergenctuerk.gumroad.com/l/fiblfb", "_blank");
+              if (PAYMENTS_ENABLED) {
+                window.open("https://endergenctuerk.gumroad.com/l/fiblfb", "_blank");
+              }
               onOpenChange(false);
             }}
           >
             <Crown className="h-4 w-4 mr-2" />
-            Upgrade Now
+            {PAYMENTS_ENABLED ? "Upgrade Now" : "Coming Soon"}
           </Button>
           <p className="text-center text-[11px] text-muted-foreground">
-            Creators using Pro get 3× better results
+            {PAYMENTS_ENABLED ? "Creators using Pro get 3× better results" : "Preview mode — payments temporarily disabled"}
           </p>
         </div>
       </DialogContent>

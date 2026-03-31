@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
+// ⚡ Flip to true when ready to launch with Gumroad payments
+export const PAYMENTS_ENABLED = false;
+
 const PRO_KEY = "is_pro";
 const ADMIN_KEY = "is_admin_preview";
 const GUMROAD_URL = "https://endergenctuerk.gumroad.com/l/fiblfb";
@@ -38,10 +41,15 @@ export function useProStatus() {
     }
   }, []);
 
-  const hasProAccess = isPro || isAdmin;
+  // When payments disabled, everyone has Pro access
+  const hasProAccess = !PAYMENTS_ENABLED || isPro || isAdmin;
 
   const openGumroad = () => {
-    window.open(GUMROAD_URL, "_blank");
+    if (PAYMENTS_ENABLED) {
+      window.open(GUMROAD_URL, "_blank");
+    } else {
+      toast.info("Pro checkout coming soon");
+    }
   };
 
   const resetPro = () => {
@@ -51,6 +59,5 @@ export function useProStatus() {
     setIsAdmin(false);
   };
 
-  return { isPro: hasProAccess, isAdmin, openGumroad, resetPro };
+  return { isPro: hasProAccess, isAdmin, openGumroad, resetPro, paymentsEnabled: PAYMENTS_ENABLED };
 }
-
