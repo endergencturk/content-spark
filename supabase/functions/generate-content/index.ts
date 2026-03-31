@@ -29,6 +29,7 @@ serve(async (req) => {
       imageFormat,
       imagePromptCount,
       outputDepth,
+      customDescription,
     } = body;
 
     if (!topic || typeof topic !== "string") {
@@ -38,7 +39,6 @@ serve(async (req) => {
       });
     }
 
-    // Normalize platforms
     const selectedPlatforms: string[] =
       platforms && Array.isArray(platforms) && platforms.length > 0
         ? platforms
@@ -46,8 +46,9 @@ serve(async (req) => {
         ? [platform]
         : ["tiktok"];
 
-    const imgCount = imagePromptCount || (mode === "pro" ? 4 : 2);
+    const imgCount = mode === "pro" ? (imagePromptCount || 3) : 3;
     const depth = outputDepth || "standard";
+    const hookCount = mode === "pro" ? 10 : 3;
 
     const prompt = buildPrompt({
       mode,
@@ -61,9 +62,13 @@ serve(async (req) => {
       imageFormat,
       imgCount,
       depth,
+      hookCount,
+      customDescription,
     });
 
-    const schema = mode === "pro" ? buildProSchema(selectedPlatforms, imgCount) : buildFreeSchema();
+    const schema = mode === "pro"
+      ? buildProSchema(selectedPlatforms, imgCount, hookCount)
+      : buildFreeSchema(hookCount);
 
     const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
     const geminiBody = {
@@ -76,7 +81,6 @@ serve(async (req) => {
     };
 
     let response: Response | null = null;
-    let lastError: any = null;
 
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
@@ -98,18 +102,15 @@ serve(async (req) => {
         const errBody = await response.text();
         if (/high demand|overloaded|unavailable|503|429/i.test(errBody)) {
           console.warn(`Gemini attempt ${attempt + 1} failed (transient): ${response.status}`);
-          lastError = errBody;
           response = null;
           await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
           continue;
         }
 
-        // Non-transient error, don't retry
         console.error("Gemini API error:", errBody);
         throw new Error(errBody || "Gemini request failed");
       } catch (e) {
         if (e instanceof Error && e.name === "AbortError") {
-          lastError = e;
           await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
           continue;
         }
@@ -125,7 +126,6 @@ serve(async (req) => {
     }
 
     const result = await response.json();
-
     const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error("Gemini returned empty response");
 
@@ -144,7 +144,7 @@ serve(async (req) => {
 
 // ── Schema builders ─────────────────────────────────────────────────
 
-function buildFreeSchema() {
+function buildFreeSchema(hookCount: number) {
   return {
     type: "OBJECT",
     properties: {
@@ -157,7 +157,7 @@ function buildFreeSchema() {
   };
 }
 
-function buildProSchema(platforms: string[], imgCount: number) {
+function buildProSchema(platforms: string[], imgCount: number, hookCount: number) {
   const scriptSection = {
     type: "OBJECT",
     properties: {
@@ -199,16 +199,10 @@ function buildProSchema(platforms: string[], imgCount: number) {
   };
 
   const required = [
-    "bestHook",
-    "hookVariations",
-    "script",
-    "editingPlan",
-    "voiceStyle",
-    "postingStrategy",
-    "imagePrompts",
+    "bestHook", "hookVariations", "script", "editingPlan",
+    "voiceStyle", "postingStrategy", "imagePrompts",
   ];
 
-  // Dynamic platform outputs
   if (platforms.includes("tiktok")) {
     props.tiktokCaption = { type: "STRING" };
     required.push("tiktokCaption");
@@ -228,6 +222,30 @@ function buildProSchema(platforms: string[], imgCount: number) {
 
 // ── Prompt builder ──────────────────────────────────────────────────
 
+function getScriptLengthGuidance(scriptLength: string): string {
+  switch (scriptLength) {
+    case "15": return "40–60 words. Very short sentences. Punchy and fast.";
+    case "30": return "80–120 words. Short sentences, quick pacing.";
+    case "60": return "150–220 words. Medium-length, clear narrative.";
+    case "90": return "250–350 words. Longer narrative with depth.";
+    default: return "80–120 words.";
+  }
+}
+
+function getStyleInstructions(style: string): string {
+  switch (style) {
+    case "high-retention": return "Use fast pacing, pattern interrupts, and open loops. Keep the viewer hooked every 3 seconds.";
+    case "curiosity": return "Create information gaps. Delay key reveals. Make the viewer NEED to keep watching.";
+    case "emotional": return "Use emotional triggers and deeply relatable language. Make them feel something.";
+    case "suspense": return "Build tension, ambiguity, and intrigue. Use cliffhanger-style pacing.";
+    case "controversial": return "Use bold, opinionated statements. Challenge conventional thinking. Be polarizing but not offensive.";
+    case "viral": return "Scroll-stopping energy. Trending hooks. Pattern-interrupt openers.";
+    case "educational": return "Clear, structured, valuable. Teach something useful fast.";
+    case "story": return "Narrative arc. Relatable situation. Emotional payoff.";
+    default: return "";
+  }
+}
+
 function buildPrompt(input: {
   mode: string;
   topic: string;
@@ -240,6 +258,8 @@ function buildPrompt(input: {
   imageFormat: string;
   imgCount: number;
   depth: string;
+  hookCount: number;
+  customDescription?: string;
 }) {
   const hookLevel =
     input.hookIntensity === 0 ? "safe" : input.hookIntensity === 1 ? "balanced" : "aggressive";
@@ -252,6 +272,9 @@ function buildPrompt(input: {
       return p;
     })
     .join(", ");
+
+  const scriptGuidance = getScriptLengthGuidance(input.scriptLength);
+  const styleInstructions = getStyleInstructions(input.style);
 
   if (input.mode === "pro") {
     const platformInstructions = input.platforms
@@ -266,6 +289,10 @@ function buildPrompt(input: {
       .filter(Boolean)
       .join("\n");
 
+    const customBlock = input.customDescription
+      ? `\nCUSTOM USER INSTRUCTIONS (prioritize these over presets):\n${input.customDescription}\n`
+      : "";
+
     return `You are an elite short-form content strategist and creator coach.
 
 Create a PRO content production package:
@@ -274,21 +301,31 @@ Create a PRO content production package:
 - Content type: ${input.contentType}
 - Style: ${input.style}
 - Script length: ${input.scriptLength} seconds
+- Script word count: ${scriptGuidance}
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
 - Image format: ${input.imageFormat}
 - Output depth: ${input.depth}
+${customBlock}
+STYLE BEHAVIOR:
+${styleInstructions}
+
+PLATFORM ADAPTATION:
+- TikTok: fast, aggressive, scroll-stopping hooks
+- YouTube Shorts: structured, strong title + clarity
+- Instagram Reels: smoother pacing, aesthetic storytelling
 
 GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
-2. hookVariations: 3 rewrites of the best hook (different angles)
+2. hookVariations: ${input.hookCount} rewrites of the best hook (different angles, styles, emotional triggers)
 3. script: A structured voiceover script with these exact sections:
    - hook: opening line (max 8 words)
-   - beat1: first key point (2-3 short lines, each max 8 words, separated by newlines)
+   - beat1: first key point (2-3 short lines)
    - beat2: second key point (2-3 short lines)
    - beat3: third key point or twist (2-3 short lines)
    - cta: closing call to action (max 8 words)
-   Each line must be short, dramatic, punchable. Ready for voiceover.
+   Script must be voiceover-ready with natural pauses and strong flow.
+   Total word count: ${scriptGuidance}
 4. editingPlan: 3 scenes with visual, audio, and duration
 5. voiceStyle: recommended voice style (e.g. "Dark & slow", "Fast & energetic")
 6. postingStrategy: bestTime and platformTip
@@ -313,15 +350,19 @@ Create a content package:
 - Content type: ${input.contentType}
 - Style: ${input.style}
 - Script length: ${input.scriptLength} seconds
+- Script word count: ${scriptGuidance}
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
 - Image format: ${input.imageFormat}
 
+STYLE BEHAVIOR:
+${styleInstructions}
+
 Return:
-- 3 hooks (curiosity-driven, no generic phrases)
-- 1 voiceover script (each sentence on new line, max 8 words per line, dramatic pacing)
+- ${input.hookCount} hooks (curiosity-driven, no generic phrases)
+- 1 voiceover script (each sentence on new line, max 8 words per line, dramatic pacing, total: ${scriptGuidance})
 - 1 caption with hashtags
-- 2 cinematic image prompts (no text, no faces, ${input.imageFormat} format)
+- 3 cinematic image prompts (no text, no faces, ${input.imageFormat} format)
 
 RULES:
 - No filler, no explanations
