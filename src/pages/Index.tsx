@@ -729,7 +729,7 @@ export default function Index() {
 
           {/* USAGE BANNER (Free) */}
           {!isPro && (
-            <UsageBanner remaining={remaining} isNearLimit={isNearLimit} isAtLimit={isAtLimit} onUpgrade={() => openUpgrade()} />
+            <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} onUpgrade={() => openUpgrade()} />
           )}
 
           {/* INPUT AREA */}
