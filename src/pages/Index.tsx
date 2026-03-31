@@ -568,8 +568,9 @@ export default function Index() {
   const { settings } = useSettings();
   const locale = settings.language;
   const { remaining, isAtLimit, isNearLimit, increment } = useUsageLimit();
+  const { isPro, openGumroad } = useProStatus();
 
-  const [mode, setMode] = useState<Mode>("general");
+  const [mode, setMode] = useState<Mode>(isPro ? "pro" : "general");
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState("viral");
   const [platform, setPlatform] = useState(settings.defaultPlatform);
@@ -588,7 +589,7 @@ export default function Index() {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [upgradeTrigger, setUpgradeTrigger] = useState("");
 
-  const isPro = mode === "pro";
+  const isProMode = mode === "pro";
 
   const openUpgrade = useCallback((trigger?: string) => {
     setUpgradeTrigger(trigger || "");

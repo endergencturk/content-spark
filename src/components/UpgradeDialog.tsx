@@ -58,7 +58,10 @@ export const UpgradeDialog = memo(function UpgradeDialog({
         <div className="pt-4 space-y-2.5">
           <Button
             className="w-full h-12 rounded-2xl text-base font-bold"
-            onClick={() => onOpenChange(false)}
+            onClick={() => {
+              window.open("https://endergenctuerk.gumroad.com/l/fiblfb", "_blank");
+              onOpenChange(false);
+            }}
           >
             <Crown className="h-4 w-4 mr-2" />
             Upgrade Now
