@@ -942,11 +942,11 @@ export default function Index() {
                 </div>
               ) : (
                 <button
-                  onClick={() => openUpgrade("Unlock custom image prompt count (1–10) with Pro.")}
+                  onClick={() => openUpgrade(t("trigger.imageSlider", locale))}
                   className="w-full py-2 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
                 >
                   <Lock className="h-3 w-3" />
-                  Slider unlocked with Pro (1–10)
+                  {t("selector.imagePrompts.slider", locale)}
                 </button>
               )}
             </div>
