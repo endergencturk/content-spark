@@ -411,6 +411,12 @@ export default function Index() {
         return `Topic ${i + 1}: ${t.title}\n${hooks}`;
       }).join("\n\n");
       all = [
+        `🏆 BEST HOOK:\n${proResult.bestHook}`,
+        proResult.videoIdea ? `💡 VIDEO IDEA:\n${proResult.videoIdea}` : "",
+        proResult.hookVariations?.length ? `🎯 HOOK VARIATIONS:\n${proResult.hookVariations.map((v, i) => `V${i + 1}: ${v}`).join("\n")}` : "",
+        proResult.editingPlan?.length ? `🎬 EDITING PLAN:\n${proResult.editingPlan.map(s => `Scene ${s.scene} (${s.duration})\nVisual: ${s.visual}\nAudio: ${s.audio}`).join("\n\n")}` : "",
+        proResult.voiceStyle ? `🎙️ VOICE STYLE: ${proResult.voiceStyle}` : "",
+        proResult.postingStrategy ? `📅 POSTING STRATEGY:\nBest Time: ${proResult.postingStrategy.bestTime}\nTip: ${proResult.postingStrategy.platformTip}` : "",
         topicsText,
         `Script:\n${proResult.script}`,
         `YouTube Title: ${proResult.youtubeTitle}`,
