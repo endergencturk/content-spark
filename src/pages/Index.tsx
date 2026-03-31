@@ -569,7 +569,7 @@ const LoadingState = memo(function LoadingState({ mode }: { mode: Mode }) {
 export default function Index() {
   const { settings } = useSettings();
   const locale = settings.language;
-  const { remaining, isAtLimit, isNearLimit, increment } = useUsageLimit();
+  const { remaining, isAtLimit, isNearLimit, increment, nextRefillLabel } = useUsageLimit();
   const { isPro, openGumroad } = useProStatus();
 
   const [mode, setMode] = useState<Mode>(isPro ? "pro" : "general");
