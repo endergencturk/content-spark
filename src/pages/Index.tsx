@@ -751,7 +751,7 @@ export default function Index() {
 
           {/* USAGE BANNER (Free mode only) */}
           {!hasProAccess && !isProMode && (
-            <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} onUpgrade={() => openUpgrade()} />
+            <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} onUpgrade={() => openUpgrade()} locale={locale} />
           )}
 
           {/* INPUT AREA */}
