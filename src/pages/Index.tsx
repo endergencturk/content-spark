@@ -1006,11 +1006,11 @@ export default function Index() {
               onClick={generateContent}
             >
               {loading ? (
-                <><Loader2 className="h-5 w-5 animate-spin" />Generating…</>
+                <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
               ) : !hasProAccess && isAtLimit ? (
-                <><Lock className="h-5 w-5" />Upgrade to continue</>
+                <><Lock className="h-5 w-5" />{t("btn.upgradeContinue", locale)}</>
               ) : (
-                <><Sparkles className="h-5 w-5" />{isProMode ? "Generate Full Pipeline" : "Generate Content"}</>
+                <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
               )}
             </Button>
 
