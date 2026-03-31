@@ -967,7 +967,7 @@ export default function Index() {
                         else setOutputDepth(d.value);
                       }}
                     >
-                      {d.label}
+                      {t(`selector.depth.${d.value}`, locale)}
                     </Pill>
                   );
                 })}
