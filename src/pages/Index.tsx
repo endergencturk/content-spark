@@ -895,7 +895,7 @@ export default function Index() {
             {/* 7. Hook Intensity */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
-                <Flame className="h-3 w-3" />Hook Intensity
+                <Flame className="h-3 w-3" />{t("selector.hookIntensity", locale)}
               </p>
               <div className="flex gap-2">
                 {["Low", "Medium", "High"].map((label, lvl) => {
