@@ -55,7 +55,7 @@ export default function Index() {
     if (!topic.trim()) return;
     setLoading(true);
     try {
-      const response = await fakeGenerateApi(topic);
+      const response = await fakeGenerateApi(topic, style);
       setResult(response);
     } catch (error) {
       console.error("Generation failed:", error);
