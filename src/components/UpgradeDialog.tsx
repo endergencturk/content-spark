@@ -7,18 +7,16 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Crown, Zap, Target, Film, Mic, CalendarClock, Image, Sparkles, SlidersHorizontal } from "lucide-react";
+import { Crown, Zap, Target, Film, Mic, Image, Sparkles } from "lucide-react";
 import { PAYMENTS_ENABLED } from "@/hooks/useProStatus";
 
 const FEATURES = [
-  { icon: Target, label: "10 higher-converting hook variations" },
-  { icon: Mic, label: "Voiceover-ready structured scripts" },
-  { icon: Film, label: "Scene-by-scene editing plan" },
-  { icon: Sparkles, label: "Advanced styles (Suspense, Emotional, etc.)" },
-  { icon: SlidersHorizontal, label: "Custom video description input" },
+  { icon: Sparkles, label: "Advanced viral styles (emotional, suspense, controversy)" },
+  { icon: Target, label: "High-converting hooks (10 variations)" },
+  { icon: Film, label: "Scene-by-scene editing plans" },
+  { icon: Mic, label: "Advanced storytelling & selling scripts" },
   { icon: Image, label: "Up to 10 cinematic image prompts" },
-  { icon: CalendarClock, label: "Posting strategy & timing" },
-  { icon: Zap, label: "Unlimited daily generations" },
+  { icon: Zap, label: "Unlimited generations" },
 ];
 
 interface UpgradeDialogProps {
@@ -40,10 +38,10 @@ export const UpgradeDialog = memo(function UpgradeDialog({
             <Crown className="h-7 w-7 text-primary" />
           </div>
           <DialogTitle className="text-xl font-bold">
-            {PAYMENTS_ENABLED ? "Upgrade to Pro" : "Pro Features"}
+            {PAYMENTS_ENABLED ? "Unlock Pro" : "Pro Features"}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-            {trigger || "Get access to the full content pipeline — better hooks, editing plans, and more."}
+            {trigger || "Upgrade to create content that actually performs."}
           </DialogDescription>
         </DialogHeader>
 
