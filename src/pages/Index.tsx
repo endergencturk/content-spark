@@ -157,7 +157,7 @@ export default function Index() {
           {/* Hooks */}
           <Card className="border-border/60">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
                 <Lightbulb className="h-5 w-5 text-primary" />
                 3 Hooks
               </CardTitle>
