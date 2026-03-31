@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { useSettings } from "@/contexts/SettingsContext";
-import { t } from "@/lib/i18n";
+import { t, type Locale } from "@/lib/i18n";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
@@ -118,15 +118,15 @@ interface ProResult {
 // ── Micro components ────────────────────────────────────────────────
 
 const CopyBtn = memo(function CopyBtn({
-  text, label, copied, onCopy,
-}: { text: string; label: string; copied: string; onCopy: (k: string, t: string) => void }) {
+  text, label, copied, onCopy, locale = "en",
+}: { text: string; label: string; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
   return (
     <button
       className="shrink-0 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
       onClick={() => onCopy(label, text)}
     >
       <Copy className="h-3 w-3 inline mr-1" />
-      {copied === label ? "Copied" : "Copy"}
+      {copied === label ? t("btn.copied", locale) : t("btn.copy", locale)}
     </button>
   );
 });
@@ -170,8 +170,8 @@ const ScriptBlock = memo(function ScriptBlock({
 // ── Usage limit banner ──────────────────────────────────────────────
 
 const UsageBanner = memo(function UsageBanner({
-  remaining, isAtLimit, nextRefillLabel, onUpgrade,
-}: { remaining: number; isAtLimit: boolean; nextRefillLabel: string; onUpgrade: () => void }) {
+  remaining, isAtLimit, nextRefillLabel, onUpgrade, locale = "en",
+}: { remaining: number; isAtLimit: boolean; nextRefillLabel: string; onUpgrade: () => void; locale?: Locale }) {
   return (
     <div className={`rounded-2xl p-4 flex items-start gap-3 ${
       isAtLimit
@@ -189,15 +189,15 @@ const UsageBanner = memo(function UsageBanner({
       <div className="flex-1 space-y-1.5">
         <p className="text-sm font-semibold text-foreground">
           {isAtLimit
-            ? "No credits left"
-            : `${remaining} free generation${remaining === 1 ? "" : "s"} available`}
+            ? t("usage.noCredits", locale)
+            : t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed">
           {isAtLimit
-            ? "Upgrade to Pro for unlimited generations and premium outputs."
+            ? t("usage.upgradeMsg", locale)
             : nextRefillLabel
-              ? `Next free credit in ${nextRefillLabel}`
-              : "Credits refill every 2 hours"}
+              ? t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)
+              : t("usage.refillInfo", locale)}
         </p>
         {isAtLimit && (
           <button
@@ -205,7 +205,7 @@ const UsageBanner = memo(function UsageBanner({
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors mt-1"
           >
             <Crown className="h-3 w-3" />
-            Upgrade for unlimited
+            {t("usage.upgradeBtn", locale)}
           </button>
         )}
       </div>
@@ -216,32 +216,33 @@ const UsageBanner = memo(function UsageBanner({
 // ── General Results ─────────────────────────────────────────────────
 
 const GeneralResults = memo(function GeneralResults({
-  result, copied, onCopy, onUpgrade,
-}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; onUpgrade: () => void }) {
+  result, copied, onCopy, onUpgrade, locale = "en",
+}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; onUpgrade: () => void; locale?: Locale }) {
   return (
     <div className="space-y-5">
       {/* Hooks */}
       <section className="space-y-2.5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">Hooks</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.hooks", locale)}</h3>
         {result.hooks.map((hook, i) => (
           <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
             <p className="text-sm text-foreground leading-relaxed">
               <span className="text-primary font-bold mr-1.5">#{i + 1}</span>{hook}
             </p>
-            <CopyBtn text={hook} label={`hook-${i}`} copied={copied} onCopy={onCopy} />
+            <CopyBtn text={hook} label={`hook-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
           </div>
         ))}
         <UpsellBanner
-          message="Get 10 higher-converting hooks with Pro — scroll-stopping variations that increase retention"
+          message={t("upsell.hooks", locale)}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
       </section>
 
       {/* Script */}
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Script</h3>
-          <CopyBtn text={result.script} label="script" copied={copied} onCopy={onCopy} />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("result.script", locale)}</h3>
+          <CopyBtn text={result.script} label="script" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4">
           {result.script.split("\n").map((line, i) => (
@@ -249,16 +250,17 @@ const GeneralResults = memo(function GeneralResults({
           ))}
         </div>
         <UpsellBanner
-          message="Make this script voiceover-ready with structured beats and pro editing plan"
+          message={t("upsell.script", locale)}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
       </section>
 
       {/* Caption */}
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Caption</h3>
-          <CopyBtn text={result.caption} label="caption" copied={copied} onCopy={onCopy} />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("result.caption", locale)}</h3>
+          <CopyBtn text={result.caption} label="caption" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4">
           <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.caption}</p>
@@ -267,13 +269,13 @@ const GeneralResults = memo(function GeneralResults({
 
       {/* Image Prompts */}
       <section className="space-y-2.5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">Image Prompts</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.imagePrompts", locale)}</h3>
         {result.imagePrompts.map((p, i) => (
           <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
             <p className="text-xs text-muted-foreground leading-relaxed">
               <span className="text-foreground font-semibold mr-1">{i + 1}.</span>{p}
             </p>
-            <CopyBtn text={p} label={`img-${i}`} copied={copied} onCopy={onCopy} />
+            <CopyBtn text={p} label={`img-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
           </div>
         ))}
       </section>
@@ -282,54 +284,58 @@ const GeneralResults = memo(function GeneralResults({
       <div className="space-y-5 pt-3">
         <div className="flex items-center gap-2 px-1">
           <Crown className="h-3.5 w-3.5 text-primary" />
-          <p className="text-[10px] uppercase tracking-widest font-bold text-primary">Available with Pro</p>
+          <p className="text-[10px] uppercase tracking-widest font-bold text-primary">{t("result.proAvailable", locale)}</p>
         </div>
 
         <BlurredPreview
-          title="Hook variations that increase retention"
+          title={t("blurred.hookVariations", locale)}
           previewLines={[
             "V1: " + (result.hooks[0]?.slice(0, 50) || "What if everything you knew was wrong?") + "…",
             "V2: A completely different angle that hooks in 0.5 seconds",
             "V3: The emotional rewrite that keeps viewers watching",
           ]}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
 
         <BlurredPreview
-          title="Scene-by-scene editing plan"
+          title={t("blurred.editingPlan", locale)}
           previewLines={[
             "Scene 1 (0-3s): Quick zoom with trending audio drop",
             "Scene 2 (3-8s): B-roll montage with text overlay",
             "Scene 3 (8-15s): Direct-to-camera with cinematic shift",
           ]}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
 
         <BlurredPreview
-          title="Voice style recommendation"
+          title={t("blurred.voiceStyle", locale)}
           previewLines={["Dark & slow — dramatic pauses, low energy open"]}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
 
         <BlurredPreview
-          title="Posting strategy & timing"
+          title={t("blurred.postingStrategy", locale)}
           previewLines={[
             "Best time: Tuesday 7-9 PM EST",
             "Platform tip: Use trending sounds within first 2 hours",
           ]}
           onUpgrade={onUpgrade}
+          locale={locale}
         />
       </div>
 
       {/* Bottom CTA */}
       <div className="text-center py-4 space-y-2">
-        <p className="text-xs text-muted-foreground">Creators using Pro get 3× more engagement</p>
+        <p className="text-xs text-muted-foreground">{t("upsell.bottom", locale)}</p>
         <button
           onClick={onUpgrade}
           className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all"
         >
           <Crown className="h-4 w-4" />
-          Upgrade to stand out
+          {t("upsell.bottomBtn", locale)}
         </button>
       </div>
     </div>
@@ -339,8 +345,8 @@ const GeneralResults = memo(function GeneralResults({
 // ── Pro Results ─────────────────────────────────────────────────────
 
 const ProResults = memo(function ProResults({
-  result, platforms, copied, onCopy,
-}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void }) {
+  result, platforms, copied, onCopy, locale = "en",
+}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
   const [showPack, setShowPack] = useState(false);
   const fullScript = `${result.script.hook}\n\n${result.script.beat1}\n\n${result.script.beat2}\n\n${result.script.beat3}\n\n${result.script.cta}`;
 
@@ -353,10 +359,10 @@ const ProResults = memo(function ProResults({
             <Trophy className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">Best Hook</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">{t("result.bestHook", locale)}</p>
             <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
           </div>
-          <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} />
+          <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
       </div>
 
@@ -364,16 +370,16 @@ const ProResults = memo(function ProResults({
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-primary" />Voiceover-ready script
+            <FileText className="h-3.5 w-3.5 text-primary" />{t("result.voiceover", locale)}
           </h3>
-          <CopyBtn text={fullScript} label="pro-script" copied={copied} onCopy={onCopy} />
+          <CopyBtn text={fullScript} label="pro-script" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="rounded-2xl overflow-hidden border border-border/50 divide-y divide-border/40">
-          <ScriptBlock label="Hook" content={result.script.hook} accent />
-          <ScriptBlock label="Beat 1" content={result.script.beat1} />
-          <ScriptBlock label="Beat 2" content={result.script.beat2} />
-          <ScriptBlock label="Beat 3" content={result.script.beat3} />
-          <ScriptBlock label="CTA" content={result.script.cta} accent />
+          <ScriptBlock label={t("script.hook", locale)} content={result.script.hook} accent />
+          <ScriptBlock label={t("script.beat1", locale)} content={result.script.beat1} />
+          <ScriptBlock label={t("script.beat2", locale)} content={result.script.beat2} />
+          <ScriptBlock label={t("script.beat3", locale)} content={result.script.beat3} />
+          <ScriptBlock label={t("script.cta", locale)} content={result.script.cta} accent />
         </div>
       </section>
 
@@ -382,9 +388,9 @@ const ProResults = memo(function ProResults({
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Hash className="h-3.5 w-3.5 text-primary" />TikTok Caption
+              <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
             </h3>
-            <CopyBtn text={result.tiktokCaption} label="tiktok" copied={copied} onCopy={onCopy} />
+            <CopyBtn text={result.tiktokCaption} label="tiktok" copied={copied} onCopy={onCopy} locale={locale} />
           </div>
           <div className="bg-muted/40 rounded-2xl p-4">
             <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.tiktokCaption}</p>
@@ -395,17 +401,17 @@ const ProResults = memo(function ProResults({
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Youtube className="h-3.5 w-3.5 text-primary" />YouTube Shorts
+              <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
             </h3>
-            <CopyBtn text={`${result.youtubeTitle}\n\n${result.youtubeDescription}`} label="youtube" copied={copied} onCopy={onCopy} />
+            <CopyBtn text={`${result.youtubeTitle}\n\n${result.youtubeDescription}`} label="youtube" copied={copied} onCopy={onCopy} locale={locale} />
           </div>
           <div className="bg-muted/40 rounded-2xl p-4 space-y-3">
             <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">Title</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
               <p className="text-sm font-semibold text-foreground">{result.youtubeTitle}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">Description</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
               <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{result.youtubeDescription}</p>
             </div>
           </div>
@@ -415,9 +421,9 @@ const ProResults = memo(function ProResults({
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Instagram className="h-3.5 w-3.5 text-primary" />Instagram Reels
+              <Instagram className="h-3.5 w-3.5 text-primary" />{t("result.instagram", locale)}
             </h3>
-            <CopyBtn text={result.instagramCaption} label="instagram" copied={copied} onCopy={onCopy} />
+            <CopyBtn text={result.instagramCaption} label="instagram" copied={copied} onCopy={onCopy} locale={locale} />
           </div>
           <div className="bg-muted/40 rounded-2xl p-4">
             <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.instagramCaption}</p>
@@ -432,7 +438,7 @@ const ProResults = memo(function ProResults({
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-primary/30 bg-primary/5 text-primary text-sm font-semibold hover:bg-primary/10 transition-colors"
         >
           <Package className="h-4 w-4" />
-          View Full Content Pack
+          {t("result.viewPack", locale)}
           <ChevronDown className="h-4 w-4" />
         </button>
       )}
@@ -440,15 +446,15 @@ const ProResults = memo(function ProResults({
       {showPack && (
         <div className="space-y-4 pt-2">
           <div className="flex items-center justify-between px-1">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Full Content Pack</p>
-            <button onClick={() => setShowPack(false)} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">Hide</button>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.fullPack", locale)}</p>
+            <button onClick={() => setShowPack(false)} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">{t("result.hidePack", locale)}</button>
           </div>
 
           <Accordion type="multiple" defaultValue={["hooks"]} className="space-y-2.5">
             {result.hookVariations?.length > 0 && (
               <AccordionItem value="hooks" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />Hook Variations ({result.hookVariations.length})</span>
+                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />{t("result.hookVariations", locale)} ({result.hookVariations.length})</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2">
@@ -457,7 +463,7 @@ const ProResults = memo(function ProResults({
                         <p className="text-sm text-foreground leading-relaxed">
                           <span className="text-xs font-bold text-primary mr-1.5">V{i + 1}</span>{v}
                         </p>
-                        <CopyBtn text={v} label={`hv-${i}`} copied={copied} onCopy={onCopy} />
+                        <CopyBtn text={v} label={`hv-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
                       </div>
                     ))}
                   </div>
@@ -468,7 +474,7 @@ const ProResults = memo(function ProResults({
             {result.editingPlan?.length > 0 && (
               <AccordionItem value="editing" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Film className="h-4 w-4 text-primary" />Editing Plan</span>
+                  <span className="flex items-center gap-2"><Film className="h-4 w-4 text-primary" />{t("result.editingPlan", locale)}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2.5">
@@ -488,7 +494,7 @@ const ProResults = memo(function ProResults({
 
             <AccordionItem value="images" className="border border-border/50 rounded-2xl overflow-hidden">
               <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                <span className="flex items-center gap-2"><Image className="h-4 w-4 text-primary" />Image Prompts ({result.imagePrompts.length})</span>
+                <span className="flex items-center gap-2"><Image className="h-4 w-4 text-primary" />{t("result.imagePrompts", locale)} ({result.imagePrompts.length})</span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
                 <div className="space-y-2">
@@ -497,7 +503,7 @@ const ProResults = memo(function ProResults({
                       <p className="text-xs text-muted-foreground leading-relaxed">
                         <span className="text-foreground font-semibold mr-1">{i + 1}.</span>{p}
                       </p>
-                      <CopyBtn text={p} label={`pi-${i}`} copied={copied} onCopy={onCopy} />
+                      <CopyBtn text={p} label={`pi-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
                     </div>
                   ))}
                 </div>
@@ -507,7 +513,7 @@ const ProResults = memo(function ProResults({
             {result.voiceStyle && (
               <AccordionItem value="voice" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />Voice Style</span>
+                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />{t("result.voiceStyle", locale)}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="bg-muted/40 rounded-xl p-3">
@@ -520,16 +526,16 @@ const ProResults = memo(function ProResults({
             {result.postingStrategy && (
               <AccordionItem value="posting" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><CalendarClock className="h-4 w-4 text-primary" />Posting Strategy</span>
+                  <span className="flex items-center gap-2"><CalendarClock className="h-4 w-4 text-primary" />{t("result.postingStrategy", locale)}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2">
                     <div className="bg-muted/40 rounded-xl p-3">
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">Best Time</p>
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.bestTime", locale)}</p>
                       <p className="text-sm font-medium text-foreground">{result.postingStrategy.bestTime}</p>
                     </div>
                     <div className="bg-muted/40 rounded-xl p-3">
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">Platform Tip</p>
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.platformTip", locale)}</p>
                       <p className="text-sm text-foreground">{result.postingStrategy.platformTip}</p>
                     </div>
                   </div>
@@ -545,7 +551,7 @@ const ProResults = memo(function ProResults({
 
 // ── Loading ─────────────────────────────────────────────────────────
 
-const LoadingState = memo(function LoadingState({ mode }: { mode: Mode }) {
+const LoadingState = memo(function LoadingState({ mode, locale = "en" }: { mode: Mode; locale?: Locale }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 space-y-4">
       <div className="relative h-12 w-12">
@@ -556,9 +562,9 @@ const LoadingState = memo(function LoadingState({ mode }: { mode: Mode }) {
       </div>
       <div className="text-center space-y-1">
         <p className="text-sm font-semibold text-foreground">
-          {mode === "pro" ? "Building your content pipeline…" : "Creating your content…"}
+          {mode === "pro" ? t("loading.pro", locale) : t("loading.general", locale)}
         </p>
-        <p className="text-xs text-muted-foreground">Usually takes 5–10 seconds</p>
+        <p className="text-xs text-muted-foreground">{t("loading.time", locale)}</p>
       </div>
     </div>
   );
@@ -610,7 +616,7 @@ export default function Index() {
   const copyToClipboard = useCallback(async (key: string, text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(key);
-    toast.success("Copied — ready to post 🚀");
+    toast.success(t("toast.copied", locale));
     setTimeout(() => setCopied(""), 1200);
   }, []);
 
@@ -618,12 +624,12 @@ export default function Index() {
     if (!topic.trim()) return;
 
     if (isProMode && !hasProAccess) {
-      openUpgrade("Unlock Pro to generate advanced hooks, voiceover-ready scripts, editing plans, and platform-specific content.");
+      openUpgrade(t("trigger.proGenerate", locale));
       return;
     }
 
     if (!hasProAccess && isAtLimit) {
-      openUpgrade("You've reached your daily free limit. Upgrade to Pro for unlimited generations and premium outputs.");
+      openUpgrade(t("trigger.dailyLimit", locale));
       return;
     }
 
@@ -656,9 +662,9 @@ export default function Index() {
       console.error("Generation failed:", error);
       const msg = error?.message || "";
       if (/temporarily busy|try again/i.test(msg)) {
-        toast.error("AI is temporarily busy — please try again in a few seconds.");
+        toast.error(t("toast.error.busy", locale));
       } else {
-        toast.error(msg || "Generation failed. Please try again.");
+        toast.error(msg || t("toast.error.generic", locale));
       }
     } finally {
       setLoading(false);
@@ -703,10 +709,10 @@ export default function Index() {
           {/* HEADER */}
           <div className="text-center space-y-2 pt-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              AI Content Engine
+              {t("app.title", locale)}
             </h1>
             <p className="text-muted-foreground text-sm">
-              Generate viral hooks, scripts & captions in seconds.
+              {t("app.subtitle", locale)}
             </p>
           </div>
 
@@ -718,7 +724,7 @@ export default function Index() {
                 !isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
-              <Zap className="h-4 w-4" />Free
+              <Zap className="h-4 w-4" />{t("mode.free", locale)}
             </button>
             <button
               onClick={() => setMode("pro")}
@@ -726,7 +732,7 @@ export default function Index() {
                 isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
-              <Crown className="h-4 w-4" />{hasProAccess ? "Pro" : "Pro ✨"}
+              <Crown className="h-4 w-4" />{t("mode.pro", locale)} {!hasProAccess && "✨"}
             </button>
           </div>
 
@@ -737,15 +743,15 @@ export default function Index() {
                 <Crown className="h-4 w-4 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">Previewing Pro mode</p>
-                <p className="text-xs text-muted-foreground">Explore all Pro features — upgrade to generate content.</p>
+                <p className="text-sm font-semibold text-foreground">{t("proPreview.title", locale)}</p>
+                <p className="text-xs text-muted-foreground">{t("proPreview.subtitle", locale)}</p>
               </div>
             </div>
           )}
 
           {/* USAGE BANNER (Free mode only) */}
           {!hasProAccess && !isProMode && (
-            <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} onUpgrade={() => openUpgrade()} />
+            <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} onUpgrade={() => openUpgrade()} locale={locale} />
           )}
 
           {/* INPUT AREA */}
@@ -753,7 +759,7 @@ export default function Index() {
 
             {/* 1. Platform */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Platform</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.platform", locale)}</p>
               <div className="flex gap-2">
                 {PLATFORM_OPTIONS.map((o) => {
                   const sel = isProMode ? platforms.includes(o.value) : platform === o.value;
@@ -773,16 +779,16 @@ export default function Index() {
                   );
                 })}
               </div>
-              {isProMode && <p className="text-[10px] text-muted-foreground text-center">Select multiple platforms</p>}
+              {isProMode && <p className="text-[10px] text-muted-foreground text-center">{t("selector.platform.multi", locale)}</p>}
             </div>
 
             {/* 2. Topic */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Topic</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("input.topic", locale)}</p>
               <Input
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g. fitness tips, AI tools, crypto..."
+                placeholder={t("input.topic.placeholder", locale)}
                 className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
                 onKeyDown={(e) => e.key === "Enter" && generateContent()}
               />
@@ -790,7 +796,7 @@ export default function Index() {
 
             {/* 3. Length */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Length</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.length", locale)}</p>
               <div className="flex gap-2">
                 {LENGTH_OPTIONS.map((len) => {
                   const isLocked = !hasProAccess && !isProMode && (len === "60" || len === "90");
@@ -813,7 +819,7 @@ export default function Index() {
 
             {/* 4. Style */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Style</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.style", locale)}</p>
               <div className="flex gap-2 flex-wrap">
                 {FREE_STYLES.map((s) => (
                   <Pill key={s.value} selected={style === s.value} onClick={() => setStyle(s.value)}>
@@ -838,7 +844,7 @@ export default function Index() {
 
             {/* 5. Content Type */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Content Type</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.content", locale)}</p>
               <div className="flex gap-2 flex-wrap">
                 {FREE_CONTENT_TYPES.map((ct) => (
                   <Pill key={ct.value} selected={contentType === ct.value} onClick={() => setContentType(ct.value)}>
@@ -863,7 +869,7 @@ export default function Index() {
 
             {/* 6. Goal */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Goal</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.goal", locale)}</p>
               <div className="flex gap-2 flex-wrap">
                 {FREE_GOALS.map((g) => (
                   <Pill key={g.value} selected={goal === g.value} onClick={() => setGoal(g.value)}>
@@ -889,16 +895,16 @@ export default function Index() {
             {/* 7. Hook Intensity */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
-                <Flame className="h-3 w-3" />Hook Intensity
+                <Flame className="h-3 w-3" />{t("selector.hookIntensity", locale)}
               </p>
               <div className="flex gap-2">
-                {["Low", "Medium", "High"].map((label, lvl) => {
+                {[t("hook.low", locale), t("hook.medium", locale), t("hook.high", locale)].map((label, lvl) => {
                   const isLocked = !hasProAccess && !isProMode && lvl === 2;
                   return (
                     <button
                       key={lvl}
                       onClick={() => {
-                        if (isLocked) openUpgrade("Unlock High intensity hooks with Pro.");
+                        if (isLocked) openUpgrade(t("trigger.highIntensity", locale));
                         else setHookIntensity(lvl);
                       }}
                       className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
@@ -919,8 +925,8 @@ export default function Index() {
             {/* 8. Image Prompts */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
-                <Image className="h-3 w-3" />Image Prompts
-                {!hasProAccess && !isProMode && <span className="text-muted-foreground/60 ml-1">(fixed: 3)</span>}
+                <Image className="h-3 w-3" />{t("selector.imagePrompts", locale)}
+                {!hasProAccess && !isProMode && <span className="text-muted-foreground/60 ml-1">{t("selector.imagePrompts.fixed", locale)}</span>}
               </p>
               {(hasProAccess || isProMode) ? (
                 <div className="space-y-1.5">
@@ -936,18 +942,18 @@ export default function Index() {
                 </div>
               ) : (
                 <button
-                  onClick={() => openUpgrade("Unlock custom image prompt count (1–10) with Pro.")}
+                  onClick={() => openUpgrade(t("trigger.imageSlider", locale))}
                   className="w-full py-2 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
                 >
                   <Lock className="h-3 w-3" />
-                  Slider unlocked with Pro (1–10)
+                  {t("selector.imagePrompts.slider", locale)}
                 </button>
               )}
             </div>
 
             {/* 9. Depth */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Depth</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.depth", locale)}</p>
               <div className="flex gap-2">
                 {DEPTH_OPTIONS.map((d) => {
                   const isLocked = d.value === "detailed" && !hasProAccess && !isProMode;
@@ -957,11 +963,11 @@ export default function Index() {
                       selected={outputDepth === d.value}
                       locked={isLocked}
                       onClick={() => {
-                        if (isLocked) openUpgrade("Unlock Detailed depth for maximum output quality.");
+                        if (isLocked) openUpgrade(t("trigger.detailed", locale));
                         else setOutputDepth(d.value);
                       }}
                     >
-                      {d.label}
+                      {t(`selector.depth.${d.value}`, locale)}
                     </Pill>
                   );
                 })}
@@ -972,12 +978,12 @@ export default function Index() {
             {(hasProAccess || isProMode) && (
               <div className="space-y-2">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-                  Describe your video <span className="text-muted-foreground/60">(optional)</span>
+                  {t("selector.customDesc", locale)} <span className="text-muted-foreground/60">{t("selector.customDesc.optional", locale)}</span>
                 </p>
                 <textarea
                   value={customDescription}
                   onChange={(e) => setCustomDescription(e.target.value)}
-                  placeholder="e.g. I want to sell my course, target 18-25 year olds, use dark humor..."
+                  placeholder={t("selector.customDesc.placeholder", locale)}
                   rows={3}
                   className="w-full rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                 />
@@ -985,11 +991,11 @@ export default function Index() {
             )}
             {!hasProAccess && !isProMode && (
               <button
-                onClick={() => openUpgrade("Describe your exact video intent with Pro — get AI-tailored output.")}
+                onClick={() => openUpgrade(t("trigger.customDesc", locale))}
                 className="w-full py-2.5 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
               >
                 <Lock className="h-3 w-3" />
-                Describe your video (Pro only)
+                {t("selector.customDesc.locked", locale)}
               </button>
             )}
 
@@ -1000,18 +1006,18 @@ export default function Index() {
               onClick={generateContent}
             >
               {loading ? (
-                <><Loader2 className="h-5 w-5 animate-spin" />Generating…</>
+                <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
               ) : !hasProAccess && isAtLimit ? (
-                <><Lock className="h-5 w-5" />Upgrade to continue</>
+                <><Lock className="h-5 w-5" />{t("btn.upgradeContinue", locale)}</>
               ) : (
-                <><Sparkles className="h-5 w-5" />{isProMode ? "Generate Full Pipeline" : "Generate Content"}</>
+                <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
               )}
             </Button>
 
             {!hasProAccess && !isAtLimit && (
               <p className="text-center text-[11px] text-muted-foreground">
-                {remaining} free generation{remaining === 1 ? "" : "s"} available
-                {nextRefillLabel ? ` · Next credit in ${nextRefillLabel}` : ""}
+                {t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
+                {nextRefillLabel ? ` · ${t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)}` : ""}
               </p>
             )}
           </div>
@@ -1020,21 +1026,21 @@ export default function Index() {
           {hasResults && !loading && (
             <div className="flex justify-center gap-3">
               <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <RefreshCw className="h-3 w-3" />Regenerate
+                <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
               </button>
               <button onClick={copyAll} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <Copy className="h-3 w-3" />{copied === "all" ? "Copied!" : "Copy All"}
+                <Copy className="h-3 w-3" />{copied === "all" ? t("btn.copied", locale) : t("btn.copyAll", locale)}
               </button>
             </div>
           )}
 
-          {loading && <LoadingState mode={mode} />}
+          {loading && <LoadingState mode={mode} locale={locale} />}
 
           {!loading && !isProMode && generalResult && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} locale={locale} />
           )}
           {!loading && isProMode && proResult && (
-            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} />
+            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} />
           )}
 
           {!hasResults && !loading && (
@@ -1049,7 +1055,7 @@ export default function Index() {
         </div>
       </div>
 
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} trigger={upgradeTrigger} />
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} trigger={upgradeTrigger} locale={locale} />
     </div>
   );
 }
