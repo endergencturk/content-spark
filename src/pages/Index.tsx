@@ -662,7 +662,7 @@ export default function Index() {
       console.error("Generation failed:", error);
       const msg = error?.message || "";
       if (/temporarily busy|try again/i.test(msg)) {
-        toast.error("AI is temporarily busy — please try again in a few seconds.");
+        toast.error(t("toast.error.busy", locale));
       } else {
         toast.error(msg || "Generation failed. Please try again.");
       }
