@@ -2,7 +2,16 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, Loader2, Sparkles, Lightbulb, FileText, MessageSquare } from "lucide-react";
+
+const STYLE_OPTIONS = [
+  { value: "viral", label: "Viral (general)" },
+  { value: "dark", label: "Dark / Mystery" },
+  { value: "educational", label: "Educational" },
+  { value: "storytelling", label: "Storytelling" },
+  { value: "aggressive", label: "Aggressive / Controversial" },
+];
 
 interface GeneratedResult {
   hooks: string[];
@@ -11,21 +20,23 @@ interface GeneratedResult {
 }
 
 // Beginner-friendly mock API. Swap with a real fetch call when you connect an API.
-async function fakeGenerateApi(topic: string): Promise<GeneratedResult> {
+async function fakeGenerateApi(topic: string, style: string): Promise<GeneratedResult> {
   await new Promise((resolve) => setTimeout(resolve, 900));
+  const styleLabel = STYLE_OPTIONS.find((s) => s.value === style)?.label ?? style;
   return {
     hooks: [
-      `Nobody talks about this part of ${topic}...`,
-      `3 things I wish I knew earlier about ${topic}`,
-      `The easiest way to get started with ${topic}`,
+      `Nobody talks about this part of ${topic}... [${styleLabel}]`,
+      `3 things I wish I knew earlier about ${topic} [${styleLabel}]`,
+      `The easiest way to get started with ${topic} [${styleLabel}]`,
     ],
-    script: `Here's a simple way to think about ${topic}. First, focus on the basics instead of trying to do everything at once. Then, practice consistently and keep things simple. If you stay consistent, you'll improve much faster than you think.`,
-    caption: `${topic}, made simple. Save this for later.`,
+    script: `Here's a ${styleLabel.toLowerCase()} take on ${topic}. First, focus on the basics instead of trying to do everything at once. Then, practice consistently and keep things simple. If you stay consistent, you'll improve much faster than you think.`,
+    caption: `${topic}, made simple. Save this for later. #${style}`,
   };
 }
 
 export default function Index() {
   const [topic, setTopic] = useState("");
+  const [style, setStyle] = useState("viral");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState("");
   const [result, setResult] = useState<GeneratedResult>({
@@ -44,7 +55,7 @@ export default function Index() {
     if (!topic.trim()) return;
     setLoading(true);
     try {
-      const response = await fakeGenerateApi(topic);
+      const response = await fakeGenerateApi(topic, style);
       setResult(response);
     } catch (error) {
       console.error("Generation failed:", error);
@@ -86,6 +97,21 @@ export default function Index() {
                 placeholder="Example: fitness tips for beginners"
                 className="h-12 rounded-2xl"
               />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Style</label>
+              <Select value={style} onValueChange={setStyle}>
+                <SelectTrigger className="h-12 rounded-2xl">
+                  <SelectValue placeholder="Select a style" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STYLE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <Button
               variant="generate"
