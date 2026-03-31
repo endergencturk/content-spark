@@ -1040,7 +1040,7 @@ export default function Index() {
             <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} locale={locale} />
           )}
           {!loading && isProMode && proResult && (
-            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} />
+            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} />
           )}
 
           {!hasResults && !loading && (
