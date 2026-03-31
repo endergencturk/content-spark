@@ -123,7 +123,7 @@ export default function Index() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating...
+                  Generating viral content...
                 </>
               ) : (
                 "Generate"
@@ -134,10 +134,30 @@ export default function Index() {
 
         {/* Results */}
         <div className="space-y-4">
+          {/* Copy All */}
+          {(result.hooks.length > 0 || result.script || result.caption) && (
+            <div className="flex justify-end">
+              <Button
+                variant="copyBtn"
+                size="sm"
+                onClick={() => {
+                  const all = [
+                    result.hooks.map((h, i) => `Hook ${i + 1}: ${h}`).join("\n"),
+                    result.script ? `Script:\n${result.script}` : "",
+                    result.caption ? `Caption:\n${result.caption}` : "",
+                  ].filter(Boolean).join("\n\n");
+                  copyToClipboard("all", all);
+                }}
+              >
+                <Copy className="h-3 w-3" />
+                {copied === "all" ? "Copied All" : "Copy All"}
+              </Button>
+            </div>
+          )}
           {/* Hooks */}
           <Card className="border-border/60">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
                 <Lightbulb className="h-5 w-5 text-primary" />
                 3 Hooks
               </CardTitle>
@@ -170,7 +190,7 @@ export default function Index() {
           {/* Script */}
           <Card className="border-border/60">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
                 Script
               </CardTitle>
@@ -199,7 +219,7 @@ export default function Index() {
           {/* Caption */}
           <Card className="border-border/60">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-primary" />
                 Caption
               </CardTitle>
