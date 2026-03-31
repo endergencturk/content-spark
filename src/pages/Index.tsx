@@ -570,9 +570,9 @@ export default function Index() {
   const { settings } = useSettings();
   const locale = settings.language;
   const { remaining, isAtLimit, isNearLimit, increment, nextRefillLabel } = useUsageLimit();
-  const { isPro, openGumroad } = useProStatus();
+  const { isPro: hasProAccess, openGumroad } = useProStatus();
 
-  const [mode, setMode] = useState<Mode>(isPro ? "pro" : "general");
+  const [mode, setMode] = useState<Mode>(hasProAccess ? "pro" : "general");
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState("viral");
   const [platform, setPlatform] = useState(settings.defaultPlatform);
@@ -616,12 +616,12 @@ export default function Index() {
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
 
-    if (isProMode && !isPro) {
+    if (isProMode && !hasProAccess) {
       openUpgrade("Unlock Pro to generate advanced hooks, voiceover-ready scripts, editing plans, and platform-specific content.");
       return;
     }
 
-    if (!isPro && isAtLimit) {
+    if (!hasProAccess && isAtLimit) {
       openUpgrade("You've reached your daily free limit. Upgrade to Pro for unlimited generations and premium outputs.");
       return;
     }
@@ -649,7 +649,7 @@ export default function Index() {
       } else {
         setGeneralResult(data as GeneralResult);
         setProResult(null);
-        if (!isPro) increment();
+        if (!hasProAccess) increment();
       }
     } catch (error: any) {
       console.error("Generation failed:", error);
@@ -725,12 +725,12 @@ export default function Index() {
                 isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
-              <Crown className="h-4 w-4" />{isPro ? "Pro" : "Pro ✨"}
+              <Crown className="h-4 w-4" />{hasProAccess ? "Pro" : "Pro ✨"}
             </button>
           </div>
 
           {/* USAGE BANNER (Free) */}
-          {!isPro && (
+          {!hasProAccess && (
             <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} onUpgrade={() => openUpgrade()} />
           )}
 
@@ -778,15 +778,22 @@ export default function Index() {
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Length</p>
               <div className="flex gap-2">
-                {LENGTH_OPTIONS.map((len) => (
-                  <Pill
-                    key={len}
-                    selected={scriptLength === len}
-                    onClick={() => setScriptLength(len)}
-                  >
-                    {len}s
-                  </Pill>
-                ))}
+                {LENGTH_OPTIONS.map((len) => {
+                  const isLocked = !hasProAccess && (len === "60" || len === "90");
+                  return (
+                    <Pill
+                      key={len}
+                      selected={scriptLength === len}
+                      locked={isLocked}
+                      onClick={() => {
+                        if (isLocked) openUpgrade(`Unlock ${len}s scripts with Pro.`);
+                        else setScriptLength(len);
+                      }}
+                    >
+                      {len}s
+                    </Pill>
+                  );
+                })}
               </div>
             </div>
 
@@ -802,9 +809,12 @@ export default function Index() {
                 {PRO_STYLES.map((s) => (
                   <Pill
                     key={s.value}
-                    selected={style === s.value}
-                    locked={!isPro}
-                    onClick={() => setStyle(s.value)}
+                    selected={hasProAccess && style === s.value}
+                    locked={!hasProAccess}
+                    onClick={() => {
+                      if (hasProAccess) setStyle(s.value);
+                      else openUpgrade(`Unlock "${s.label}" style with Pro for higher-performing content.`);
+                    }}
                   >
                     {s.label}
                   </Pill>
@@ -824,9 +834,12 @@ export default function Index() {
                 {PRO_CONTENT_TYPES.map((ct) => (
                   <Pill
                     key={ct.value}
-                    selected={contentType === ct.value}
-                    locked={!isPro}
-                    onClick={() => setContentType(ct.value)}
+                    selected={hasProAccess && contentType === ct.value}
+                    locked={!hasProAccess}
+                    onClick={() => {
+                      if (hasProAccess) setContentType(ct.value);
+                      else openUpgrade(`Unlock "${ct.label}" content type for specialized output.`);
+                    }}
                   >
                     {ct.label}
                   </Pill>
@@ -846,9 +859,12 @@ export default function Index() {
                 {PRO_GOALS.map((g) => (
                   <Pill
                     key={g.value}
-                    selected={goal === g.value}
-                    locked={!isPro}
-                    onClick={() => setGoal(g.value)}
+                    selected={hasProAccess && goal === g.value}
+                    locked={!hasProAccess}
+                    onClick={() => {
+                      if (hasProAccess) setGoal(g.value);
+                      else openUpgrade(`Unlock "${g.label}" goal for targeted content.`);
+                    }}
                   >
                     {g.label}
                   </Pill>
@@ -862,19 +878,27 @@ export default function Index() {
                 <Flame className="h-3 w-3" />Hook Intensity
               </p>
               <div className="flex gap-2">
-                {["Low", "Medium", "High"].map((label, lvl) => (
-                  <button
-                    key={lvl}
-                    onClick={() => setHookIntensity(lvl)}
-                    className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                      hookIntensity === lvl
-                        ? "bg-primary/10 text-primary border border-primary/30"
-                        : "bg-muted/60 text-muted-foreground border border-transparent"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+                {["Low", "Medium", "High"].map((label, lvl) => {
+                  const isLocked = !hasProAccess && lvl === 2;
+                  return (
+                    <button
+                      key={lvl}
+                      onClick={() => {
+                        if (isLocked) openUpgrade("Unlock High intensity hooks with Pro.");
+                        else setHookIntensity(lvl);
+                      }}
+                      className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+                        isLocked
+                          ? "bg-muted/30 text-muted-foreground/50 border border-dashed border-border/50 cursor-pointer"
+                          : hookIntensity === lvl
+                            ? "bg-primary/10 text-primary border border-primary/30"
+                            : "bg-muted/60 text-muted-foreground border border-transparent"
+                      }`}
+                    >
+                      {label}{isLocked && " 🔒"}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -882,9 +906,9 @@ export default function Index() {
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
                 <Image className="h-3 w-3" />Image Prompts
-                {!isPro && <span className="text-muted-foreground/60 ml-1">(fixed: 3)</span>}
+                {!hasProAccess && <span className="text-muted-foreground/60 ml-1">(fixed: 3)</span>}
               </p>
-              {isPro ? (
+              {hasProAccess ? (
                 <div className="space-y-1.5">
                   <Slider
                     value={[imagePromptCount]}
@@ -912,7 +936,7 @@ export default function Index() {
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Depth</p>
               <div className="flex gap-2">
                 {DEPTH_OPTIONS.map((d) => {
-                  const isLocked = d.value === "detailed" && !isPro;
+                  const isLocked = d.value === "detailed" && !hasProAccess;
                   return (
                     <Pill
                       key={d.value}
@@ -931,7 +955,7 @@ export default function Index() {
             </div>
 
             {/* 10. PRO ONLY: Custom description */}
-            {isPro && (
+            {hasProAccess && (
               <div className="space-y-2">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                   Describe your video <span className="text-muted-foreground/60">(optional)</span>
@@ -945,7 +969,7 @@ export default function Index() {
                 />
               </div>
             )}
-            {!isPro && (
+            {!hasProAccess && (
               <button
                 onClick={() => openUpgrade("Describe your exact video intent with Pro — get AI-tailored output.")}
                 className="w-full py-2.5 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
@@ -958,19 +982,19 @@ export default function Index() {
             {/* Generate */}
             <Button
               className="w-full h-13 text-base rounded-2xl font-bold"
-              disabled={!topic.trim() || loading || (!isPro && isAtLimit)}
+              disabled={!topic.trim() || loading || (!hasProAccess && isAtLimit)}
               onClick={generateContent}
             >
               {loading ? (
                 <><Loader2 className="h-5 w-5 animate-spin" />Generating…</>
-              ) : !isPro && isAtLimit ? (
+              ) : !hasProAccess && isAtLimit ? (
                 <><Lock className="h-5 w-5" />Upgrade to continue</>
               ) : (
                 <><Sparkles className="h-5 w-5" />{isProMode ? "Generate Full Pipeline" : "Generate Content"}</>
               )}
             </Button>
 
-            {!isPro && !isAtLimit && (
+            {!hasProAccess && !isAtLimit && (
               <p className="text-center text-[11px] text-muted-foreground">
                 {remaining} free generation{remaining === 1 ? "" : "s"} available
                 {nextRefillLabel ? ` · Next credit in ${nextRefillLabel}` : ""}
