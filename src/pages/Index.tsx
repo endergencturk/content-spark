@@ -953,7 +953,7 @@ export default function Index() {
 
             {/* 9. Depth */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Depth</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.depth", locale)}</p>
               <div className="flex gap-2">
                 {DEPTH_OPTIONS.map((d) => {
                   const isLocked = d.value === "detailed" && !hasProAccess && !isProMode;
