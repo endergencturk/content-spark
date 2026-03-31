@@ -345,8 +345,8 @@ const GeneralResults = memo(function GeneralResults({
 // ── Pro Results ─────────────────────────────────────────────────────
 
 const ProResults = memo(function ProResults({
-  result, platforms, copied, onCopy,
-}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void }) {
+  result, platforms, copied, onCopy, locale = "en",
+}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
   const [showPack, setShowPack] = useState(false);
   const fullScript = `${result.script.hook}\n\n${result.script.beat1}\n\n${result.script.beat2}\n\n${result.script.beat3}\n\n${result.script.cta}`;
 
@@ -359,10 +359,10 @@ const ProResults = memo(function ProResults({
             <Trophy className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">Best Hook</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">{t("result.bestHook", locale)}</p>
             <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
           </div>
-          <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} />
+          <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
       </div>
 
@@ -370,16 +370,16 @@ const ProResults = memo(function ProResults({
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-primary" />Voiceover-ready script
+            <FileText className="h-3.5 w-3.5 text-primary" />{t("result.voiceover", locale)}
           </h3>
-          <CopyBtn text={fullScript} label="pro-script" copied={copied} onCopy={onCopy} />
+          <CopyBtn text={fullScript} label="pro-script" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="rounded-2xl overflow-hidden border border-border/50 divide-y divide-border/40">
-          <ScriptBlock label="Hook" content={result.script.hook} accent />
-          <ScriptBlock label="Beat 1" content={result.script.beat1} />
-          <ScriptBlock label="Beat 2" content={result.script.beat2} />
-          <ScriptBlock label="Beat 3" content={result.script.beat3} />
-          <ScriptBlock label="CTA" content={result.script.cta} accent />
+          <ScriptBlock label={t("script.hook", locale)} content={result.script.hook} accent />
+          <ScriptBlock label={t("script.beat1", locale)} content={result.script.beat1} />
+          <ScriptBlock label={t("script.beat2", locale)} content={result.script.beat2} />
+          <ScriptBlock label={t("script.beat3", locale)} content={result.script.beat3} />
+          <ScriptBlock label={t("script.cta", locale)} content={result.script.cta} accent />
         </div>
       </section>
 
@@ -388,9 +388,9 @@ const ProResults = memo(function ProResults({
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Hash className="h-3.5 w-3.5 text-primary" />TikTok Caption
+              <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
             </h3>
-            <CopyBtn text={result.tiktokCaption} label="tiktok" copied={copied} onCopy={onCopy} />
+            <CopyBtn text={result.tiktokCaption} label="tiktok" copied={copied} onCopy={onCopy} locale={locale} />
           </div>
           <div className="bg-muted/40 rounded-2xl p-4">
             <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.tiktokCaption}</p>
@@ -401,17 +401,17 @@ const ProResults = memo(function ProResults({
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Youtube className="h-3.5 w-3.5 text-primary" />YouTube Shorts
+              <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
             </h3>
-            <CopyBtn text={`${result.youtubeTitle}\n\n${result.youtubeDescription}`} label="youtube" copied={copied} onCopy={onCopy} />
+            <CopyBtn text={`${result.youtubeTitle}\n\n${result.youtubeDescription}`} label="youtube" copied={copied} onCopy={onCopy} locale={locale} />
           </div>
           <div className="bg-muted/40 rounded-2xl p-4 space-y-3">
             <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">Title</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
               <p className="text-sm font-semibold text-foreground">{result.youtubeTitle}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">Description</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
               <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{result.youtubeDescription}</p>
             </div>
           </div>
@@ -421,9 +421,9 @@ const ProResults = memo(function ProResults({
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Instagram className="h-3.5 w-3.5 text-primary" />Instagram Reels
+              <Instagram className="h-3.5 w-3.5 text-primary" />{t("result.instagram", locale)}
             </h3>
-            <CopyBtn text={result.instagramCaption} label="instagram" copied={copied} onCopy={onCopy} />
+            <CopyBtn text={result.instagramCaption} label="instagram" copied={copied} onCopy={onCopy} locale={locale} />
           </div>
           <div className="bg-muted/40 rounded-2xl p-4">
             <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.instagramCaption}</p>
@@ -438,7 +438,7 @@ const ProResults = memo(function ProResults({
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-primary/30 bg-primary/5 text-primary text-sm font-semibold hover:bg-primary/10 transition-colors"
         >
           <Package className="h-4 w-4" />
-          View Full Content Pack
+          {t("result.viewPack", locale)}
           <ChevronDown className="h-4 w-4" />
         </button>
       )}
@@ -446,15 +446,15 @@ const ProResults = memo(function ProResults({
       {showPack && (
         <div className="space-y-4 pt-2">
           <div className="flex items-center justify-between px-1">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Full Content Pack</p>
-            <button onClick={() => setShowPack(false)} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">Hide</button>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.fullPack", locale)}</p>
+            <button onClick={() => setShowPack(false)} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">{t("result.hidePack", locale)}</button>
           </div>
 
           <Accordion type="multiple" defaultValue={["hooks"]} className="space-y-2.5">
             {result.hookVariations?.length > 0 && (
               <AccordionItem value="hooks" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />Hook Variations ({result.hookVariations.length})</span>
+                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />{t("result.hookVariations", locale)} ({result.hookVariations.length})</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2">
@@ -463,7 +463,7 @@ const ProResults = memo(function ProResults({
                         <p className="text-sm text-foreground leading-relaxed">
                           <span className="text-xs font-bold text-primary mr-1.5">V{i + 1}</span>{v}
                         </p>
-                        <CopyBtn text={v} label={`hv-${i}`} copied={copied} onCopy={onCopy} />
+                        <CopyBtn text={v} label={`hv-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
                       </div>
                     ))}
                   </div>
@@ -474,7 +474,7 @@ const ProResults = memo(function ProResults({
             {result.editingPlan?.length > 0 && (
               <AccordionItem value="editing" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Film className="h-4 w-4 text-primary" />Editing Plan</span>
+                  <span className="flex items-center gap-2"><Film className="h-4 w-4 text-primary" />{t("result.editingPlan", locale)}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2.5">
@@ -494,7 +494,7 @@ const ProResults = memo(function ProResults({
 
             <AccordionItem value="images" className="border border-border/50 rounded-2xl overflow-hidden">
               <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                <span className="flex items-center gap-2"><Image className="h-4 w-4 text-primary" />Image Prompts ({result.imagePrompts.length})</span>
+                <span className="flex items-center gap-2"><Image className="h-4 w-4 text-primary" />{t("result.imagePrompts", locale)} ({result.imagePrompts.length})</span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
                 <div className="space-y-2">
@@ -503,7 +503,7 @@ const ProResults = memo(function ProResults({
                       <p className="text-xs text-muted-foreground leading-relaxed">
                         <span className="text-foreground font-semibold mr-1">{i + 1}.</span>{p}
                       </p>
-                      <CopyBtn text={p} label={`pi-${i}`} copied={copied} onCopy={onCopy} />
+                      <CopyBtn text={p} label={`pi-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
                     </div>
                   ))}
                 </div>
@@ -513,7 +513,7 @@ const ProResults = memo(function ProResults({
             {result.voiceStyle && (
               <AccordionItem value="voice" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />Voice Style</span>
+                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />{t("result.voiceStyle", locale)}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="bg-muted/40 rounded-xl p-3">
@@ -526,16 +526,16 @@ const ProResults = memo(function ProResults({
             {result.postingStrategy && (
               <AccordionItem value="posting" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><CalendarClock className="h-4 w-4 text-primary" />Posting Strategy</span>
+                  <span className="flex items-center gap-2"><CalendarClock className="h-4 w-4 text-primary" />{t("result.postingStrategy", locale)}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2">
                     <div className="bg-muted/40 rounded-xl p-3">
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">Best Time</p>
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.bestTime", locale)}</p>
                       <p className="text-sm font-medium text-foreground">{result.postingStrategy.bestTime}</p>
                     </div>
                     <div className="bg-muted/40 rounded-xl p-3">
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">Platform Tip</p>
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.platformTip", locale)}</p>
                       <p className="text-sm text-foreground">{result.postingStrategy.platformTip}</p>
                     </div>
                   </div>
