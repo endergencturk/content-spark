@@ -136,7 +136,16 @@ export default function Index() {
         <div className="space-y-4">
           {/* Copy All */}
           {(result.hooks.length > 0 || result.script || result.caption) && (
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="copyBtn"
+                size="sm"
+                disabled={loading}
+                onClick={generateContent}
+              >
+                <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
+                Regenerate
+              </Button>
               <Button
                 variant="copyBtn"
                 size="sm"
