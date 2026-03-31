@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { useSettings } from "@/contexts/SettingsContext";
-import { t } from "@/lib/i18n";
+import { t, type Locale } from "@/lib/i18n";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
