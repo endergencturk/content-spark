@@ -143,7 +143,7 @@ export default function Index() {
                 disabled={loading}
                 onClick={generateContent}
               >
-                <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
+                <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
                 Regenerate
               </Button>
               <Button
