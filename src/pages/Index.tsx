@@ -869,7 +869,7 @@ export default function Index() {
 
             {/* 6. Goal */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Goal</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.goal", locale)}</p>
               <div className="flex gap-2 flex-wrap">
                 {FREE_GOALS.map((g) => (
                   <Pill key={g.value} selected={goal === g.value} onClick={() => setGoal(g.value)}>
