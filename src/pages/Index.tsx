@@ -629,7 +629,7 @@ export default function Index() {
     }
 
     if (!hasProAccess && isAtLimit) {
-      openUpgrade("You've reached your daily free limit. Upgrade to Pro for unlimited generations and premium outputs.");
+      openUpgrade(t("trigger.dailyLimit", locale));
       return;
     }
 
