@@ -20,16 +20,17 @@ interface GeneratedResult {
 }
 
 // Beginner-friendly mock API. Swap with a real fetch call when you connect an API.
-async function fakeGenerateApi(topic: string): Promise<GeneratedResult> {
+async function fakeGenerateApi(topic: string, style: string): Promise<GeneratedResult> {
   await new Promise((resolve) => setTimeout(resolve, 900));
+  const styleLabel = STYLE_OPTIONS.find((s) => s.value === style)?.label ?? style;
   return {
     hooks: [
-      `Nobody talks about this part of ${topic}...`,
-      `3 things I wish I knew earlier about ${topic}`,
-      `The easiest way to get started with ${topic}`,
+      `Nobody talks about this part of ${topic}... [${styleLabel}]`,
+      `3 things I wish I knew earlier about ${topic} [${styleLabel}]`,
+      `The easiest way to get started with ${topic} [${styleLabel}]`,
     ],
-    script: `Here's a simple way to think about ${topic}. First, focus on the basics instead of trying to do everything at once. Then, practice consistently and keep things simple. If you stay consistent, you'll improve much faster than you think.`,
-    caption: `${topic}, made simple. Save this for later.`,
+    script: `Here's a ${styleLabel.toLowerCase()} take on ${topic}. First, focus on the basics instead of trying to do everything at once. Then, practice consistently and keep things simple. If you stay consistent, you'll improve much faster than you think.`,
+    caption: `${topic}, made simple. Save this for later. #${style}`,
   };
 }
 
