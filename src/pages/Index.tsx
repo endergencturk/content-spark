@@ -779,7 +779,7 @@ export default function Index() {
                   );
                 })}
               </div>
-              {isProMode && <p className="text-[10px] text-muted-foreground text-center">Select multiple platforms</p>}
+              {isProMode && <p className="text-[10px] text-muted-foreground text-center">{t("selector.platform.multi", locale)}</p>}
             </div>
 
             {/* 2. Topic */}
