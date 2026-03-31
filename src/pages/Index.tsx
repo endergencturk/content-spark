@@ -1055,7 +1055,7 @@ export default function Index() {
         </div>
       </div>
 
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} trigger={upgradeTrigger} />
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} trigger={upgradeTrigger} locale={locale} />
     </div>
   );
 }
