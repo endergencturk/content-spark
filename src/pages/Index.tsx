@@ -6,13 +6,17 @@ import {
   Copy, Loader2, Sparkles, FileText, MessageSquare, RefreshCw,
   Image, Clock, Flame, Crown, Hash, Youtube, Mic, Film,
   CalendarClock, Target, Trophy, Zap, Instagram, ChevronDown,
-  Package,
+  Package, Lock, AlertTriangle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/lib/i18n";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
+import { UpsellBanner } from "@/components/UpsellBanner";
+import { BlurredPreview } from "@/components/BlurredPreview";
+import { useUsageLimit } from "@/hooks/useUsageLimit";
 
 // ── Constants ───────────────────────────────────────────────────────
 
@@ -127,20 +131,28 @@ const Pill = memo(function Pill({
 });
 
 const MiniSelect = memo(function MiniSelect({
-  label, value, options, onChange,
-}: { label: string; value: string; options: { value: string; label: string }[]; onChange: (v: string) => void }) {
+  label, value, options, onChange, locked, onLocked,
+}: { label: string; value: string; options: { value: string; label: string }[]; onChange: (v: string) => void; locked?: boolean; onLocked?: () => void }) {
   return (
     <div className="space-y-1">
-      <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">{label}</p>
+      <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground flex items-center gap-1">
+        {label}
+        {locked && <Lock className="h-2.5 w-2.5 text-primary" />}
+      </p>
       <div className="flex gap-1.5 flex-wrap">
         {options.map((o) => (
           <button
             key={o.value}
-            onClick={() => onChange(o.value)}
+            onClick={() => {
+              if (locked && onLocked) onLocked();
+              else onChange(o.value);
+            }}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              value === o.value
+              !locked && value === o.value
                 ? "bg-primary/10 text-primary border border-primary/30"
-                : "bg-muted/60 text-muted-foreground hover:text-foreground border border-transparent"
+                : locked
+                  ? "bg-muted/40 text-muted-foreground/60 border border-transparent cursor-not-allowed"
+                  : "bg-muted/60 text-muted-foreground hover:text-foreground border border-transparent"
             }`}
           >
             {o.label}
@@ -166,11 +178,55 @@ const ScriptBlock = memo(function ScriptBlock({
   );
 });
 
+// ── Usage limit banner ──────────────────────────────────────────────
+
+const UsageBanner = memo(function UsageBanner({
+  remaining, isNearLimit, isAtLimit, onUpgrade,
+}: { remaining: number; isNearLimit: boolean; isAtLimit: boolean; onUpgrade: () => void }) {
+  if (!isNearLimit && !isAtLimit) return null;
+
+  return (
+    <div className={`rounded-2xl p-4 flex items-start gap-3 ${
+      isAtLimit
+        ? "bg-destructive/10 border border-destructive/20"
+        : "bg-primary/5 border border-primary/15"
+    }`}>
+      <div className={`shrink-0 h-8 w-8 rounded-xl flex items-center justify-center ${
+        isAtLimit ? "bg-destructive/15" : "bg-primary/10"
+      }`}>
+        {isAtLimit
+          ? <Lock className="h-4 w-4 text-destructive" />
+          : <AlertTriangle className="h-4 w-4 text-primary" />
+        }
+      </div>
+      <div className="flex-1 space-y-1.5">
+        <p className="text-sm font-semibold text-foreground">
+          {isAtLimit
+            ? "Daily limit reached"
+            : `${remaining} generation${remaining === 1 ? "" : "s"} left today`}
+        </p>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          {isAtLimit
+            ? "Upgrade to Pro for unlimited generations and premium outputs."
+            : "You're close to your limit. Upgrade for unlimited access + better outputs."}
+        </p>
+        <button
+          onClick={onUpgrade}
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors mt-1"
+        >
+          <Crown className="h-3 w-3" />
+          Upgrade to continue
+        </button>
+      </div>
+    </div>
+  );
+});
+
 // ── General Results ─────────────────────────────────────────────────
 
 const GeneralResults = memo(function GeneralResults({
-  result, copied, onCopy,
-}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void }) {
+  result, copied, onCopy, onUpgrade,
+}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; onUpgrade: () => void }) {
   return (
     <div className="space-y-5">
       {/* Hooks */}
@@ -184,6 +240,11 @@ const GeneralResults = memo(function GeneralResults({
             <CopyBtn text={hook} label={`hook-${i}`} copied={copied} onCopy={onCopy} />
           </div>
         ))}
+        {/* Upsell after hooks */}
+        <UpsellBanner
+          message="Get higher-converting hooks with Pro — scroll-stopping variations that increase retention"
+          onUpgrade={onUpgrade}
+        />
       </section>
 
       {/* Script */}
@@ -197,6 +258,11 @@ const GeneralResults = memo(function GeneralResults({
             <p key={i} className="text-sm text-foreground leading-loose">{line || <br />}</p>
           ))}
         </div>
+        {/* Upsell after script */}
+        <UpsellBanner
+          message="Make this script voiceover-ready with structured beats and pro editing plan"
+          onUpgrade={onUpgrade}
+        />
       </section>
 
       {/* Caption */}
@@ -222,6 +288,48 @@ const GeneralResults = memo(function GeneralResults({
           </div>
         ))}
       </section>
+
+      {/* Blurred Pro previews */}
+      <div className="space-y-5 pt-3">
+        <div className="flex items-center gap-2 px-1">
+          <Crown className="h-3.5 w-3.5 text-primary" />
+          <p className="text-[10px] uppercase tracking-widest font-bold text-primary">Available with Pro</p>
+        </div>
+
+        <BlurredPreview
+          title="Hook variations that increase retention"
+          previewLines={[
+            "V1: " + (result.hooks[0]?.slice(0, 50) || "What if everything you knew about this was wrong?") + "…",
+            "V2: A completely different angle that hooks in the first 0.5 seconds",
+            "V3: The emotional rewrite that keeps viewers watching till the end",
+          ]}
+          onUpgrade={onUpgrade}
+        />
+
+        <BlurredPreview
+          title="Scene-by-scene editing plan"
+          previewLines={[
+            "Scene 1 (0-3s): Quick zoom into subject with trending audio drop",
+            "Scene 2 (3-8s): B-roll montage with text overlay animation",
+            "Scene 3 (8-15s): Direct-to-camera with cinematic lighting shift",
+          ]}
+          onUpgrade={onUpgrade}
+        />
+      </div>
+
+      {/* Bottom CTA */}
+      <div className="text-center py-4 space-y-2">
+        <p className="text-xs text-muted-foreground">
+          Creators using Pro get 3× more engagement
+        </p>
+        <button
+          onClick={onUpgrade}
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all"
+        >
+          <Crown className="h-4 w-4" />
+          Upgrade to stand out
+        </button>
+      </div>
     </div>
   );
 });
@@ -256,7 +364,7 @@ const ProResults = memo(function ProResults({
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-primary" />Script
+            <FileText className="h-3.5 w-3.5 text-primary" />Voiceover-ready script
           </h3>
           <CopyBtn text={fullScript} label="pro-script" copied={copied} onCopy={onCopy} />
         </div>
@@ -348,7 +456,7 @@ const ProResults = memo(function ProResults({
               <AccordionItem value="hooks" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
                   <span className="flex items-center gap-2">
-                    <Target className="h-4 w-4 text-primary" />Hook Variations
+                    <Target className="h-4 w-4 text-primary" />Hooks that increase retention
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
@@ -371,7 +479,7 @@ const ProResults = memo(function ProResults({
               <AccordionItem value="editing" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
                   <span className="flex items-center gap-2">
-                    <Film className="h-4 w-4 text-primary" />Editing Plan
+                    <Film className="h-4 w-4 text-primary" />Scene-by-scene editing plan
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
@@ -395,7 +503,7 @@ const ProResults = memo(function ProResults({
             <AccordionItem value="images" className="border border-border/50 rounded-2xl overflow-hidden">
               <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
                 <span className="flex items-center gap-2">
-                  <Image className="h-4 w-4 text-primary" />Image Prompts ({result.imagePrompts.length})
+                  <Image className="h-4 w-4 text-primary" />Cinematic image prompts ({result.imagePrompts.length})
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
@@ -417,7 +525,7 @@ const ProResults = memo(function ProResults({
               <AccordionItem value="voice" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
                   <span className="flex items-center gap-2">
-                    <Mic className="h-4 w-4 text-primary" />Voice Style
+                    <Mic className="h-4 w-4 text-primary" />Voice style recommendation
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
@@ -433,7 +541,7 @@ const ProResults = memo(function ProResults({
               <AccordionItem value="posting" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
                   <span className="flex items-center gap-2">
-                    <CalendarClock className="h-4 w-4 text-primary" />Posting Strategy
+                    <CalendarClock className="h-4 w-4 text-primary" />Growth strategy & timing
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
@@ -483,6 +591,7 @@ const LoadingState = memo(function LoadingState({ mode }: { mode: Mode }) {
 export default function Index() {
   const { settings } = useSettings();
   const locale = settings.language;
+  const { remaining, isAtLimit, isNearLimit, increment } = useUsageLimit();
 
   const [mode, setMode] = useState<Mode>("general");
   const [topic, setTopic] = useState("");
@@ -499,6 +608,13 @@ export default function Index() {
   const [copied, setCopied] = useState("");
   const [generalResult, setGeneralResult] = useState<GeneralResult | null>(null);
   const [proResult, setProResult] = useState<ProResult | null>(null);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeTrigger, setUpgradeTrigger] = useState("");
+
+  const openUpgrade = useCallback((trigger?: string) => {
+    setUpgradeTrigger(trigger || "");
+    setUpgradeOpen(true);
+  }, []);
 
   const togglePlatform = useCallback((value: string) => {
     setPlatforms((prev) =>
@@ -517,6 +633,13 @@ export default function Index() {
 
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
+
+    // Check free limit
+    if (mode === "general" && isAtLimit) {
+      openUpgrade("You've reached your daily free limit. Upgrade to Pro for unlimited generations and premium outputs.");
+      return;
+    }
+
     setLoading(true);
     try {
       const body =
@@ -534,6 +657,7 @@ export default function Index() {
       } else {
         setGeneralResult(data as GeneralResult);
         setProResult(null);
+        increment(); // Count free usage
       }
     } catch (error: any) {
       console.error("Generation failed:", error);
@@ -541,7 +665,7 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [mode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, settings.outputStyle]);
+  }, [mode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, settings.outputStyle, isAtLimit, increment, openUpgrade]);
 
   const hasResults = mode === "general" ? generalResult !== null : proResult !== null;
 
@@ -614,6 +738,16 @@ export default function Index() {
               <Crown className="h-4 w-4" />Pro
             </button>
           </div>
+
+          {/* ─── USAGE BANNER (Free mode) ─── */}
+          {mode === "general" && (
+            <UsageBanner
+              remaining={remaining}
+              isNearLimit={isNearLimit}
+              isAtLimit={isAtLimit}
+              onUpgrade={() => openUpgrade()}
+            />
+          )}
 
           {/* ─── INPUT AREA ─── */}
           <div className="space-y-5">
@@ -690,7 +824,7 @@ export default function Index() {
               </div>
             </div>
 
-            {/* Pro-only */}
+            {/* Pro-only controls */}
             {mode === "pro" && (
               <div className="grid grid-cols-2 gap-4 pt-1 border-t border-border/40">
                 <MiniSelect label="Image Prompts" value={imagePromptCount} options={IMAGE_COUNT_OPTIONS.map(v => ({ value: v, label: v }))} onChange={setImagePromptCount} />
@@ -698,19 +832,50 @@ export default function Index() {
               </div>
             )}
 
+            {/* Locked Pro controls in Free mode */}
+            {mode === "general" && (
+              <div className="grid grid-cols-2 gap-4 pt-1 border-t border-border/40 opacity-60">
+                <MiniSelect
+                  label="Image Prompts"
+                  value=""
+                  options={IMAGE_COUNT_OPTIONS.map(v => ({ value: v, label: v }))}
+                  onChange={() => {}}
+                  locked
+                  onLocked={() => openUpgrade("Customize image prompt count with Pro — generate up to 6 cinematic prompts per topic.")}
+                />
+                <MiniSelect
+                  label="Depth"
+                  value=""
+                  options={DEPTH_OPTIONS}
+                  onChange={() => {}}
+                  locked
+                  onLocked={() => openUpgrade("Control output depth with Pro — get concise or detailed content based on your needs.")}
+                />
+              </div>
+            )}
+
             {/* Generate */}
             <Button
               variant="generate"
               className="w-full h-13 text-base rounded-2xl"
-              disabled={!topic.trim() || loading}
+              disabled={!topic.trim() || loading || (mode === "general" && isAtLimit)}
               onClick={generateContent}
             >
               {loading ? (
                 <><Loader2 className="h-5 w-5 animate-spin" />Generating…</>
+              ) : mode === "general" && isAtLimit ? (
+                <><Lock className="h-5 w-5" />Upgrade to continue</>
               ) : (
                 <><Sparkles className="h-5 w-5" />{mode === "pro" ? "Generate Full Pipeline" : "Generate Content"}</>
               )}
             </Button>
+
+            {/* Free remaining indicator */}
+            {mode === "general" && !isAtLimit && !isNearLimit && remaining < 4 && (
+              <p className="text-center text-[11px] text-muted-foreground">
+                {remaining} free generation{remaining === 1 ? "" : "s"} remaining today
+              </p>
+            )}
           </div>
 
           {/* ─── ACTION BAR ─── */}
@@ -736,7 +901,7 @@ export default function Index() {
 
           {/* ─── RESULTS ─── */}
           {!loading && mode === "general" && generalResult && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} />
           )}
           {!loading && mode === "pro" && proResult && (
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} />
@@ -756,6 +921,9 @@ export default function Index() {
 
         </div>
       </div>
+
+      {/* ─── UPGRADE DIALOG ─── */}
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} trigger={upgradeTrigger} />
     </div>
   );
 }
