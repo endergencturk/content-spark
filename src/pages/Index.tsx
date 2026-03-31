@@ -983,7 +983,7 @@ export default function Index() {
                 <textarea
                   value={customDescription}
                   onChange={(e) => setCustomDescription(e.target.value)}
-                  placeholder="e.g. I want to sell my course, target 18-25 year olds, use dark humor..."
+                  placeholder={t("selector.customDesc.placeholder", locale)}
                   rows={3}
                   className="w-full rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                 />
