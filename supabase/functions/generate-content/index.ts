@@ -86,6 +86,7 @@ RETURN ONLY THE RESULT. No explanations. No analysis. No extra text.`;
 
 RETURN ONLY valid JSON with this exact structure (no markdown fences, no explanation):
 {
+  "bestHook": "The single most powerful hook text across all topics",
   "topics": [
     {
       "title": "topic title",
@@ -96,6 +97,18 @@ RETURN ONLY valid JSON with this exact structure (no markdown fences, no explana
       ]
     }
   ],
+  "videoIdea": "A short 1-2 sentence concept explaining the video angle and why it works",
+  "editingPlan": [
+    { "scene": 1, "visual": "description of visual", "audio": "what the voiceover says", "duration": "0:00-0:05" },
+    { "scene": 2, "visual": "description", "audio": "voiceover", "duration": "0:05-0:15" },
+    { "scene": 3, "visual": "description", "audio": "voiceover", "duration": "0:15-0:30" }
+  ],
+  "hookVariations": ["variation 1 of best hook", "variation 2 of best hook", "variation 3 of best hook"],
+  "voiceStyle": "One of: Dark & Slow | Fast & Energetic | Calm & Authoritative | Whispery & Mysterious | Bold & Confrontational",
+  "postingStrategy": {
+    "bestTime": "e.g. Tuesday 7-9 PM EST",
+    "platformTip": "A specific actionable tip for the chosen platform"
+  },
   "script": "line1\\nline2\\nline3",
   "youtubeTitle": "title",
   "youtubeDescription": "description",
@@ -104,9 +117,15 @@ RETURN ONLY valid JSON with this exact structure (no markdown fences, no explana
 }
 
 SPECIFIC PRO RULES:
+- "bestHook": Pick THE single best hook across all 5 topics. This is the #1 recommended hook.
 - Generate exactly 5 viral topics related to the user's subject
 - Each topic gets exactly 3 hooks: NORMAL, DISRUPTION, QUESTION
 - Mark the single best hook per topic with "best": true
+- "videoIdea": 1-2 sentence concept pitch. Why this angle works for the platform.
+- "editingPlan": Exactly 3 scenes. Each has visual description, audio/voiceover line, and timestamp.
+- "hookVariations": Rewrite the bestHook 3 different ways (different angle, different emotion, different structure)
+- "voiceStyle": Suggest the ideal voice delivery style for this content
+- "postingStrategy": Best posting time and one platform-specific tip
 - Script: full voiceover, line-by-line, max 6-8 words per line
 - 5 image prompts: cinematic, ${imageFormat} ratio, no text, no faces
 - YouTube title: click-worthy, SEO-optimized

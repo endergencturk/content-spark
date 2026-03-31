@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Copy, Loader2, Sparkles, Lightbulb, FileText, MessageSquare, RefreshCw, Image, Clock, Flame, Star, Zap, Crown, Hash, Youtube, ImageIcon } from "lucide-react";
+import { Copy, Loader2, Sparkles, Lightbulb, FileText, MessageSquare, RefreshCw, Image, Clock, Flame, Star, Zap, Crown, Hash, Youtube, ImageIcon, Mic, Film, CalendarClock, Target, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
@@ -65,8 +65,21 @@ interface ProTopic {
   hooks: { type: string; text: string; best: boolean }[];
 }
 
+interface EditingScene {
+  scene: number;
+  visual: string;
+  audio: string;
+  duration: string;
+}
+
 interface ProResult {
+  bestHook: string;
   topics: ProTopic[];
+  videoIdea: string;
+  editingPlan: EditingScene[];
+  hookVariations: string[];
+  voiceStyle: string;
+  postingStrategy: { bestTime: string; platformTip: string };
   script: string;
   youtubeTitle: string;
   youtubeDescription: string;
@@ -170,6 +183,97 @@ const GeneralResults = memo(function GeneralResults({ result, copied, onCopy }: 
 const ProResults = memo(function ProResults({ result, copied, onCopy }: { result: ProResult; copied: string; onCopy: (k: string, t: string) => void }) {
   return (
     <div className="space-y-4">
+      {/* Best Hook Highlight */}
+      {result.bestHook && (
+        <Card className="shadow-[var(--shadow-card)] border-primary/30 bg-primary/5">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="shrink-0 mt-0.5 h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Trophy className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider font-semibold text-primary mb-1">Best Hook</p>
+                  <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
+                </div>
+              </div>
+              <CopyButton text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Video Idea */}
+      {result.videoIdea && (
+        <ResultCard title="Suggested Video Idea" icon={<Film className="h-4 w-4 text-primary" />}>
+          <p className="text-sm text-foreground leading-relaxed">{result.videoIdea}</p>
+          <CopyButton text={result.videoIdea} label="video-idea" copied={copied} onCopy={onCopy} />
+        </ResultCard>
+      )}
+
+      {/* Hook Variations */}
+      {result.hookVariations && result.hookVariations.length > 0 && (
+        <ResultCard title="Hook Variations" icon={<Target className="h-4 w-4 text-primary" />}>
+          <div className="space-y-2">
+            {result.hookVariations.map((v, i) => (
+              <div key={i} className="flex items-start justify-between gap-2 rounded-lg bg-muted/50 p-3">
+                <p className="text-sm text-foreground leading-relaxed">
+                  <span className="text-xs font-bold text-primary mr-2">V{i + 1}</span>
+                  {v}
+                </p>
+                <CopyButton text={v} label={`hook-var-${i}`} copied={copied} onCopy={onCopy} />
+              </div>
+            ))}
+          </div>
+        </ResultCard>
+      )}
+
+      {/* Editing Plan */}
+      {result.editingPlan && result.editingPlan.length > 0 && (
+        <ResultCard title="Editing Plan" icon={<Film className="h-4 w-4 text-primary" />}>
+          <div className="space-y-3">
+            {result.editingPlan.map((scene, i) => (
+              <div key={i} className="rounded-lg bg-muted/50 p-3 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold text-primary">Scene {scene.scene} <span className="text-muted-foreground font-normal ml-2">{scene.duration}</span></p>
+                </div>
+                <p className="text-sm text-foreground"><span className="text-muted-foreground text-xs mr-1">Visual:</span>{scene.visual}</p>
+                <p className="text-sm text-foreground"><span className="text-muted-foreground text-xs mr-1">Audio:</span>{scene.audio}</p>
+              </div>
+            ))}
+          </div>
+          <CopyButton text={result.editingPlan.map(s => `Scene ${s.scene} (${s.duration})\nVisual: ${s.visual}\nAudio: ${s.audio}`).join("\n\n")} label="editing-plan" copied={copied} onCopy={onCopy} />
+        </ResultCard>
+      )}
+
+      {/* Voice Style + Posting Strategy side by side */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {result.voiceStyle && (
+          <ResultCard title="Voice Style" icon={<Mic className="h-4 w-4 text-primary" />}>
+            <div className="rounded-lg bg-muted/50 p-3">
+              <p className="text-sm font-semibold text-foreground">{result.voiceStyle}</p>
+            </div>
+            <CopyButton text={result.voiceStyle} label="voice-style" copied={copied} onCopy={onCopy} />
+          </ResultCard>
+        )}
+        {result.postingStrategy && (
+          <ResultCard title="Posting Strategy" icon={<CalendarClock className="h-4 w-4 text-primary" />}>
+            <div className="space-y-2">
+              <div className="rounded-lg bg-muted/50 p-3">
+                <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-0.5">Best Time</p>
+                <p className="text-sm font-semibold text-foreground">{result.postingStrategy.bestTime}</p>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-3">
+                <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-0.5">Platform Tip</p>
+                <p className="text-sm text-foreground">{result.postingStrategy.platformTip}</p>
+              </div>
+            </div>
+            <CopyButton text={`Best Time: ${result.postingStrategy.bestTime}\nTip: ${result.postingStrategy.platformTip}`} label="posting" copied={copied} onCopy={onCopy} />
+          </ResultCard>
+        )}
+      </div>
+
+      {/* Topics & Hooks */}
       <ResultCard title="Viral Topics & Hooks" icon={<Lightbulb className="h-4 w-4 text-primary" />}>
         <div className="space-y-4">
           {result.topics.map((topic, ti) => (
@@ -193,6 +297,7 @@ const ProResults = memo(function ProResults({ result, copied, onCopy }: { result
         </div>
       </ResultCard>
 
+      {/* Script */}
       <ResultCard title="Voiceover Script" icon={<FileText className="h-4 w-4 text-primary" />}>
         <div className="rounded-lg bg-muted/50 p-4">
           {result.script.split("\n").map((line, i) => (
@@ -306,6 +411,12 @@ export default function Index() {
         return `Topic ${i + 1}: ${t.title}\n${hooks}`;
       }).join("\n\n");
       all = [
+        `🏆 BEST HOOK:\n${proResult.bestHook}`,
+        proResult.videoIdea ? `💡 VIDEO IDEA:\n${proResult.videoIdea}` : "",
+        proResult.hookVariations?.length ? `🎯 HOOK VARIATIONS:\n${proResult.hookVariations.map((v, i) => `V${i + 1}: ${v}`).join("\n")}` : "",
+        proResult.editingPlan?.length ? `🎬 EDITING PLAN:\n${proResult.editingPlan.map(s => `Scene ${s.scene} (${s.duration})\nVisual: ${s.visual}\nAudio: ${s.audio}`).join("\n\n")}` : "",
+        proResult.voiceStyle ? `🎙️ VOICE STYLE: ${proResult.voiceStyle}` : "",
+        proResult.postingStrategy ? `📅 POSTING STRATEGY:\nBest Time: ${proResult.postingStrategy.bestTime}\nTip: ${proResult.postingStrategy.platformTip}` : "",
         topicsText,
         `Script:\n${proResult.script}`,
         `YouTube Title: ${proResult.youtubeTitle}`,
