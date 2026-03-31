@@ -551,7 +551,7 @@ const ProResults = memo(function ProResults({
 
 // ── Loading ─────────────────────────────────────────────────────────
 
-const LoadingState = memo(function LoadingState({ mode }: { mode: Mode }) {
+const LoadingState = memo(function LoadingState({ mode, locale = "en" }: { mode: Mode; locale?: Locale }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 space-y-4">
       <div className="relative h-12 w-12">
@@ -562,9 +562,9 @@ const LoadingState = memo(function LoadingState({ mode }: { mode: Mode }) {
       </div>
       <div className="text-center space-y-1">
         <p className="text-sm font-semibold text-foreground">
-          {mode === "pro" ? "Building your content pipeline…" : "Creating your content…"}
+          {mode === "pro" ? t("loading.pro", locale) : t("loading.general", locale)}
         </p>
-        <p className="text-xs text-muted-foreground">Usually takes 5–10 seconds</p>
+        <p className="text-xs text-muted-foreground">{t("loading.time", locale)}</p>
       </div>
     </div>
   );
