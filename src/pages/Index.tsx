@@ -977,9 +977,10 @@ export default function Index() {
               )}
             </Button>
 
-            {!isPro && !isAtLimit && !isNearLimit && remaining < 4 && (
+            {!isPro && !isAtLimit && (
               <p className="text-center text-[11px] text-muted-foreground">
-                {remaining} free generation{remaining === 1 ? "" : "s"} remaining today
+                {remaining} free generation{remaining === 1 ? "" : "s"} available
+                {nextRefillLabel ? ` · Next credit in ${nextRefillLabel}` : ""}
               </p>
             )}
           </div>
