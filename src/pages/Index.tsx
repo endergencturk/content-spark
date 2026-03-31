@@ -925,8 +925,8 @@ export default function Index() {
             {/* 8. Image Prompts */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
-                <Image className="h-3 w-3" />Image Prompts
-                {!hasProAccess && !isProMode && <span className="text-muted-foreground/60 ml-1">(fixed: 3)</span>}
+                <Image className="h-3 w-3" />{t("selector.imagePrompts", locale)}
+                {!hasProAccess && !isProMode && <span className="text-muted-foreground/60 ml-1">{t("selector.imagePrompts.fixed", locale)}</span>}
               </p>
               {(hasProAccess || isProMode) ? (
                 <div className="space-y-1.5">
