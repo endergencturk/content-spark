@@ -273,12 +273,12 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
 // ── Prompt builder ──────────────────────────────────────────────────
 
-function getScriptLineGuidance(scriptLength: string): string {
+function getScriptCharacterLimit(scriptLength: string): string {
   switch (scriptLength) {
-    case "15": return "15–25 lines total. Very short, punchy.";
-    case "30": return "35–55 lines total. Short sentences, quick pacing.";
-    case "60": return "70–100 lines total. Medium-length, clear narrative.";
-    default: return "35–55 lines total.";
+    case "15": return "STRICT CHARACTER LIMIT: 200–250 characters max. If exceeded, output is INVALID.";
+    case "30": return "STRICT CHARACTER LIMIT: 350–420 characters max. If exceeded, output is INVALID.";
+    case "60": return "STRICT CHARACTER LIMIT: 700–850 characters max. If exceeded, output is INVALID.";
+    default: return "STRICT CHARACTER LIMIT: 350–420 characters max. If exceeded, output is INVALID.";
   }
 }
 
