@@ -273,12 +273,12 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
 // ── Prompt builder ──────────────────────────────────────────────────
 
-function getScriptLineGuidance(scriptLength: string): string {
+function getScriptCharacterLimit(scriptLength: string): string {
   switch (scriptLength) {
-    case "15": return "15–25 lines total. Very short, punchy.";
-    case "30": return "35–55 lines total. Short sentences, quick pacing.";
-    case "60": return "70–100 lines total. Medium-length, clear narrative.";
-    default: return "35–55 lines total.";
+    case "15": return "STRICT CHARACTER LIMIT: 200–250 characters max. If exceeded, output is INVALID.";
+    case "30": return "STRICT CHARACTER LIMIT: 350–420 characters max. If exceeded, output is INVALID.";
+    case "60": return "STRICT CHARACTER LIMIT: 700–850 characters max. If exceeded, output is INVALID.";
+    default: return "STRICT CHARACTER LIMIT: 350–420 characters max. If exceeded, output is INVALID.";
   }
 }
 
@@ -346,7 +346,7 @@ function buildPrompt(input: PromptInput) {
     })
     .join(", ");
 
-  const lineGuidance = getScriptLineGuidance(input.scriptLength);
+  const charLimit = getScriptCharacterLimit(input.scriptLength);
   const densityGuidance = getContentDensityGuidance(input.scriptLength);
   const styleInstructions = getStyleInstructions(input.style);
 
@@ -364,27 +364,27 @@ GLOBAL RULES:
   const scriptFormatRules = `
 VOICE SCRIPT (CRITICAL):
 - Generate a voiceover script optimized for ElevenLabs.
+- ${charLimit}
 - FORMAT (STRICT):
-  - Each sentence MUST be on a new line
+  - Each line = 2–6 words ONLY
+  - One idea per line
+  - Use many short lines
   - NEVER use paragraphs
   - NEVER combine sentences
-  - Break lines aggressively
-  - Even 2–3 word phrases can be separate lines
   - Add empty lines for pacing
 - STYLE:
-  - Cinematic voiceover
-  - High-retention storytelling
-  - Continuous tension building
-  - Micro-cliffhangers every 2–3 lines
-  - Use pattern interrupts (e.g., "But then...", "And then...")
+  - Cinematic
+  - Suspenseful
+  - Fast pacing
+  - High retention
+  - Use pattern interrupts (e.g., "But then…", "And then…", "Suddenly…")
 - STRUCTURE: Hook → Context → Escalation → Twist → Open loop
 - CRITICAL:
   - First line MUST stop scrolling (shocking / unexpected)
-  - Ending MUST create a loop (open question or unresolved idea)
+  - Ending MUST create curiosity (never fully resolve)
+  - Count characters before returning — if over the limit, shorten the script
 - DO NOT use labels like "Beat 1", "Beat 2", "Hook:", "CTA:"
 - DO NOT write paragraphs — if the script is a paragraph, the output is INVALID
-- Line count target: ${lineGuidance}
-- Shorter duration = fewer lines, NOT denser text
 
 ${densityGuidance}`;
 
@@ -397,7 +397,7 @@ IMAGE PROMPTS:
 SEO PACK:
 YOUTUBE:
 - Title: curiosity-driven + SEO optimized + include #shorts
-- Description: 2 short sentences using keywords
+- Description: 1–2 short sentences using keywords
 - Tags: relevant searchable keywords
 
 TIKTOK:
@@ -458,10 +458,11 @@ STYLE BEHAVIOR:
 ${styleInstructions}
 
 HOOK GENERATION:
-- Generate 5–10 hooks (use stronger psychological triggers: fear, urgency, surprise, curiosity)
-- Max 6–8 words per hook
-- Punchy, non-generic, scroll-stopping
-- Each must create curiosity instantly
+- Generate 5–8 hooks (use stronger psychological triggers: fear, urgency, surprise, curiosity)
+- Max 6 words per hook
+- Extremely punchy and aggressive
+- Use curiosity + shock
+- Avoid safe phrasing
 - First hook must be the strongest
 
 BEST HOOK:
@@ -518,9 +519,10 @@ ${styleInstructions}
 
 HOOK GENERATION:
 - Generate exactly 3 hooks
-- Max 6–8 words per hook
-- Punchy, non-generic, scroll-stopping
-- Each must create curiosity instantly
+- Max 6 words per hook
+- Extremely punchy and aggressive
+- Use curiosity + shock
+- Avoid safe phrasing
 - First hook must be the strongest
 
 BEST HOOK:
