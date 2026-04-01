@@ -30,6 +30,7 @@ serve(async (req) => {
       imagePromptCount,
       outputDepth,
       customDescription,
+      language,
     } = body;
 
     if (!topic || typeof topic !== "string") {
@@ -46,7 +47,8 @@ serve(async (req) => {
         ? [platform]
         : ["tiktok"];
 
-    const imgCount = mode === "pro" ? (imagePromptCount || 3) : 3;
+    const lang = language === "tr" ? "Turkish" : "English";
+    const imgCount = 5;
     const depth = outputDepth || "standard";
     const hookCount = mode === "pro" ? 10 : 3;
 
@@ -59,16 +61,17 @@ serve(async (req) => {
       scriptLength,
       goal,
       hookIntensity,
-      imageFormat,
+      imageFormat: imageFormat || "9:16",
       imgCount,
       depth,
       hookCount,
       customDescription,
+      language: lang,
     });
 
     const schema = mode === "pro"
-      ? buildProSchema(selectedPlatforms, imgCount, hookCount)
-      : buildFreeSchema(hookCount);
+      ? buildProSchema(selectedPlatforms, hookCount)
+      : buildFreeSchema();
 
     const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
     const geminiBody = {
@@ -144,20 +147,49 @@ serve(async (req) => {
 
 // ── Schema builders ─────────────────────────────────────────────────
 
-function buildFreeSchema(hookCount: number) {
+function buildFreeSchema() {
   return {
     type: "OBJECT",
     properties: {
       hooks: { type: "ARRAY", items: { type: "STRING" } },
       script: { type: "STRING" },
-      caption: { type: "STRING" },
+      editingPlan: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            scene: { type: "NUMBER" },
+            visual: { type: "STRING" },
+            onScreenText: { type: "STRING" },
+            mood: { type: "STRING" },
+          },
+          required: ["scene", "visual"],
+        },
+      },
       imagePrompts: { type: "ARRAY", items: { type: "STRING" } },
+      youtube: {
+        type: "OBJECT",
+        properties: {
+          title: { type: "STRING" },
+          description: { type: "STRING" },
+          tags: { type: "ARRAY", items: { type: "STRING" } },
+        },
+        required: ["title", "description", "tags"],
+      },
+      tiktok: {
+        type: "OBJECT",
+        properties: {
+          caption: { type: "STRING" },
+          hashtags: { type: "ARRAY", items: { type: "STRING" } },
+        },
+        required: ["caption", "hashtags"],
+      },
     },
-    required: ["hooks", "script", "caption", "imagePrompts"],
+    required: ["hooks", "script", "editingPlan", "imagePrompts", "youtube", "tiktok"],
   };
 }
 
-function buildProSchema(platforms: string[], imgCount: number, hookCount: number) {
+function buildProSchema(platforms: string[], hookCount: number) {
   const scriptSection = {
     type: "OBJECT",
     properties: {
@@ -175,10 +207,10 @@ function buildProSchema(platforms: string[], imgCount: number, hookCount: number
     properties: {
       scene: { type: "NUMBER" },
       visual: { type: "STRING" },
-      audio: { type: "STRING" },
-      duration: { type: "STRING" },
+      onScreenText: { type: "STRING" },
+      mood: { type: "STRING" },
     },
-    required: ["scene", "visual", "audio", "duration"],
+    required: ["scene", "visual"],
   };
 
   const props: Record<string, any> = {
@@ -196,22 +228,30 @@ function buildProSchema(platforms: string[], imgCount: number, hookCount: number
       required: ["bestTime", "platformTip"],
     },
     imagePrompts: { type: "ARRAY", items: { type: "STRING" } },
+    youtube: {
+      type: "OBJECT",
+      properties: {
+        title: { type: "STRING" },
+        description: { type: "STRING" },
+        tags: { type: "ARRAY", items: { type: "STRING" } },
+      },
+      required: ["title", "description", "tags"],
+    },
+    tiktok: {
+      type: "OBJECT",
+      properties: {
+        caption: { type: "STRING" },
+        hashtags: { type: "ARRAY", items: { type: "STRING" } },
+      },
+      required: ["caption", "hashtags"],
+    },
   };
 
   const required = [
     "bestHook", "hookVariations", "script", "editingPlan",
-    "voiceStyle", "postingStrategy", "imagePrompts",
+    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok",
   ];
 
-  if (platforms.includes("tiktok")) {
-    props.tiktokCaption = { type: "STRING" };
-    required.push("tiktokCaption");
-  }
-  if (platforms.includes("youtube-shorts")) {
-    props.youtubeTitle = { type: "STRING" };
-    props.youtubeDescription = { type: "STRING" };
-    required.push("youtubeTitle", "youtubeDescription");
-  }
   if (platforms.includes("instagram-reels")) {
     props.instagramCaption = { type: "STRING" };
     required.push("instagramCaption");
@@ -246,7 +286,7 @@ function getStyleInstructions(style: string): string {
   }
 }
 
-function buildPrompt(input: {
+interface PromptInput {
   mode: string;
   topic: string;
   platforms: string[];
@@ -260,7 +300,10 @@ function buildPrompt(input: {
   depth: string;
   hookCount: number;
   customDescription?: string;
-}) {
+  language: string;
+}
+
+function buildPrompt(input: PromptInput) {
   const hookLevel =
     input.hookIntensity === 0 ? "safe" : input.hookIntensity === 1 ? "balanced" : "aggressive";
 
@@ -276,27 +319,50 @@ function buildPrompt(input: {
   const scriptGuidance = getScriptLengthGuidance(input.scriptLength);
   const styleInstructions = getStyleInstructions(input.style);
 
-  if (input.mode === "pro") {
-    const platformInstructions = input.platforms
-      .map((p) => {
-        if (p === "tiktok") return "- tiktokCaption: engaging TikTok caption with hashtags";
-        if (p === "youtube-shorts")
-          return "- youtubeTitle: clickable YouTube Shorts title\n- youtubeDescription: SEO-optimized YouTube description";
-        if (p === "instagram-reels")
-          return "- instagramCaption: Instagram Reels caption with hashtags";
-        return "";
-      })
-      .filter(Boolean)
-      .join("\n");
+  const globalRules = `
+GLOBAL RULES:
+- Output must strictly follow ${input.language} language.
+- Optimize for short-form vertical video.
+- Every line must add new information.
+- No filler, no explanations, no long paragraphs.
+- Use virality principles: curiosity gaps, open loops, emotional triggers, pattern interrupts.
+- Maintain fast pacing and high retention.`;
 
+  const imagePromptRules = `
+IMAGE PROMPTS:
+- Generate exactly ${input.imgCount} prompts.
+- Format: [scene description], [atmosphere], vertical 9:16, photorealistic, no text, no faces`;
+
+  const seoRules = `
+SEO PACK:
+YOUTUBE:
+- Title: curiosity-driven + SEO optimized + include #shorts
+- Description: 2 short sentences using keywords
+- Tags: relevant searchable keywords
+
+TIKTOK:
+- Caption: short, curiosity-driven, more aggressive tone
+- Hashtags: 5–8 relevant hashtags`;
+
+  const outputRules = `
+IMPORTANT:
+- Do not explain anything
+- Do not add extra commentary
+- Output only the structured result
+- Make everything instantly usable for content creation
+- Return only valid JSON`;
+
+  if (input.mode === "pro") {
     const customBlock = input.customDescription
       ? `\nCUSTOM USER INSTRUCTIONS (prioritize these over presets):\n${input.customDescription}\n`
       : "";
 
-    return `You are an elite short-form content strategist and creator coach.
+    return `You are an AI short-form content engine designed to generate viral-ready content for TikTok, Instagram Reels, and YouTube Shorts.
+${globalRules}
 
 Create a PRO content production package:
 - Topic: ${input.topic}
+- Language: ${input.language}
 - Platforms: ${platformList}
 - Content type: ${input.contentType}
 - Style: ${input.style}
@@ -304,48 +370,64 @@ Create a PRO content production package:
 - Script word count: ${scriptGuidance}
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
-- Image format: ${input.imageFormat}
 - Output depth: ${input.depth}
 ${customBlock}
 STYLE BEHAVIOR:
 ${styleInstructions}
 
-PLATFORM ADAPTATION:
-- TikTok: fast, aggressive, scroll-stopping hooks
-- YouTube Shorts: structured, strong title + clarity
-- Instagram Reels: smoother pacing, aesthetic storytelling
+HOOK GENERATION:
+- Generate 5–10 hooks (use stronger psychological triggers: fear, urgency, surprise, curiosity)
+- Max 6–8 words per hook
+- Punchy and non-generic
+- Each must create curiosity instantly
+
+VOICE SCRIPT (CRITICAL):
+- Generate a voice-over script optimized for ElevenLabs
+- Each line max 6–8 words
+- One idea per line
+- No paragraphs
+- Use spacing between blocks for pacing
+- Structure: Hook → Context → Escalation → Twist → Open loop
+- High-retention storytelling, immersive and dynamic
+- Continuous tension building
+- Add micro-cliffhangers every 2–3 lines
+- Total word count: ${scriptGuidance}
+
+EDITING PLAN:
+- Provide scenes: Scene 1, Scene 2, etc.
+- What is shown (visual)
+- Optional on-screen text
+- Mood/effect (if needed)
+- Keep it short and practical
+
+${imagePromptRules}
+
+${seoRules}
+
+${platforms_include_instagram(input.platforms)}
 
 GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
-2. hookVariations: ${input.hookCount} rewrites of the best hook (different angles, styles, emotional triggers)
-3. script: A structured voiceover script with these exact sections:
-   - hook: opening line (max 8 words)
-   - beat1: first key point (2-3 short lines)
-   - beat2: second key point (2-3 short lines)
-   - beat3: third key point or twist (2-3 short lines)
-   - cta: closing call to action (max 8 words)
-   Script must be voiceover-ready with natural pauses and strong flow.
-   Total word count: ${scriptGuidance}
-4. editingPlan: 3 scenes with visual, audio, and duration
-5. voiceStyle: recommended voice style (e.g. "Dark & slow", "Fast & energetic")
+2. hookVariations: ${input.hookCount} rewrites (different angles, styles, emotional triggers)
+3. script: Structured voiceover with hook, beat1, beat2, beat3, cta sections
+4. editingPlan: scenes with visual, onScreenText, mood
+5. voiceStyle: recommended voice style
 6. postingStrategy: bestTime and platformTip
-7. imagePrompts: exactly ${input.imgCount} cinematic prompts (no text, no faces, ${input.imageFormat} format, strong atmosphere)
+7. imagePrompts: exactly ${input.imgCount} cinematic prompts
+8. youtube: title, description, tags
+9. tiktok: caption, hashtags
+${input.platforms.includes("instagram-reels") ? "10. instagramCaption: Instagram caption with hashtags" : ""}
 
-PLATFORM OUTPUTS (only for selected platforms):
-${platformInstructions}
-
-RULES:
-- No generic phrases or "3 tips" hooks
-- Hooks must create curiosity, tension, or mystery
-- Script lines max 8 words each
 - ${input.depth === "concise" ? "Keep everything minimal and tight" : input.depth === "detailed" ? "Add extra detail and depth" : "Balance detail and brevity"}
-- Return only valid JSON`;
+${outputRules}`;
   }
 
-  return `You are a short-form content expert.
+  return `You are an AI short-form content engine designed to generate viral-ready content for TikTok, Instagram Reels, and YouTube Shorts.
+${globalRules}
 
 Create a content package:
 - Topic: ${input.topic}
+- Language: ${input.language}
 - Platform: ${platformList}
 - Content type: ${input.contentType}
 - Style: ${input.style}
@@ -353,19 +435,41 @@ Create a content package:
 - Script word count: ${scriptGuidance}
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
-- Image format: ${input.imageFormat}
 
 STYLE BEHAVIOR:
 ${styleInstructions}
 
-Return:
-- ${input.hookCount} hooks (curiosity-driven, no generic phrases)
-- 1 voiceover script (each sentence on new line, max 8 words per line, dramatic pacing, total: ${scriptGuidance})
-- 1 caption with hashtags
-- 3 cinematic image prompts (no text, no faces, ${input.imageFormat} format)
+HOOK GENERATION:
+- Generate exactly 3 hooks
+- Max 6–8 words per hook
+- Punchy and non-generic
+- Each must create curiosity instantly
 
-RULES:
-- No filler, no explanations
-- Hooks must stop the scroll
-- Return only valid JSON`;
+VOICE SCRIPT (CRITICAL):
+- Generate a voice-over script optimized for ElevenLabs
+- Each line max 6–8 words
+- One idea per line
+- No paragraphs
+- Structure: Hook → Context → Escalation → Twist → Open loop
+- High-retention storytelling
+- Add micro-cliffhangers every 2–3 lines
+- Total: ${scriptGuidance}
+
+EDITING PLAN:
+- Provide scenes with visual description
+- Optional on-screen text and mood
+- Keep it short and practical
+
+${imagePromptRules}
+
+${seoRules}
+
+${outputRules}`;
+}
+
+function platforms_include_instagram(platforms: string[]): string {
+  if (platforms.includes("instagram-reels")) {
+    return "INSTAGRAM:\n- instagramCaption: Instagram Reels caption with hashtags";
+  }
+  return "";
 }

@@ -77,11 +77,25 @@ type Mode = "general" | "pro";
 
 // ── Types ───────────────────────────────────────────────────────────
 
+interface SeoPack {
+  youtube: { title: string; description: string; tags: string[] };
+  tiktok: { caption: string; hashtags: string[] };
+}
+
+interface EditingScene {
+  scene: number;
+  visual: string;
+  onScreenText?: string;
+  mood?: string;
+}
+
 interface GeneralResult {
   hooks: string[];
   script: string;
-  caption: string;
+  editingPlan: EditingScene[];
   imagePrompts: string[];
+  youtube: SeoPack["youtube"];
+  tiktok: SeoPack["tiktok"];
 }
 
 interface StructuredScript {
@@ -92,13 +106,6 @@ interface StructuredScript {
   cta: string;
 }
 
-interface EditingScene {
-  scene: number;
-  visual: string;
-  audio: string;
-  duration: string;
-}
-
 interface ProResult {
   bestHook: string;
   hookVariations: string[];
@@ -107,9 +114,8 @@ interface ProResult {
   voiceStyle: string;
   postingStrategy: { bestTime: string; platformTip: string };
   imagePrompts: string[];
-  tiktokCaption?: string;
-  youtubeTitle?: string;
-  youtubeDescription?: string;
+  youtube: SeoPack["youtube"];
+  tiktok: SeoPack["tiktok"];
   instagramCaption?: string;
 }
 
