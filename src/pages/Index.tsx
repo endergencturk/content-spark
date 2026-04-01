@@ -939,6 +939,7 @@ export default function Index() {
                 locale={locale}
                 onReuse={(t) => setTopic(t)}
                 onReopen={handleHistoryReopen}
+                onRegenerate={handleHistoryRegenerate}
               />
             </div>
             <p className="text-muted-foreground text-sm">
