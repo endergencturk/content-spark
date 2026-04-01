@@ -207,6 +207,21 @@ const GeneralResults = memo(function GeneralResults({
 }: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
   return (
     <div className="space-y-5">
+      {/* ⭐ Best Hook */}
+      {result.bestHook && (
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center">
+              <Trophy className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("result.bestHook", locale)}</p>
+              <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
+            </div>
+            <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
+          </div>
+        </div>
+      )}
       {/* Hooks */}
       <section className="space-y-2.5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.hooks", locale)}</h3>
