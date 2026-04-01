@@ -175,6 +175,17 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.proUnlock": "Upgrade to Pro for unlimited history",
     "history.saved": "Saved to history ✓",
     "history.viewHistory": "View History",
+    "history.all": "All",
+
+    // Favorites
+    "favorites.title": "Favorites",
+    "favorites.empty": "No favorites yet. Star a generation to save it!",
+    "favorites.added": "Added to favorites ⭐",
+    "favorites.removed": "Removed from favorites",
+    "favorites.limit": "Free users can save up to 3 favorites. Upgrade to Pro for unlimited!",
+
+    // Copy full pack
+    "btn.copyFullPack": "Copy Full Pack",
 
     // Topic suggestions
     "topics.suggestions": "Trending Topics",
