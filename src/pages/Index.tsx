@@ -77,11 +77,25 @@ type Mode = "general" | "pro";
 
 // ── Types ───────────────────────────────────────────────────────────
 
+interface SeoPack {
+  youtube: { title: string; description: string; tags: string[] };
+  tiktok: { caption: string; hashtags: string[] };
+}
+
+interface EditingScene {
+  scene: number;
+  visual: string;
+  onScreenText?: string;
+  mood?: string;
+}
+
 interface GeneralResult {
   hooks: string[];
   script: string;
-  caption: string;
+  editingPlan: EditingScene[];
   imagePrompts: string[];
+  youtube: SeoPack["youtube"];
+  tiktok: SeoPack["tiktok"];
 }
 
 interface StructuredScript {
@@ -92,13 +106,6 @@ interface StructuredScript {
   cta: string;
 }
 
-interface EditingScene {
-  scene: number;
-  visual: string;
-  audio: string;
-  duration: string;
-}
-
 interface ProResult {
   bestHook: string;
   hookVariations: string[];
@@ -107,9 +114,8 @@ interface ProResult {
   voiceStyle: string;
   postingStrategy: { bestTime: string; platformTip: string };
   imagePrompts: string[];
-  tiktokCaption?: string;
-  youtubeTitle?: string;
-  youtubeDescription?: string;
+  youtube: SeoPack["youtube"];
+  tiktok: SeoPack["tiktok"];
   instagramCaption?: string;
 }
 
@@ -250,14 +256,64 @@ const GeneralResults = memo(function GeneralResults({
         />
       </section>
 
-      {/* Caption */}
+      {/* Editing Plan */}
+      {result.editingPlan?.length > 0 && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.editingPlan", locale)}</h3>
+          {result.editingPlan.map((scene, i) => (
+            <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-1">
+              <p className="text-xs font-bold text-primary">Scene {scene.scene}</p>
+              <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{scene.visual}</p>
+              {scene.onScreenText && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Text:</span>{scene.onScreenText}</p>}
+              {scene.mood && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Mood:</span>{scene.mood}</p>}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* SEO — YouTube */}
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("result.caption", locale)}</h3>
-          <CopyBtn text={result.caption} label="caption" copied={copied} onCopy={onCopy} locale={locale} />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+            <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
+          </h3>
+          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${result.youtube.tags.join(", ")}`} label="yt-seo" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
-        <div className="bg-muted/40 rounded-2xl p-4">
-          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.caption}</p>
+        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
+            <p className="text-sm font-semibold text-foreground">{result.youtube.title}</p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
+            <p className="text-sm text-foreground">{result.youtube.description}</p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.tags", locale)}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {result.youtube.tags.map((tag, i) => (
+                <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SEO — TikTok */}
+      <section className="space-y-2.5">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+            <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
+          </h3>
+          <CopyBtn text={`${result.tiktok.caption}\n${result.tiktok.hashtags.join(" ")}`} label="tt-seo" copied={copied} onCopy={onCopy} locale={locale} />
+        </div>
+        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
+          <p className="text-sm text-foreground leading-relaxed">{result.tiktok.caption}</p>
+          <div className="flex flex-wrap gap-1.5">
+            {result.tiktok.hashtags.map((ht, i) => (
+              <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{ht}</span>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -370,40 +426,53 @@ const ProResults = memo(function ProResults({
         </div>
       </section>
 
-      {/* Platform captions */}
-      {platforms.includes("tiktok") && result.tiktokCaption && (
-        <section className="space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
-            </h3>
-            <CopyBtn text={result.tiktokCaption} label="tiktok" copied={copied} onCopy={onCopy} locale={locale} />
+      {/* SEO — YouTube */}
+      <section className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+            <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
+          </h3>
+          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${result.youtube.tags.join(", ")}`} label="yt" copied={copied} onCopy={onCopy} locale={locale} />
+        </div>
+        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
+            <p className="text-sm font-semibold text-foreground">{result.youtube.title}</p>
           </div>
-          <div className="bg-muted/40 rounded-2xl p-4">
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.tiktokCaption}</p>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
+            <p className="text-sm text-foreground">{result.youtube.description}</p>
           </div>
-        </section>
-      )}
-      {platforms.includes("youtube-shorts") && result.youtubeTitle && (
-        <section className="space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
-            </h3>
-            <CopyBtn text={`${result.youtubeTitle}\n\n${result.youtubeDescription}`} label="youtube" copied={copied} onCopy={onCopy} locale={locale} />
-          </div>
-          <div className="bg-muted/40 rounded-2xl p-4 space-y-3">
-            <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
-              <p className="text-sm font-semibold text-foreground">{result.youtubeTitle}</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
-              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{result.youtubeDescription}</p>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.tags", locale)}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {result.youtube.tags.map((tag, i) => (
+                <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{tag}</span>
+              ))}
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
+
+      {/* SEO — TikTok */}
+      <section className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+            <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
+          </h3>
+          <CopyBtn text={`${result.tiktok.caption}\n${result.tiktok.hashtags.join(" ")}`} label="tt" copied={copied} onCopy={onCopy} locale={locale} />
+        </div>
+        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
+          <p className="text-sm text-foreground leading-relaxed">{result.tiktok.caption}</p>
+          <div className="flex flex-wrap gap-1.5">
+            {result.tiktok.hashtags.map((ht, i) => (
+              <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{ht}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Instagram */}
       {platforms.includes("instagram-reels") && result.instagramCaption && (
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
@@ -467,11 +536,10 @@ const ProResults = memo(function ProResults({
                   <div className="space-y-2.5">
                     {result.editingPlan.map((scene, i) => (
                       <div key={i} className="bg-muted/40 rounded-xl p-3 space-y-1">
-                        <p className="text-xs font-bold text-primary">
-                          Scene {scene.scene}<span className="text-muted-foreground font-normal ml-2">{scene.duration}</span>
-                        </p>
+                        <p className="text-xs font-bold text-primary">Scene {scene.scene}</p>
                         <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{scene.visual}</p>
-                        <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Audio:</span>{scene.audio}</p>
+                        {scene.onScreenText && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Text:</span>{scene.onScreenText}</p>}
+                        {scene.mood && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Mood:</span>{scene.mood}</p>}
                       </div>
                     ))}
                   </div>
@@ -614,10 +682,12 @@ export default function Index() {
             mode: "pro", topic, platforms, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", imagePromptCount, outputDepth,
             customDescription: customDescription.trim() || undefined,
+            language: locale,
           }
         : {
             mode: "general", topic, platform, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", outputStyle: settings.outputStyle,
+            language: locale,
           };
 
       const { data, error } = await supabase.functions.invoke("generate-content", { body });
@@ -653,7 +723,8 @@ export default function Index() {
       all = [
         generalResult.hooks.map((h, i) => `Hook ${i + 1}: ${h}`).join("\n"),
         `Script:\n${generalResult.script}`,
-        `Caption:\n${generalResult.caption}`,
+        `YouTube:\n${generalResult.youtube.title}\n${generalResult.youtube.description}\nTags: ${generalResult.youtube.tags.join(", ")}`,
+        `TikTok:\n${generalResult.tiktok.caption}\n${generalResult.tiktok.hashtags.join(" ")}`,
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
       ].filter(Boolean).join("\n\n");
     } else if (isProMode && proResult) {
@@ -661,8 +732,8 @@ export default function Index() {
       all = [
         `🏆 BEST HOOK:\n${proResult.bestHook}`,
         `📝 SCRIPT:\nHook: ${s.hook}\nBeat 1: ${s.beat1}\nBeat 2: ${s.beat2}\nBeat 3: ${s.beat3}\nCTA: ${s.cta}`,
-        proResult.tiktokCaption ? `TikTok: ${proResult.tiktokCaption}` : "",
-        proResult.youtubeTitle ? `YouTube: ${proResult.youtubeTitle}\n${proResult.youtubeDescription}` : "",
+        `YouTube:\n${proResult.youtube.title}\n${proResult.youtube.description}\nTags: ${proResult.youtube.tags.join(", ")}`,
+        `TikTok:\n${proResult.tiktok.caption}\n${proResult.tiktok.hashtags.join(" ")}`,
         proResult.instagramCaption ? `Instagram: ${proResult.instagramCaption}` : "",
         proResult.hookVariations?.length ? `🎯 VARIATIONS:\n${proResult.hookVariations.map((v, i) => `V${i + 1}: ${v}`).join("\n")}` : "",
         proResult.voiceStyle ? `🎙️ Voice: ${proResult.voiceStyle}` : "",
