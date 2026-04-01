@@ -458,10 +458,11 @@ STYLE BEHAVIOR:
 ${styleInstructions}
 
 HOOK GENERATION:
-- Generate 5–10 hooks (use stronger psychological triggers: fear, urgency, surprise, curiosity)
-- Max 6–8 words per hook
-- Punchy, non-generic, scroll-stopping
-- Each must create curiosity instantly
+- Generate 5–8 hooks (use stronger psychological triggers: fear, urgency, surprise, curiosity)
+- Max 6 words per hook
+- Extremely punchy and aggressive
+- Use curiosity + shock
+- Avoid safe phrasing
 - First hook must be the strongest
 
 BEST HOOK:
