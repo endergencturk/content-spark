@@ -346,7 +346,7 @@ function buildPrompt(input: PromptInput) {
     })
     .join(", ");
 
-  const lineGuidance = getScriptLineGuidance(input.scriptLength);
+  const charLimit = getScriptCharacterLimit(input.scriptLength);
   const densityGuidance = getContentDensityGuidance(input.scriptLength);
   const styleInstructions = getStyleInstructions(input.style);
 
