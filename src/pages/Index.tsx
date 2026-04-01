@@ -866,6 +866,29 @@ export default function Index() {
     setGoal(item.goal || "viral");
   }, []);
 
+  // History regenerate handler — loads settings then triggers generation
+  const handleHistoryRegenerate = useCallback((item: any) => {
+    setTopic(item.topic);
+    if (item.plan_type === "pro") {
+      setMode("pro");
+      setPlatforms(item.platforms || ["tiktok"]);
+    } else {
+      setMode("general");
+      setPlatform(item.platforms?.[0] || "tiktok");
+    }
+    setStyle(item.style || "viral");
+    setContentType(item.content_type || "story");
+    setScriptLength(item.duration || "30");
+    setGoal(item.goal || "viral");
+    // Clear old results so generate runs fresh
+    setProResult(null);
+    setGeneralResult(null);
+    // Trigger generation on next tick after state settles
+    setTimeout(() => {
+      document.getElementById("generate-btn")?.click();
+    }, 100);
+  }, []);
+
   const hasResults = isProMode ? proResult !== null : generalResult !== null;
 
   const copyAll = useCallback(() => {
@@ -916,6 +939,7 @@ export default function Index() {
                 locale={locale}
                 onReuse={(t) => setTopic(t)}
                 onReopen={handleHistoryReopen}
+                onRegenerate={handleHistoryRegenerate}
               />
             </div>
             <p className="text-muted-foreground text-sm">
@@ -1216,6 +1240,7 @@ export default function Index() {
 
             {/* Generate */}
             <Button
+              id="generate-btn"
               className="w-full h-13 text-base rounded-2xl font-bold"
               disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
               onClick={generateContent}
@@ -1239,13 +1264,20 @@ export default function Index() {
 
           {/* ACTION BAR */}
           {hasResults && !loading && (
-            <div className="flex justify-center gap-3">
-              <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
+            <div className="space-y-3">
+              {/* Copy Full Pack — prominent */}
+              <button
+                onClick={copyAll}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
+              >
+                <Copy className="h-4 w-4" />
+                {copied === "all" ? t("btn.copied", locale) : t("btn.copyFullPack", locale)}
               </button>
-              <button onClick={copyAll} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <Copy className="h-3 w-3" />{copied === "all" ? t("btn.copied", locale) : t("btn.copyAll", locale)}
-              </button>
+              <div className="flex justify-center gap-3">
+                <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
+                </button>
+              </div>
             </div>
           )}
 
