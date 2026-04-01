@@ -717,10 +717,9 @@ export default function Index() {
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
       ].filter(Boolean).join("\n\n");
     } else if (isProMode && proResult) {
-      const s = proResult.script;
       all = [
         `🏆 BEST HOOK:\n${proResult.bestHook}`,
-        `📝 SCRIPT:\nHook: ${s.hook}\nBeat 1: ${s.beat1}\nBeat 2: ${s.beat2}\nBeat 3: ${s.beat3}\nCTA: ${s.cta}`,
+        `📝 SCRIPT:\n${proResult.script}`,
         `YouTube:\n${proResult.youtube.title}\n${proResult.youtube.description}\nTags: ${proResult.youtube.tags.join(", ")}`,
         `TikTok:\n${proResult.tiktok.caption}\n${proResult.tiktok.hashtags.join(" ")}`,
         proResult.instagramCaption ? `Instagram: ${proResult.instagramCaption}` : "",
