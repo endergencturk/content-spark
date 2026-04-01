@@ -65,7 +65,7 @@ const PLATFORM_OPTIONS = [
   { value: "instagram-reels", label: "Reels", icon: Instagram },
 ];
 
-const LENGTH_OPTIONS = ["15", "30", "60", "90"];
+const LENGTH_OPTIONS = ["15", "30", "60"];
 
 const DEPTH_OPTIONS = [
   { value: "concise", label: "Concise" },
