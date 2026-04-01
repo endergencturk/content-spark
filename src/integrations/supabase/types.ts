@@ -22,6 +22,7 @@ export type Database = {
           duration: string
           goal: string
           id: string
+          is_favorite: boolean
           language: string
           output_json: Json
           plan_type: string
@@ -36,6 +37,7 @@ export type Database = {
           duration?: string
           goal?: string
           id?: string
+          is_favorite?: boolean
           language?: string
           output_json?: Json
           plan_type?: string
@@ -50,6 +52,7 @@ export type Database = {
           duration?: string
           goal?: string
           id?: string
+          is_favorite?: boolean
           language?: string
           output_json?: Json
           plan_type?: string
