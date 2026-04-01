@@ -426,40 +426,53 @@ const ProResults = memo(function ProResults({
         </div>
       </section>
 
-      {/* Platform captions */}
-      {platforms.includes("tiktok") && result.tiktokCaption && (
-        <section className="space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
-            </h3>
-            <CopyBtn text={result.tiktokCaption} label="tiktok" copied={copied} onCopy={onCopy} locale={locale} />
+      {/* SEO — YouTube */}
+      <section className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+            <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
+          </h3>
+          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${result.youtube.tags.join(", ")}`} label="yt" copied={copied} onCopy={onCopy} locale={locale} />
+        </div>
+        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
+            <p className="text-sm font-semibold text-foreground">{result.youtube.title}</p>
           </div>
-          <div className="bg-muted/40 rounded-2xl p-4">
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.tiktokCaption}</p>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
+            <p className="text-sm text-foreground">{result.youtube.description}</p>
           </div>
-        </section>
-      )}
-      {platforms.includes("youtube-shorts") && result.youtubeTitle && (
-        <section className="space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
-            </h3>
-            <CopyBtn text={`${result.youtubeTitle}\n\n${result.youtubeDescription}`} label="youtube" copied={copied} onCopy={onCopy} locale={locale} />
-          </div>
-          <div className="bg-muted/40 rounded-2xl p-4 space-y-3">
-            <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
-              <p className="text-sm font-semibold text-foreground">{result.youtubeTitle}</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
-              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{result.youtubeDescription}</p>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.tags", locale)}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {result.youtube.tags.map((tag, i) => (
+                <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{tag}</span>
+              ))}
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
+
+      {/* SEO — TikTok */}
+      <section className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+            <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
+          </h3>
+          <CopyBtn text={`${result.tiktok.caption}\n${result.tiktok.hashtags.join(" ")}`} label="tt" copied={copied} onCopy={onCopy} locale={locale} />
+        </div>
+        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
+          <p className="text-sm text-foreground leading-relaxed">{result.tiktok.caption}</p>
+          <div className="flex flex-wrap gap-1.5">
+            {result.tiktok.hashtags.map((ht, i) => (
+              <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{ht}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Instagram */}
       {platforms.includes("instagram-reels") && result.instagramCaption && (
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
