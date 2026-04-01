@@ -518,9 +518,10 @@ ${styleInstructions}
 
 HOOK GENERATION:
 - Generate exactly 3 hooks
-- Max 6–8 words per hook
-- Punchy, non-generic, scroll-stopping
-- Each must create curiosity instantly
+- Max 6 words per hook
+- Extremely punchy and aggressive
+- Use curiosity + shock
+- Avoid safe phrasing
 - First hook must be the strongest
 
 BEST HOOK:
