@@ -536,11 +536,10 @@ const ProResults = memo(function ProResults({
                   <div className="space-y-2.5">
                     {result.editingPlan.map((scene, i) => (
                       <div key={i} className="bg-muted/40 rounded-xl p-3 space-y-1">
-                        <p className="text-xs font-bold text-primary">
-                          Scene {scene.scene}<span className="text-muted-foreground font-normal ml-2">{scene.duration}</span>
-                        </p>
+                        <p className="text-xs font-bold text-primary">Scene {scene.scene}</p>
                         <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{scene.visual}</p>
-                        <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Audio:</span>{scene.audio}</p>
+                        {scene.onScreenText && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Text:</span>{scene.onScreenText}</p>}
+                        {scene.mood && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Mood:</span>{scene.mood}</p>}
                       </div>
                     ))}
                   </div>
