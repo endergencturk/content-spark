@@ -833,7 +833,7 @@ export default function Index() {
         proResult.voiceStyle ? `🎙️ Voice: ${proResult.voiceStyle}` : "",
         proResult.postingStrategy ? `📅 Post: ${proResult.postingStrategy.bestTime} — ${proResult.postingStrategy.platformTip}` : "",
         `🖼️ Images:\n${proResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
-        proResult.viralAnalysis ? `📊 VIRAL SCORE: ${proResult.viralAnalysis.score}/10\n${proResult.viralAnalysis.reasons.map(r => `• ${r}`).join("\n")}` : "",
+        proResult.viralAnalysis ? `📊 VIRAL SCORE: ${proResult.viralAnalysis.score}/10\n${(proResult.viralAnalysis.strengths || []).map(r => `✓ ${r}`).join("\n")}\n${(proResult.viralAnalysis.weaknesses || []).map(r => `△ ${r}`).join("\n")}` : "",
       ].filter(Boolean).join("\n\n");
     }
     copyToClipboard("all", all);
