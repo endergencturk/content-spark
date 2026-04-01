@@ -116,6 +116,7 @@ interface ProResult {
   youtube: SeoPack["youtube"];
   tiktok: SeoPack["tiktok"];
   instagramCaption?: string;
+  viralAnalysis: ViralAnalysis;
 }
 
 // ── Micro components ────────────────────────────────────────────────
