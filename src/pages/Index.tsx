@@ -906,9 +906,18 @@ export default function Index() {
 
           {/* HEADER */}
           <div className="text-center space-y-2 pt-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              {t("app.title", locale)}
-            </h1>
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+                {t("app.title", locale)}
+              </h1>
+              <HistoryDrawer
+                deviceId={deviceId}
+                isPro={isProMode}
+                locale={locale}
+                onReuse={(t) => setTopic(t)}
+                onReopen={handleHistoryReopen}
+              />
+            </div>
             <p className="text-muted-foreground text-sm">
               {t("app.subtitle", locale)}
             </p>
