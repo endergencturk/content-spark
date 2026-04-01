@@ -725,6 +725,17 @@ export default function Index() {
   const locale = settings.language;
   const { remaining, isAtLimit, increment, nextRefillLabel } = useUsageLimit();
 
+  // Device ID for history (anonymous, no auth)
+  const [deviceId] = useState<string>(() => {
+    const key = "viralengine-device-id";
+    let id = localStorage.getItem(key);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(key, id);
+    }
+    return id;
+  });
+
   const [mode, setMode] = useState<Mode>("general");
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState("viral");
@@ -742,7 +753,15 @@ export default function Index() {
   const [generalResult, setGeneralResult] = useState<GeneralResult | null>(null);
   const [proResult, setProResult] = useState<ProResult | null>(null);
 
+  // Topic suggestions
   const isProMode = mode === "pro";
+  const suggestCount = isProMode ? 6 : 3;
+  const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
+
+  // Refresh suggestions when mode/content/style changes
+  useEffect(() => {
+    setSuggestions(getTopicSuggestions(isProMode ? 6 : 3, contentType, style));
+  }, [isProMode, contentType, style]);
 
   const togglePlatform = useCallback((value: string) => {
     setPlatforms((prev) =>
