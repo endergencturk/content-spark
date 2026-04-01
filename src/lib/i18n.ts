@@ -186,6 +186,8 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // Copy full pack
     "btn.copyFullPack": "Copy Full Pack",
+    "btn.copyTags": "Copy Tags",
+    "btn.copyHashtags": "Copy Hashtags",
 
     // Topic suggestions
     "topics.suggestions": "Trending Topics",
@@ -388,6 +390,8 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // Copy full pack
     "btn.copyFullPack": "Tam Paketi Kopyala",
+    "btn.copyTags": "Etiketleri Kopyala",
+    "btn.copyHashtags": "Hashtag'leri Kopyala",
 
     // Topic suggestions
     "topics.suggestions": "Trend Konular",
