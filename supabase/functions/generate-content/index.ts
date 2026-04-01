@@ -145,13 +145,24 @@ serve(async (req) => {
 
 // ── Viral Analysis schema ───────────────────────────────────────────
 
+const viralScoreCategory = {
+  type: "OBJECT",
+  properties: {
+    name: { type: "STRING" },
+    score: { type: "NUMBER" },
+  },
+  required: ["name", "score"],
+};
+
 const viralAnalysisSchema = {
   type: "OBJECT",
   properties: {
     score: { type: "NUMBER" },
-    reasons: { type: "ARRAY", items: { type: "STRING" } },
+    categories: { type: "ARRAY", items: viralScoreCategory },
+    strengths: { type: "ARRAY", items: { type: "STRING" } },
+    weaknesses: { type: "ARRAY", items: { type: "STRING" } },
   },
-  required: ["score", "reasons"],
+  required: ["score", "categories", "strengths", "weaknesses"],
 };
 
 // ── Schema builders ─────────────────────────────────────────────────
