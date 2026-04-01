@@ -49,6 +49,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "btn.copied": "Copied!",
     "btn.copy": "Copy",
     "btn.upgradeContinue": "Upgrade to continue",
+    "btn.noCredits": "No credits left",
+    "usage.switchPro": "Switch to Pro tab for unlimited generations.",
 
     // Results
     "result.hooks": "Hooks",
