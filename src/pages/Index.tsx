@@ -403,7 +403,7 @@ const ProResults = memo(function ProResults({
             <Trophy className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">{t("result.bestHook", locale)}</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("result.bestHook", locale)}</p>
             <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
           </div>
           <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
