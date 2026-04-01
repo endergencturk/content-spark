@@ -1240,6 +1240,7 @@ export default function Index() {
 
             {/* Generate */}
             <Button
+              id="generate-btn"
               className="w-full h-13 text-base rounded-2xl font-bold"
               disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
               onClick={generateContent}
