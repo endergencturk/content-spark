@@ -763,15 +763,17 @@ export default function Index() {
     let all = "";
     if (!isProMode && generalResult) {
       all = [
+        `⭐ BEST HOOK:\n${generalResult.bestHook}`,
         generalResult.hooks.map((h, i) => `Hook ${i + 1}: ${h}`).join("\n"),
         `Script:\n${generalResult.script}`,
         `YouTube:\n${generalResult.youtube.title}\n${generalResult.youtube.description}\nTags: ${generalResult.youtube.tags.join(", ")}`,
         `TikTok:\n${generalResult.tiktok.caption}\n${generalResult.tiktok.hashtags.join(" ")}`,
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
+        generalResult.viralAnalysis ? `📊 VIRAL SCORE: ${generalResult.viralAnalysis.score}/10\n${generalResult.viralAnalysis.reasons.map(r => `• ${r}`).join("\n")}` : "",
       ].filter(Boolean).join("\n\n");
     } else if (isProMode && proResult) {
       all = [
-        `🏆 BEST HOOK:\n${proResult.bestHook}`,
+        `⭐ BEST HOOK:\n${proResult.bestHook}`,
         `📝 SCRIPT:\n${proResult.script}`,
         `YouTube:\n${proResult.youtube.title}\n${proResult.youtube.description}\nTags: ${proResult.youtube.tags.join(", ")}`,
         `TikTok:\n${proResult.tiktok.caption}\n${proResult.tiktok.hashtags.join(" ")}`,
@@ -780,6 +782,7 @@ export default function Index() {
         proResult.voiceStyle ? `🎙️ Voice: ${proResult.voiceStyle}` : "",
         proResult.postingStrategy ? `📅 Post: ${proResult.postingStrategy.bestTime} — ${proResult.postingStrategy.platformTip}` : "",
         `🖼️ Images:\n${proResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
+        proResult.viralAnalysis ? `📊 VIRAL SCORE: ${proResult.viralAnalysis.score}/10\n${proResult.viralAnalysis.reasons.map(r => `• ${r}`).join("\n")}` : "",
       ].filter(Boolean).join("\n\n");
     }
     copyToClipboard("all", all);
