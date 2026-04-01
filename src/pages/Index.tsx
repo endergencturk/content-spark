@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from "react";
+import React, { useState, useCallback, memo, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -7,7 +7,7 @@ import {
   Copy, Loader2, Sparkles, FileText, MessageSquare, RefreshCw,
   Image, Clock, Flame, Crown, Hash, Youtube, Mic, Film,
   CalendarClock, Target, Trophy, Zap, Instagram, ChevronDown,
-  Package, Lock, TrendingUp,
+  Package, Lock, TrendingUp, History, Shuffle, Lightbulb,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,6 +17,8 @@ import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
+import { HistoryDrawer } from "@/components/HistoryDrawer";
+import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 
 // ── Constants ───────────────────────────────────────────────────────
 
