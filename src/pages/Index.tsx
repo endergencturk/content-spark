@@ -806,7 +806,7 @@ export default function Index() {
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.length", locale)}</p>
               <div className="flex gap-2">
                 {LENGTH_OPTIONS.map((len) => {
-                  const isLocked = !isProMode && (len === "60" || len === "90");
+                  const isLocked = !isProMode && len === "60";
                   return (
                     <Pill
                       key={len}
