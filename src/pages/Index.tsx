@@ -7,7 +7,7 @@ import {
   Copy, Loader2, Sparkles, FileText, MessageSquare, RefreshCw,
   Image, Clock, Flame, Crown, Hash, Youtube, Mic, Film,
   CalendarClock, Target, Trophy, Zap, Instagram, ChevronDown,
-  Package, Lock,
+  Package, Lock, TrendingUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
