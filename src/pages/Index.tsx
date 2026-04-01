@@ -91,9 +91,16 @@ interface EditingScene {
   mood?: string;
 }
 
+interface ViralScoreCategory {
+  name: string;
+  score: number;
+}
+
 interface ViralAnalysis {
   score: number;
-  reasons: string[];
+  categories: ViralScoreCategory[];
+  strengths: string[];
+  weaknesses: string[];
 }
 
 interface GeneralResult {
