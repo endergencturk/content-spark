@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from "react";
+import React, { useState, useCallback, memo, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -7,7 +7,7 @@ import {
   Copy, Loader2, Sparkles, FileText, MessageSquare, RefreshCw,
   Image, Clock, Flame, Crown, Hash, Youtube, Mic, Film,
   CalendarClock, Target, Trophy, Zap, Instagram, ChevronDown,
-  Package, Lock, TrendingUp,
+  Package, Lock, TrendingUp, History, Shuffle, Lightbulb,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,6 +17,8 @@ import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
+import { HistoryDrawer } from "@/components/HistoryDrawer";
+import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 
 // ── Constants ───────────────────────────────────────────────────────
 
@@ -89,9 +91,16 @@ interface EditingScene {
   mood?: string;
 }
 
+interface ViralScoreCategory {
+  name: string;
+  score: number;
+}
+
 interface ViralAnalysis {
   score: number;
-  reasons: string[];
+  categories: ViralScoreCategory[];
+  strengths: string[];
+  weaknesses: string[];
 }
 
 interface GeneralResult {
@@ -157,6 +166,82 @@ const Pill = memo(function Pill({
 });
 
 // (ScriptBlock removed — scripts are now plain text)
+
+// ── Viral Analysis Card ─────────────────────────────────────────────
+
+const CATEGORY_KEY_MAP: Record<string, string> = {
+  hookStrength: "viral.hookStrength",
+  curiosityGap: "viral.curiosityGap",
+  emotionalTrigger: "viral.emotionalTrigger",
+  clarity: "viral.clarity",
+  rewatchPotential: "viral.rewatchPotential",
+  commentPotential: "viral.commentPotential",
+  platformFit: "viral.platformFit",
+};
+
+function scoreColor(score: number): string {
+  if (score >= 8) return "text-green-500";
+  if (score >= 6) return "text-primary";
+  if (score >= 4) return "text-yellow-500";
+  return "text-destructive";
+}
+
+const ViralAnalysisCard = memo(function ViralAnalysisCard({
+  analysis, locale = "en",
+}: { analysis: ViralAnalysis; locale?: Locale }) {
+  return (
+    <section className="space-y-2.5">
+      <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+        <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.viralAnalysis", locale)}
+      </h3>
+      <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/15 rounded-2xl p-4 space-y-4">
+        {/* Overall score */}
+        <div className="flex items-center gap-2">
+          <span className={`text-2xl font-extrabold ${scoreColor(analysis.score)}`}>{analysis.score}</span>
+          <span className="text-sm text-muted-foreground font-medium">/ 10</span>
+        </div>
+
+        {/* Category subscores */}
+        {analysis.categories?.length > 0 && (
+          <div className="grid grid-cols-2 gap-2">
+            {analysis.categories.map((cat, i) => (
+              <div key={i} className="flex items-center justify-between bg-muted/40 rounded-xl px-3 py-2">
+                <span className="text-[11px] text-muted-foreground">
+                  {t(CATEGORY_KEY_MAP[cat.name] || cat.name, locale)}
+                </span>
+                <span className={`text-xs font-bold ${scoreColor(cat.score)}`}>{cat.score}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Strengths */}
+        {analysis.strengths?.length > 0 && (
+          <div className="space-y-1">
+            <p className="text-[10px] uppercase tracking-widest font-bold text-green-500">{t("viral.strengths", locale)}</p>
+            {analysis.strengths.map((s, i) => (
+              <p key={i} className="text-sm text-foreground leading-relaxed flex items-start gap-2">
+                <span className="text-green-500 mt-0.5">✓</span>{s}
+              </p>
+            ))}
+          </div>
+        )}
+
+        {/* Weaknesses */}
+        {analysis.weaknesses?.length > 0 && (
+          <div className="space-y-1">
+            <p className="text-[10px] uppercase tracking-widest font-bold text-yellow-500">{t("viral.weaknesses", locale)}</p>
+            {analysis.weaknesses.map((w, i) => (
+              <p key={i} className="text-sm text-foreground leading-relaxed flex items-start gap-2">
+                <span className="text-yellow-500 mt-0.5">△</span>{w}
+              </p>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+});
 
 // ── Usage limit banner ──────────────────────────────────────────────
 
@@ -334,24 +419,7 @@ const GeneralResults = memo(function GeneralResults({
 
       {/* Viral Analysis */}
       {result.viralAnalysis && (
-        <section className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.viralAnalysis", locale)}
-          </h3>
-          <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/15 rounded-2xl p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-extrabold text-primary">{result.viralAnalysis.score}</span>
-              <span className="text-sm text-muted-foreground font-medium">/ 10</span>
-            </div>
-            <div className="space-y-1.5">
-              {result.viralAnalysis.reasons.map((reason, i) => (
-                <p key={i} className="text-sm text-foreground leading-relaxed flex items-start gap-2">
-                  <span className="text-primary mt-0.5">•</span>{reason}
-                </p>
-              ))}
-            </div>
-          </div>
-        </section>
+        <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
       )}
 
       {/* Blurred Pro previews */}
@@ -623,24 +691,7 @@ const ProResults = memo(function ProResults({
       )}
       {/* Viral Analysis */}
       {result.viralAnalysis && (
-        <section className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.viralAnalysis", locale)}
-          </h3>
-          <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/15 rounded-2xl p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-extrabold text-primary">{result.viralAnalysis.score}</span>
-              <span className="text-sm text-muted-foreground font-medium">/ 10</span>
-            </div>
-            <div className="space-y-1.5">
-              {result.viralAnalysis.reasons.map((reason, i) => (
-                <p key={i} className="text-sm text-foreground leading-relaxed flex items-start gap-2">
-                  <span className="text-primary mt-0.5">•</span>{reason}
-                </p>
-              ))}
-            </div>
-          </div>
-        </section>
+        <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
       )}
     </div>
   );
@@ -674,6 +725,17 @@ export default function Index() {
   const locale = settings.language;
   const { remaining, isAtLimit, increment, nextRefillLabel } = useUsageLimit();
 
+  // Device ID for history (anonymous, no auth)
+  const [deviceId] = useState<string>(() => {
+    const key = "viralengine-device-id";
+    let id = localStorage.getItem(key);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(key, id);
+    }
+    return id;
+  });
+
   const [mode, setMode] = useState<Mode>("general");
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState("viral");
@@ -691,7 +753,15 @@ export default function Index() {
   const [generalResult, setGeneralResult] = useState<GeneralResult | null>(null);
   const [proResult, setProResult] = useState<ProResult | null>(null);
 
+  // Topic suggestions
   const isProMode = mode === "pro";
+  const suggestCount = isProMode ? 6 : 3;
+  const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
+
+  // Refresh suggestions when mode/content/style changes
+  useEffect(() => {
+    setSuggestions(getTopicSuggestions(isProMode ? 6 : 3, contentType, style));
+  }, [isProMode, contentType, style]);
 
   const togglePlatform = useCallback((value: string) => {
     setPlatforms((prev) =>
@@ -744,6 +814,25 @@ export default function Index() {
         setProResult(null);
         increment(); // only deduct credit in Free mode
       }
+
+      // Auto-save to history
+      try {
+        await supabase.from("generations").insert({
+          device_id: deviceId,
+          topic: topic.trim(),
+          platforms: isProMode ? platforms : [platform],
+          duration: scriptLength,
+          style,
+          content_type: contentType,
+          goal,
+          plan_type: isProMode ? "pro" : "free",
+          output_json: data,
+          language: locale,
+        } as any);
+        toast.success(t("history.saved", locale), { duration: 2000 });
+      } catch (saveErr) {
+        console.warn("Failed to save to history:", saveErr);
+      }
     } catch (error: any) {
       console.error("Generation failed:", error);
       const msg = error?.message || "";
@@ -755,7 +844,27 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, locale]);
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId]);
+
+  // History reopen handler
+  const handleHistoryReopen = useCallback((item: any) => {
+    setTopic(item.topic);
+    if (item.plan_type === "pro") {
+      setMode("pro");
+      setPlatforms(item.platforms || ["tiktok"]);
+      setProResult(item.output_json as ProResult);
+      setGeneralResult(null);
+    } else {
+      setMode("general");
+      setPlatform(item.platforms?.[0] || "tiktok");
+      setGeneralResult(item.output_json as GeneralResult);
+      setProResult(null);
+    }
+    setStyle(item.style || "viral");
+    setContentType(item.content_type || "story");
+    setScriptLength(item.duration || "30");
+    setGoal(item.goal || "viral");
+  }, []);
 
   const hasResults = isProMode ? proResult !== null : generalResult !== null;
 
@@ -769,7 +878,7 @@ export default function Index() {
         `YouTube:\n${generalResult.youtube.title}\n${generalResult.youtube.description}\nTags: ${generalResult.youtube.tags.join(", ")}`,
         `TikTok:\n${generalResult.tiktok.caption}\n${generalResult.tiktok.hashtags.join(" ")}`,
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
-        generalResult.viralAnalysis ? `📊 VIRAL SCORE: ${generalResult.viralAnalysis.score}/10\n${generalResult.viralAnalysis.reasons.map(r => `• ${r}`).join("\n")}` : "",
+        generalResult.viralAnalysis ? `📊 VIRAL SCORE: ${generalResult.viralAnalysis.score}/10\n${(generalResult.viralAnalysis.strengths || []).map(r => `✓ ${r}`).join("\n")}\n${(generalResult.viralAnalysis.weaknesses || []).map(r => `△ ${r}`).join("\n")}` : "",
       ].filter(Boolean).join("\n\n");
     } else if (isProMode && proResult) {
       all = [
@@ -782,7 +891,7 @@ export default function Index() {
         proResult.voiceStyle ? `🎙️ Voice: ${proResult.voiceStyle}` : "",
         proResult.postingStrategy ? `📅 Post: ${proResult.postingStrategy.bestTime} — ${proResult.postingStrategy.platformTip}` : "",
         `🖼️ Images:\n${proResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
-        proResult.viralAnalysis ? `📊 VIRAL SCORE: ${proResult.viralAnalysis.score}/10\n${proResult.viralAnalysis.reasons.map(r => `• ${r}`).join("\n")}` : "",
+        proResult.viralAnalysis ? `📊 VIRAL SCORE: ${proResult.viralAnalysis.score}/10\n${(proResult.viralAnalysis.strengths || []).map(r => `✓ ${r}`).join("\n")}\n${(proResult.viralAnalysis.weaknesses || []).map(r => `△ ${r}`).join("\n")}` : "",
       ].filter(Boolean).join("\n\n");
     }
     copyToClipboard("all", all);
@@ -797,9 +906,18 @@ export default function Index() {
 
           {/* HEADER */}
           <div className="text-center space-y-2 pt-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              {t("app.title", locale)}
-            </h1>
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+                {t("app.title", locale)}
+              </h1>
+              <HistoryDrawer
+                deviceId={deviceId}
+                isPro={isProMode}
+                locale={locale}
+                onReuse={(t) => setTopic(t)}
+                onReopen={handleHistoryReopen}
+              />
+            </div>
             <p className="text-muted-foreground text-sm">
               {t("app.subtitle", locale)}
             </p>
@@ -861,6 +979,39 @@ export default function Index() {
             {/* 2. Topic */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("input.topic", locale)}</p>
+
+              {/* Topic Suggestions */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/70 flex items-center gap-1">
+                    <Lightbulb className="h-3 w-3" />{t("topics.suggestions", locale)}
+                  </p>
+                  <button
+                    onClick={() => {
+                      const random = getRandomTopic(contentType, style);
+                      setTopic(random);
+                    }}
+                    className="text-[10px] font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+                  >
+                    <Shuffle className="h-3 w-3" />{t("topics.surprise", locale)}
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setTopic(s.topic)}
+                      className="text-[11px] px-2.5 py-1.5 rounded-xl bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors truncate max-w-[200px]"
+                    >
+                      {s.topic}
+                    </button>
+                  ))}
+                </div>
+                {!isProMode && (
+                  <p className="text-[10px] text-muted-foreground/50">{t("topics.more", locale)}</p>
+                )}
+              </div>
+
               <Input
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
