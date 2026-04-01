@@ -364,27 +364,27 @@ GLOBAL RULES:
   const scriptFormatRules = `
 VOICE SCRIPT (CRITICAL):
 - Generate a voiceover script optimized for ElevenLabs.
+- ${charLimit}
 - FORMAT (STRICT):
-  - Each sentence MUST be on a new line
+  - Each line = 2–6 words ONLY
+  - One idea per line
+  - Use many short lines
   - NEVER use paragraphs
   - NEVER combine sentences
-  - Break lines aggressively
-  - Even 2–3 word phrases can be separate lines
   - Add empty lines for pacing
 - STYLE:
-  - Cinematic voiceover
-  - High-retention storytelling
-  - Continuous tension building
-  - Micro-cliffhangers every 2–3 lines
-  - Use pattern interrupts (e.g., "But then...", "And then...")
+  - Cinematic
+  - Suspenseful
+  - Fast pacing
+  - High retention
+  - Use pattern interrupts (e.g., "But then…", "And then…", "Suddenly…")
 - STRUCTURE: Hook → Context → Escalation → Twist → Open loop
 - CRITICAL:
   - First line MUST stop scrolling (shocking / unexpected)
-  - Ending MUST create a loop (open question or unresolved idea)
+  - Ending MUST create curiosity (never fully resolve)
+  - Count characters before returning — if over the limit, shorten the script
 - DO NOT use labels like "Beat 1", "Beat 2", "Hook:", "CTA:"
 - DO NOT write paragraphs — if the script is a paragraph, the output is INVALID
-- Line count target: ${lineGuidance}
-- Shorter duration = fewer lines, NOT denser text
 
 ${densityGuidance}`;
 
