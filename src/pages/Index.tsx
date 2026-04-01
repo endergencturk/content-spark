@@ -682,10 +682,12 @@ export default function Index() {
             mode: "pro", topic, platforms, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", imagePromptCount, outputDepth,
             customDescription: customDescription.trim() || undefined,
+            language: locale,
           }
         : {
             mode: "general", topic, platform, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", outputStyle: settings.outputStyle,
+            language: locale,
           };
 
       const { data, error } = await supabase.functions.invoke("generate-content", { body });
