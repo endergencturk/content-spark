@@ -814,6 +814,25 @@ export default function Index() {
         setProResult(null);
         increment(); // only deduct credit in Free mode
       }
+
+      // Auto-save to history
+      try {
+        await supabase.from("generations").insert({
+          device_id: deviceId,
+          topic: topic.trim(),
+          platforms: isProMode ? platforms : [platform],
+          duration: scriptLength,
+          style,
+          content_type: contentType,
+          goal,
+          plan_type: isProMode ? "pro" : "free",
+          output_json: data,
+          language: locale,
+        } as any);
+        toast.success(t("history.saved", locale), { duration: 2000 });
+      } catch (saveErr) {
+        console.warn("Failed to save to history:", saveErr);
+      }
     } catch (error: any) {
       console.error("Generation failed:", error);
       const msg = error?.message || "";
