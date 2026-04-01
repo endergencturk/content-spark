@@ -820,7 +820,7 @@ export default function Index() {
         `YouTube:\n${generalResult.youtube.title}\n${generalResult.youtube.description}\nTags: ${generalResult.youtube.tags.join(", ")}`,
         `TikTok:\n${generalResult.tiktok.caption}\n${generalResult.tiktok.hashtags.join(" ")}`,
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
-        generalResult.viralAnalysis ? `📊 VIRAL SCORE: ${generalResult.viralAnalysis.score}/10\n${generalResult.viralAnalysis.reasons.map(r => `• ${r}`).join("\n")}` : "",
+        generalResult.viralAnalysis ? `📊 VIRAL SCORE: ${generalResult.viralAnalysis.score}/10\n${(generalResult.viralAnalysis.strengths || []).map(r => `✓ ${r}`).join("\n")}\n${(generalResult.viralAnalysis.weaknesses || []).map(r => `△ ${r}`).join("\n")}` : "",
       ].filter(Boolean).join("\n\n");
     } else if (isProMode && proResult) {
       all = [
