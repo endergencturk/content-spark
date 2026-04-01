@@ -7,7 +7,7 @@ import {
   Copy, Loader2, Sparkles, FileText, MessageSquare, RefreshCw,
   Image, Clock, Flame, Crown, Hash, Youtube, Mic, Film,
   CalendarClock, Target, Trophy, Zap, Instagram, ChevronDown,
-  Package, Lock,
+  Package, Lock, TrendingUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -89,13 +89,20 @@ interface EditingScene {
   mood?: string;
 }
 
+interface ViralAnalysis {
+  score: number;
+  reasons: string[];
+}
+
 interface GeneralResult {
   hooks: string[];
+  bestHook: string;
   script: string;
   editingPlan: EditingScene[];
   imagePrompts: string[];
   youtube: SeoPack["youtube"];
   tiktok: SeoPack["tiktok"];
+  viralAnalysis: ViralAnalysis;
 }
 
 interface ProResult {
@@ -109,6 +116,7 @@ interface ProResult {
   youtube: SeoPack["youtube"];
   tiktok: SeoPack["tiktok"];
   instagramCaption?: string;
+  viralAnalysis: ViralAnalysis;
 }
 
 // ── Micro components ────────────────────────────────────────────────
@@ -199,6 +207,21 @@ const GeneralResults = memo(function GeneralResults({
 }: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
   return (
     <div className="space-y-5">
+      {/* ⭐ Best Hook */}
+      {result.bestHook && (
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center">
+              <Trophy className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("result.bestHook", locale)}</p>
+              <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
+            </div>
+            <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
+          </div>
+        </div>
+      )}
       {/* Hooks */}
       <section className="space-y-2.5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.hooks", locale)}</h3>
@@ -309,6 +332,28 @@ const GeneralResults = memo(function GeneralResults({
         ))}
       </section>
 
+      {/* Viral Analysis */}
+      {result.viralAnalysis && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.viralAnalysis", locale)}
+          </h3>
+          <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/15 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-extrabold text-primary">{result.viralAnalysis.score}</span>
+              <span className="text-sm text-muted-foreground font-medium">/ 10</span>
+            </div>
+            <div className="space-y-1.5">
+              {result.viralAnalysis.reasons.map((reason, i) => (
+                <p key={i} className="text-sm text-foreground leading-relaxed flex items-start gap-2">
+                  <span className="text-primary mt-0.5">•</span>{reason}
+                </p>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Blurred Pro previews */}
       <div className="space-y-5 pt-3">
         <div className="flex items-center gap-2 px-1">
@@ -380,7 +425,7 @@ const ProResults = memo(function ProResults({
             <Trophy className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">{t("result.bestHook", locale)}</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("result.bestHook", locale)}</p>
             <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
           </div>
           <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
@@ -576,6 +621,27 @@ const ProResults = memo(function ProResults({
           </Accordion>
         </div>
       )}
+      {/* Viral Analysis */}
+      {result.viralAnalysis && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.viralAnalysis", locale)}
+          </h3>
+          <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/15 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-extrabold text-primary">{result.viralAnalysis.score}</span>
+              <span className="text-sm text-muted-foreground font-medium">/ 10</span>
+            </div>
+            <div className="space-y-1.5">
+              {result.viralAnalysis.reasons.map((reason, i) => (
+                <p key={i} className="text-sm text-foreground leading-relaxed flex items-start gap-2">
+                  <span className="text-primary mt-0.5">•</span>{reason}
+                </p>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 });
@@ -697,15 +763,17 @@ export default function Index() {
     let all = "";
     if (!isProMode && generalResult) {
       all = [
+        `⭐ BEST HOOK:\n${generalResult.bestHook}`,
         generalResult.hooks.map((h, i) => `Hook ${i + 1}: ${h}`).join("\n"),
         `Script:\n${generalResult.script}`,
         `YouTube:\n${generalResult.youtube.title}\n${generalResult.youtube.description}\nTags: ${generalResult.youtube.tags.join(", ")}`,
         `TikTok:\n${generalResult.tiktok.caption}\n${generalResult.tiktok.hashtags.join(" ")}`,
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
+        generalResult.viralAnalysis ? `📊 VIRAL SCORE: ${generalResult.viralAnalysis.score}/10\n${generalResult.viralAnalysis.reasons.map(r => `• ${r}`).join("\n")}` : "",
       ].filter(Boolean).join("\n\n");
     } else if (isProMode && proResult) {
       all = [
-        `🏆 BEST HOOK:\n${proResult.bestHook}`,
+        `⭐ BEST HOOK:\n${proResult.bestHook}`,
         `📝 SCRIPT:\n${proResult.script}`,
         `YouTube:\n${proResult.youtube.title}\n${proResult.youtube.description}\nTags: ${proResult.youtube.tags.join(", ")}`,
         `TikTok:\n${proResult.tiktok.caption}\n${proResult.tiktok.hashtags.join(" ")}`,
@@ -714,6 +782,7 @@ export default function Index() {
         proResult.voiceStyle ? `🎙️ Voice: ${proResult.voiceStyle}` : "",
         proResult.postingStrategy ? `📅 Post: ${proResult.postingStrategy.bestTime} — ${proResult.postingStrategy.platformTip}` : "",
         `🖼️ Images:\n${proResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
+        proResult.viralAnalysis ? `📊 VIRAL SCORE: ${proResult.viralAnalysis.score}/10\n${proResult.viralAnalysis.reasons.map(r => `• ${r}`).join("\n")}` : "",
       ].filter(Boolean).join("\n\n");
     }
     copyToClipboard("all", all);
