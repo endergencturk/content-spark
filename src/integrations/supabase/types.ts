@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      generations: {
+        Row: {
+          content_type: string
+          created_at: string
+          device_id: string
+          duration: string
+          goal: string
+          id: string
+          language: string
+          output_json: Json
+          plan_type: string
+          platforms: string[]
+          style: string
+          topic: string
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string
+          device_id: string
+          duration?: string
+          goal?: string
+          id?: string
+          language?: string
+          output_json?: Json
+          plan_type?: string
+          platforms?: string[]
+          style?: string
+          topic: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          device_id?: string
+          duration?: string
+          goal?: string
+          id?: string
+          language?: string
+          output_json?: Json
+          plan_type?: string
+          platforms?: string[]
+          style?: string
+          topic?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
