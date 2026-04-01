@@ -397,7 +397,7 @@ IMAGE PROMPTS:
 SEO PACK:
 YOUTUBE:
 - Title: curiosity-driven + SEO optimized + include #shorts
-- Description: 2 short sentences using keywords
+- Description: 1–2 short sentences using keywords
 - Tags: relevant searchable keywords
 
 TIKTOK:
