@@ -73,6 +73,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.bestTime": "Best Time",
     "result.platformTip": "Platform Tip",
     "result.fullPack": "Full Content Pack",
+    "result.viralAnalysis": "Viral Analysis",
     "result.viewPack": "View Full Content Pack",
     "result.hidePack": "Hide",
     "result.proAvailable": "Available with Pro",
