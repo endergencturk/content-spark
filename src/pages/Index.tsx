@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, memo } from "react";
+import React, { useState, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -14,11 +14,9 @@ import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t, type Locale } from "@/lib/i18n";
-import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
-import { useProStatus } from "@/hooks/useProStatus";
 
 // ── Constants ───────────────────────────────────────────────────────
 
@@ -139,7 +137,7 @@ const Pill = memo(function Pill({
       onClick={onClick}
       className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 ${
         locked
-          ? "bg-muted/30 text-muted-foreground/50 border border-dashed border-border/50 cursor-pointer"
+          ? "bg-muted/30 text-muted-foreground/50 border border-dashed border-border/50 cursor-not-allowed"
           : selected
             ? "bg-primary text-primary-foreground shadow-sm"
             : "bg-muted/60 text-muted-foreground hover:text-foreground"
@@ -170,8 +168,8 @@ const ScriptBlock = memo(function ScriptBlock({
 // ── Usage limit banner ──────────────────────────────────────────────
 
 const UsageBanner = memo(function UsageBanner({
-  remaining, isAtLimit, nextRefillLabel, onUpgrade, locale = "en",
-}: { remaining: number; isAtLimit: boolean; nextRefillLabel: string; onUpgrade: () => void; locale?: Locale }) {
+  remaining, isAtLimit, nextRefillLabel, locale = "en",
+}: { remaining: number; isAtLimit: boolean; nextRefillLabel: string; locale?: Locale }) {
   return (
     <div className={`rounded-2xl p-4 flex items-start gap-3 ${
       isAtLimit
@@ -200,13 +198,9 @@ const UsageBanner = memo(function UsageBanner({
               : t("usage.refillInfo", locale)}
         </p>
         {isAtLimit && (
-          <button
-            onClick={onUpgrade}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors mt-1"
-          >
-            <Crown className="h-3 w-3" />
-            {t("usage.upgradeBtn", locale)}
-          </button>
+          <p className="text-xs text-muted-foreground mt-1">
+            {t("usage.switchPro", locale)}
+          </p>
         )}
       </div>
     </div>
@@ -216,8 +210,8 @@ const UsageBanner = memo(function UsageBanner({
 // ── General Results ─────────────────────────────────────────────────
 
 const GeneralResults = memo(function GeneralResults({
-  result, copied, onCopy, onUpgrade, locale = "en",
-}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; onUpgrade: () => void; locale?: Locale }) {
+  result, copied, onCopy, locale = "en",
+}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
   return (
     <div className="space-y-5">
       {/* Hooks */}
@@ -233,7 +227,7 @@ const GeneralResults = memo(function GeneralResults({
         ))}
         <UpsellBanner
           message={t("upsell.hooks", locale)}
-          onUpgrade={onUpgrade}
+          onUpgrade={() => {}}
           locale={locale}
         />
       </section>
@@ -251,7 +245,7 @@ const GeneralResults = memo(function GeneralResults({
         </div>
         <UpsellBanner
           message={t("upsell.script", locale)}
-          onUpgrade={onUpgrade}
+          onUpgrade={() => {}}
           locale={locale}
         />
       </section>
@@ -294,7 +288,7 @@ const GeneralResults = memo(function GeneralResults({
             "V2: A completely different angle that hooks in 0.5 seconds",
             "V3: The emotional rewrite that keeps viewers watching",
           ]}
-          onUpgrade={onUpgrade}
+          onUpgrade={() => {}}
           locale={locale}
         />
 
@@ -305,14 +299,14 @@ const GeneralResults = memo(function GeneralResults({
             "Scene 2 (3-8s): B-roll montage with text overlay",
             "Scene 3 (8-15s): Direct-to-camera with cinematic shift",
           ]}
-          onUpgrade={onUpgrade}
+          onUpgrade={() => {}}
           locale={locale}
         />
 
         <BlurredPreview
           title={t("blurred.voiceStyle", locale)}
           previewLines={["Dark & slow — dramatic pauses, low energy open"]}
-          onUpgrade={onUpgrade}
+          onUpgrade={() => {}}
           locale={locale}
         />
 
@@ -322,7 +316,7 @@ const GeneralResults = memo(function GeneralResults({
             "Best time: Tuesday 7-9 PM EST",
             "Platform tip: Use trending sounds within first 2 hours",
           ]}
-          onUpgrade={onUpgrade}
+          onUpgrade={() => {}}
           locale={locale}
         />
       </div>
@@ -330,13 +324,6 @@ const GeneralResults = memo(function GeneralResults({
       {/* Bottom CTA */}
       <div className="text-center py-4 space-y-2">
         <p className="text-xs text-muted-foreground">{t("upsell.bottom", locale)}</p>
-        <button
-          onClick={onUpgrade}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all"
-        >
-          <Crown className="h-4 w-4" />
-          {t("upsell.bottomBtn", locale)}
-        </button>
       </div>
     </div>
   );
@@ -575,10 +562,9 @@ const LoadingState = memo(function LoadingState({ mode, locale = "en" }: { mode:
 export default function Index() {
   const { settings } = useSettings();
   const locale = settings.language;
-  const { remaining, isAtLimit, isNearLimit, increment, nextRefillLabel } = useUsageLimit();
-  const { isPro: hasProAccess, openGumroad } = useProStatus();
+  const { remaining, isAtLimit, increment, nextRefillLabel } = useUsageLimit();
 
-  const [mode, setMode] = useState<Mode>(hasProAccess ? "pro" : "general");
+  const [mode, setMode] = useState<Mode>("general");
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState("viral");
   const [platform, setPlatform] = useState(settings.defaultPlatform);
@@ -594,16 +580,8 @@ export default function Index() {
   const [copied, setCopied] = useState("");
   const [generalResult, setGeneralResult] = useState<GeneralResult | null>(null);
   const [proResult, setProResult] = useState<ProResult | null>(null);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const [upgradeTrigger, setUpgradeTrigger] = useState("");
 
   const isProMode = mode === "pro";
-  const isProPreview = isProMode && !hasProAccess;
-
-  const openUpgrade = useCallback((trigger?: string) => {
-    setUpgradeTrigger(trigger || "");
-    setUpgradeOpen(true);
-  }, []);
 
   const togglePlatform = useCallback((value: string) => {
     setPlatforms((prev) =>
@@ -618,18 +596,14 @@ export default function Index() {
     setCopied(key);
     toast.success(t("toast.copied", locale));
     setTimeout(() => setCopied(""), 1200);
-  }, []);
+  }, [locale]);
 
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
 
-    if (isProMode && !hasProAccess) {
-      openUpgrade(t("trigger.proGenerate", locale));
-      return;
-    }
-
-    if (!hasProAccess && isAtLimit) {
-      openUpgrade(t("trigger.dailyLimit", locale));
+    // Free mode: check credits
+    if (!isProMode && isAtLimit) {
+      toast.error(t("usage.noCredits", locale));
       return;
     }
 
@@ -656,7 +630,7 @@ export default function Index() {
       } else {
         setGeneralResult(data as GeneralResult);
         setProResult(null);
-        if (!hasProAccess) increment();
+        increment(); // only deduct credit in Free mode
       }
     } catch (error: any) {
       console.error("Generation failed:", error);
@@ -669,7 +643,7 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, openUpgrade]);
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, locale]);
 
   const hasResults = isProMode ? proResult !== null : generalResult !== null;
 
@@ -732,26 +706,13 @@ export default function Index() {
                 isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
-              <Crown className="h-4 w-4" />{t("mode.pro", locale)} {!hasProAccess && "✨"}
+              <Crown className="h-4 w-4" />{t("mode.pro", locale)}
             </button>
           </div>
 
-          {/* PRO PREVIEW BANNER */}
-          {isProPreview && (
-            <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20 flex items-center gap-3">
-              <div className="shrink-0 h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Crown className="h-4 w-4 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">{t("proPreview.title", locale)}</p>
-                <p className="text-xs text-muted-foreground">{t("proPreview.subtitle", locale)}</p>
-              </div>
-            </div>
-          )}
-
           {/* USAGE BANNER (Free mode only) */}
-          {!hasProAccess && !isProMode && (
-            <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} onUpgrade={() => openUpgrade()} locale={locale} />
+          {!isProMode && (
+            <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} locale={locale} />
           )}
 
           {/* INPUT AREA */}
@@ -799,15 +760,14 @@ export default function Index() {
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.length", locale)}</p>
               <div className="flex gap-2">
                 {LENGTH_OPTIONS.map((len) => {
-                  const isLocked = !hasProAccess && !isProMode && (len === "60" || len === "90");
+                  const isLocked = !isProMode && (len === "60" || len === "90");
                   return (
                     <Pill
                       key={len}
                       selected={scriptLength === len}
                       locked={isLocked}
                       onClick={() => {
-                        if (isLocked) openUpgrade(`Unlock ${len}s scripts with Pro.`);
-                        else setScriptLength(len);
+                        if (!isLocked) setScriptLength(len);
                       }}
                     >
                       {len}s
@@ -830,10 +790,9 @@ export default function Index() {
                   <Pill
                     key={s.value}
                     selected={style === s.value}
-                    locked={!hasProAccess && !isProMode}
+                    locked={!isProMode}
                     onClick={() => {
-                      if (hasProAccess || isProMode) setStyle(s.value);
-                      else openUpgrade(`Unlock "${s.label}" style with Pro for higher-performing content.`);
+                      if (isProMode) setStyle(s.value);
                     }}
                   >
                     {s.label}
@@ -855,10 +814,9 @@ export default function Index() {
                   <Pill
                     key={ct.value}
                     selected={contentType === ct.value}
-                    locked={!hasProAccess && !isProMode}
+                    locked={!isProMode}
                     onClick={() => {
-                      if (hasProAccess || isProMode) setContentType(ct.value);
-                      else openUpgrade(`Unlock "${ct.label}" content type for specialized output.`);
+                      if (isProMode) setContentType(ct.value);
                     }}
                   >
                     {ct.label}
@@ -880,10 +838,9 @@ export default function Index() {
                   <Pill
                     key={g.value}
                     selected={goal === g.value}
-                    locked={!hasProAccess && !isProMode}
+                    locked={!isProMode}
                     onClick={() => {
-                      if (hasProAccess || isProMode) setGoal(g.value);
-                      else openUpgrade(`Unlock "${g.label}" goal for targeted content.`);
+                      if (isProMode) setGoal(g.value);
                     }}
                   >
                     {g.label}
@@ -899,17 +856,16 @@ export default function Index() {
               </p>
               <div className="flex gap-2">
                 {[t("hook.low", locale), t("hook.medium", locale), t("hook.high", locale)].map((label, lvl) => {
-                  const isLocked = !hasProAccess && !isProMode && lvl === 2;
+                  const isLocked = !isProMode && lvl === 2;
                   return (
                     <button
                       key={lvl}
                       onClick={() => {
-                        if (isLocked) openUpgrade(t("trigger.highIntensity", locale));
-                        else setHookIntensity(lvl);
+                        if (!isLocked) setHookIntensity(lvl);
                       }}
                       className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
                         isLocked
-                          ? "bg-muted/30 text-muted-foreground/50 border border-dashed border-border/50 cursor-pointer"
+                          ? "bg-muted/30 text-muted-foreground/50 border border-dashed border-border/50 cursor-not-allowed"
                           : hookIntensity === lvl
                             ? "bg-primary/10 text-primary border border-primary/30"
                             : "bg-muted/60 text-muted-foreground border border-transparent"
@@ -926,9 +882,9 @@ export default function Index() {
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
                 <Image className="h-3 w-3" />{t("selector.imagePrompts", locale)}
-                {!hasProAccess && !isProMode && <span className="text-muted-foreground/60 ml-1">{t("selector.imagePrompts.fixed", locale)}</span>}
+                {!isProMode && <span className="text-muted-foreground/60 ml-1">{t("selector.imagePrompts.fixed", locale)}</span>}
               </p>
-              {(hasProAccess || isProMode) ? (
+              {isProMode ? (
                 <div className="space-y-1.5">
                   <Slider
                     value={[imagePromptCount]}
@@ -941,13 +897,10 @@ export default function Index() {
                   <p className="text-xs text-muted-foreground text-center">{imagePromptCount} prompt{imagePromptCount !== 1 ? "s" : ""}</p>
                 </div>
               ) : (
-                <button
-                  onClick={() => openUpgrade(t("trigger.imageSlider", locale))}
-                  className="w-full py-2 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
-                >
+                <div className="w-full py-2 rounded-xl bg-muted/30 border border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5">
                   <Lock className="h-3 w-3" />
                   {t("selector.imagePrompts.slider", locale)}
-                </button>
+                </div>
               )}
             </div>
 
@@ -956,15 +909,14 @@ export default function Index() {
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.depth", locale)}</p>
               <div className="flex gap-2">
                 {DEPTH_OPTIONS.map((d) => {
-                  const isLocked = d.value === "detailed" && !hasProAccess && !isProMode;
+                  const isLocked = d.value === "detailed" && !isProMode;
                   return (
                     <Pill
                       key={d.value}
                       selected={outputDepth === d.value}
                       locked={isLocked}
                       onClick={() => {
-                        if (isLocked) openUpgrade(t("trigger.detailed", locale));
-                        else setOutputDepth(d.value);
+                        if (!isLocked) setOutputDepth(d.value);
                       }}
                     >
                       {t(`selector.depth.${d.value}`, locale)}
@@ -974,8 +926,8 @@ export default function Index() {
               </div>
             </div>
 
-            {/* 10. Custom description (visible in Pro mode or real Pro) */}
-            {(hasProAccess || isProMode) && (
+            {/* 10. Custom description (Pro mode only) */}
+            {isProMode && (
               <div className="space-y-2">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                   {t("selector.customDesc", locale)} <span className="text-muted-foreground/60">{t("selector.customDesc.optional", locale)}</span>
@@ -989,32 +941,29 @@ export default function Index() {
                 />
               </div>
             )}
-            {!hasProAccess && !isProMode && (
-              <button
-                onClick={() => openUpgrade(t("trigger.customDesc", locale))}
-                className="w-full py-2.5 rounded-xl bg-muted/30 border border-dashed border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/30 transition-colors"
-              >
+            {!isProMode && (
+              <div className="w-full py-2.5 rounded-xl bg-muted/30 border border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5">
                 <Lock className="h-3 w-3" />
                 {t("selector.customDesc.locked", locale)}
-              </button>
+              </div>
             )}
 
             {/* Generate */}
             <Button
               className="w-full h-13 text-base rounded-2xl font-bold"
-              disabled={!topic.trim() || loading || (!hasProAccess && isAtLimit)}
+              disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
               onClick={generateContent}
             >
               {loading ? (
                 <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
-              ) : !hasProAccess && isAtLimit ? (
-                <><Lock className="h-5 w-5" />{t("btn.upgradeContinue", locale)}</>
+              ) : !isProMode && isAtLimit ? (
+                <><Lock className="h-5 w-5" />{t("btn.noCredits", locale)}</>
               ) : (
                 <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
               )}
             </Button>
 
-            {!hasProAccess && !isAtLimit && (
+            {!isProMode && !isAtLimit && (
               <p className="text-center text-[11px] text-muted-foreground">
                 {t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
                 {nextRefillLabel ? ` · ${t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)}` : ""}
@@ -1037,7 +986,7 @@ export default function Index() {
           {loading && <LoadingState mode={mode} locale={locale} />}
 
           {!loading && !isProMode && generalResult && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} onUpgrade={() => openUpgrade()} locale={locale} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} />
           )}
           {!loading && isProMode && proResult && (
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} />
@@ -1054,8 +1003,6 @@ export default function Index() {
 
         </div>
       </div>
-
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} trigger={upgradeTrigger} locale={locale} />
     </div>
   );
 }
