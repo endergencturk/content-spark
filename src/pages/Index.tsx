@@ -98,18 +98,10 @@ interface GeneralResult {
   tiktok: SeoPack["tiktok"];
 }
 
-interface StructuredScript {
-  hook: string;
-  beat1: string;
-  beat2: string;
-  beat3: string;
-  cta: string;
-}
-
 interface ProResult {
   bestHook: string;
   hookVariations: string[];
-  script: StructuredScript;
+  script: string;
   editingPlan: EditingScene[];
   voiceStyle: string;
   postingStrategy: { bestTime: string; platformTip: string };
