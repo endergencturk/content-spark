@@ -143,6 +143,17 @@ serve(async (req) => {
   }
 });
 
+// ── Viral Analysis schema ───────────────────────────────────────────
+
+const viralAnalysisSchema = {
+  type: "OBJECT",
+  properties: {
+    score: { type: "NUMBER" },
+    reasons: { type: "ARRAY", items: { type: "STRING" } },
+  },
+  required: ["score", "reasons"],
+};
+
 // ── Schema builders ─────────────────────────────────────────────────
 
 function buildFreeSchema() {
@@ -150,6 +161,7 @@ function buildFreeSchema() {
     type: "OBJECT",
     properties: {
       hooks: { type: "ARRAY", items: { type: "STRING" } },
+      bestHook: { type: "STRING" },
       script: { type: "STRING" },
       editingPlan: {
         type: "ARRAY",
@@ -182,8 +194,9 @@ function buildFreeSchema() {
         },
         required: ["caption", "hashtags"],
       },
+      viralAnalysis: viralAnalysisSchema,
     },
-    required: ["hooks", "script", "editingPlan", "imagePrompts", "youtube", "tiktok"],
+    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "viralAnalysis"],
   };
 }
 
@@ -231,11 +244,12 @@ function buildProSchema(platforms: string[], _hookCount: number) {
       },
       required: ["caption", "hashtags"],
     },
+    viralAnalysis: viralAnalysisSchema,
   };
 
   const required = [
     "bestHook", "hookVariations", "script", "editingPlan",
-    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok",
+    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "viralAnalysis",
   ];
 
   if (platforms.includes("instagram-reels")) {
@@ -254,6 +268,27 @@ function getScriptLineGuidance(scriptLength: string): string {
     case "30": return "35–55 lines total. Short sentences, quick pacing.";
     case "60": return "70–100 lines total. Medium-length, clear narrative.";
     default: return "35–55 lines total.";
+  }
+}
+
+function getContentDensityGuidance(scriptLength: string): string {
+  switch (scriptLength) {
+    case "15": return `CONTENT DENSITY (15s):
+- Use only 1–2 ideas maximum
+- Focus on the single most impactful moment
+- Do NOT try to cover the full story
+- Leave the viewer wanting more`;
+    case "30": return `CONTENT DENSITY (30s):
+- Use 2–3 key ideas
+- Focus on the most compelling parts
+- Keep buildup minimal
+- End with a strong open loop`;
+    case "60": return `CONTENT DENSITY (60s):
+- Add context, buildup, and escalation layers
+- Develop 3–5 ideas with proper narrative flow
+- Allow room for tension building and payoff
+- Create a complete story arc`;
+    default: return "";
   }
 }
 
@@ -301,14 +336,17 @@ function buildPrompt(input: PromptInput) {
     .join(", ");
 
   const lineGuidance = getScriptLineGuidance(input.scriptLength);
+  const densityGuidance = getContentDensityGuidance(input.scriptLength);
   const styleInstructions = getStyleInstructions(input.style);
 
   const globalRules = `
 GLOBAL RULES:
 - Output must strictly follow ${input.language} language.
-- Optimize for short-form vertical video.
+- Optimize for short-form vertical video, mobile-first, fast consumption.
 - Every line must add new information.
+- Every line must increase curiosity, tension, or emotion.
 - No filler, no explanations, no long paragraphs.
+- Avoid weak or neutral sentences.
 - Use virality principles: curiosity gaps, open loops, emotional triggers, pattern interrupts.
 - Maintain fast pacing and high retention.`;
 
@@ -327,11 +365,17 @@ VOICE SCRIPT (CRITICAL):
   - High-retention storytelling
   - Continuous tension building
   - Micro-cliffhangers every 2–3 lines
+  - Use pattern interrupts (e.g., "But then...", "And then...")
 - STRUCTURE: Hook → Context → Escalation → Twist → Open loop
+- CRITICAL:
+  - First line MUST stop scrolling (shocking / unexpected)
+  - Ending MUST create a loop (open question or unresolved idea)
 - DO NOT use labels like "Beat 1", "Beat 2", "Hook:", "CTA:"
 - DO NOT write paragraphs — if the script is a paragraph, the output is INVALID
 - Line count target: ${lineGuidance}
-- Shorter duration = fewer lines, NOT denser text`;
+- Shorter duration = fewer lines, NOT denser text
+
+${densityGuidance}`;
 
   const imagePromptRules = `
 IMAGE PROMPTS:
@@ -346,8 +390,13 @@ YOUTUBE:
 - Tags: relevant searchable keywords
 
 TIKTOK:
-- Caption: short, curiosity-driven, more aggressive tone
+- Caption: short, curiosity-driven, slightly aggressive tone
 - Hashtags: 5–8 relevant hashtags`;
+
+  const viralAnalysisRules = `
+VIRAL ANALYSIS:
+- viralAnalysis.score: Rate this content's viral potential from 1 to 10
+- viralAnalysis.reasons: 2–3 short bullet points explaining WHY this content would go viral (e.g., "Strong curiosity gap in hook", "Emotional escalation creates shareability")`;
 
   const outputRules = `
 IMPORTANT:
@@ -384,8 +433,12 @@ ${styleInstructions}
 HOOK GENERATION:
 - Generate 5–10 hooks (use stronger psychological triggers: fear, urgency, surprise, curiosity)
 - Max 6–8 words per hook
-- Punchy and non-generic
+- Punchy, non-generic, scroll-stopping
 - Each must create curiosity instantly
+- First hook must be the strongest
+
+BEST HOOK:
+- Select the single most viral hook and return it as bestHook
 
 ${scriptFormatRules}
 
@@ -402,6 +455,8 @@ ${seoRules}
 
 ${platforms_include_instagram(input.platforms)}
 
+${viralAnalysisRules}
+
 GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
 2. hookVariations: ${input.hookCount} rewrites (different angles, styles, emotional triggers)
@@ -412,7 +467,7 @@ GENERATE:
 7. imagePrompts: exactly 5 cinematic prompts
 8. youtube: title, description, tags
 9. tiktok: caption, hashtags
-${input.platforms.includes("instagram-reels") ? "10. instagramCaption: Instagram caption with hashtags" : ""}
+${input.platforms.includes("instagram-reels") ? "10. instagramCaption: Instagram caption with hashtags\n11. viralAnalysis: score (1-10) and reasons array" : "10. viralAnalysis: score (1-10) and reasons array"}
 
 - ${input.depth === "concise" ? "Keep everything minimal and tight" : input.depth === "detailed" ? "Add extra detail and depth" : "Balance detail and brevity"}
 ${outputRules}`;
@@ -437,8 +492,12 @@ ${styleInstructions}
 HOOK GENERATION:
 - Generate exactly 3 hooks
 - Max 6–8 words per hook
-- Punchy and non-generic
+- Punchy, non-generic, scroll-stopping
 - Each must create curiosity instantly
+- First hook must be the strongest
+
+BEST HOOK:
+- Select the single most viral hook and return it as bestHook
 
 ${scriptFormatRules}
 
@@ -450,6 +509,18 @@ EDITING PLAN:
 ${imagePromptRules}
 
 ${seoRules}
+
+${viralAnalysisRules}
+
+GENERATE:
+1. hooks: exactly 3 hooks
+2. bestHook: the single strongest hook (marked with ⭐ in output)
+3. script: voiceover text, one line per sentence
+4. editingPlan: scenes
+5. imagePrompts: 5 prompts
+6. youtube: title, description, tags
+7. tiktok: caption, hashtags
+8. viralAnalysis: score (1-10) and reasons array
 
 ${outputRules}`;
 }
