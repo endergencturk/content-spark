@@ -721,7 +721,8 @@ export default function Index() {
       all = [
         generalResult.hooks.map((h, i) => `Hook ${i + 1}: ${h}`).join("\n"),
         `Script:\n${generalResult.script}`,
-        `Caption:\n${generalResult.caption}`,
+        `YouTube:\n${generalResult.youtube.title}\n${generalResult.youtube.description}\nTags: ${generalResult.youtube.tags.join(", ")}`,
+        `TikTok:\n${generalResult.tiktok.caption}\n${generalResult.tiktok.hashtags.join(" ")}`,
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
       ].filter(Boolean).join("\n\n");
     } else if (isProMode && proResult) {
@@ -729,8 +730,8 @@ export default function Index() {
       all = [
         `🏆 BEST HOOK:\n${proResult.bestHook}`,
         `📝 SCRIPT:\nHook: ${s.hook}\nBeat 1: ${s.beat1}\nBeat 2: ${s.beat2}\nBeat 3: ${s.beat3}\nCTA: ${s.cta}`,
-        proResult.tiktokCaption ? `TikTok: ${proResult.tiktokCaption}` : "",
-        proResult.youtubeTitle ? `YouTube: ${proResult.youtubeTitle}\n${proResult.youtubeDescription}` : "",
+        `YouTube:\n${proResult.youtube.title}\n${proResult.youtube.description}\nTags: ${proResult.youtube.tags.join(", ")}`,
+        `TikTok:\n${proResult.tiktok.caption}\n${proResult.tiktok.hashtags.join(" ")}`,
         proResult.instagramCaption ? `Instagram: ${proResult.instagramCaption}` : "",
         proResult.hookVariations?.length ? `🎯 VARIATIONS:\n${proResult.hookVariations.map((v, i) => `V${i + 1}: ${v}`).join("\n")}` : "",
         proResult.voiceStyle ? `🎙️ Voice: ${proResult.voiceStyle}` : "",

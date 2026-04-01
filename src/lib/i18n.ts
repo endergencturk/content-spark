@@ -63,6 +63,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.tiktok": "TikTok Caption",
     "result.instagram": "Instagram Reels",
     "result.title": "Title",
+    "result.tags": "Tags",
     "result.description": "Description",
     "result.bestHook": "Best Hook",
     "result.hookVariations": "Hook Variations",
