@@ -65,7 +65,7 @@ const PLATFORM_OPTIONS = [
   { value: "instagram-reels", label: "Reels", icon: Instagram },
 ];
 
-const LENGTH_OPTIONS = ["15", "30", "60", "90"];
+const LENGTH_OPTIONS = ["15", "30", "60"];
 
 const DEPTH_OPTIONS = [
   { value: "concise", label: "Concise" },
@@ -98,18 +98,10 @@ interface GeneralResult {
   tiktok: SeoPack["tiktok"];
 }
 
-interface StructuredScript {
-  hook: string;
-  beat1: string;
-  beat2: string;
-  beat3: string;
-  cta: string;
-}
-
 interface ProResult {
   bestHook: string;
   hookVariations: string[];
-  script: StructuredScript;
+  script: string;
   editingPlan: EditingScene[];
   voiceStyle: string;
   postingStrategy: { bestTime: string; platformTip: string };
@@ -156,20 +148,7 @@ const Pill = memo(function Pill({
   );
 });
 
-// ── Script section ──────────────────────────────────────────────────
-
-const ScriptBlock = memo(function ScriptBlock({
-  label, content, accent,
-}: { label: string; content: string; accent?: boolean }) {
-  return (
-    <div className={`py-3 px-4 ${accent ? "bg-primary/5 border-l-2 border-primary" : "border-l-2 border-border/60"}`}>
-      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-1">{label}</p>
-      {content.split("\n").map((line, i) => (
-        <p key={i} className="text-sm text-foreground leading-relaxed">{line || <br />}</p>
-      ))}
-    </div>
-  );
-});
+// (ScriptBlock removed — scripts are now plain text)
 
 // ── Usage limit banner ──────────────────────────────────────────────
 
@@ -391,7 +370,6 @@ const ProResults = memo(function ProResults({
   result, platforms, copied, onCopy, locale = "en",
 }: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
   const [showPack, setShowPack] = useState(false);
-  const fullScript = `${result.script.hook}\n\n${result.script.beat1}\n\n${result.script.beat2}\n\n${result.script.beat3}\n\n${result.script.cta}`;
 
   return (
     <div className="space-y-6">
@@ -409,20 +387,18 @@ const ProResults = memo(function ProResults({
         </div>
       </div>
 
-      {/* Script — structured */}
+      {/* Script — plain voiceover */}
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
             <FileText className="h-3.5 w-3.5 text-primary" />{t("result.voiceover", locale)}
           </h3>
-          <CopyBtn text={fullScript} label="pro-script" copied={copied} onCopy={onCopy} locale={locale} />
+          <CopyBtn text={result.script} label="pro-script" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
-        <div className="rounded-2xl overflow-hidden border border-border/50 divide-y divide-border/40">
-          <ScriptBlock label={t("script.hook", locale)} content={result.script.hook} accent />
-          <ScriptBlock label={t("script.beat1", locale)} content={result.script.beat1} />
-          <ScriptBlock label={t("script.beat2", locale)} content={result.script.beat2} />
-          <ScriptBlock label={t("script.beat3", locale)} content={result.script.beat3} />
-          <ScriptBlock label={t("script.cta", locale)} content={result.script.cta} accent />
+        <div className="bg-muted/40 rounded-2xl p-4">
+          {result.script.split("\n").map((line, i) => (
+            <p key={i} className="text-sm text-foreground leading-loose">{line || <br />}</p>
+          ))}
         </div>
       </section>
 
@@ -728,10 +704,9 @@ export default function Index() {
         `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
       ].filter(Boolean).join("\n\n");
     } else if (isProMode && proResult) {
-      const s = proResult.script;
       all = [
         `🏆 BEST HOOK:\n${proResult.bestHook}`,
-        `📝 SCRIPT:\nHook: ${s.hook}\nBeat 1: ${s.beat1}\nBeat 2: ${s.beat2}\nBeat 3: ${s.beat3}\nCTA: ${s.cta}`,
+        `📝 SCRIPT:\n${proResult.script}`,
         `YouTube:\n${proResult.youtube.title}\n${proResult.youtube.description}\nTags: ${proResult.youtube.tags.join(", ")}`,
         `TikTok:\n${proResult.tiktok.caption}\n${proResult.tiktok.hashtags.join(" ")}`,
         proResult.instagramCaption ? `Instagram: ${proResult.instagramCaption}` : "",
@@ -831,7 +806,7 @@ export default function Index() {
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.length", locale)}</p>
               <div className="flex gap-2">
                 {LENGTH_OPTIONS.map((len) => {
-                  const isLocked = !isProMode && (len === "60" || len === "90");
+                  const isLocked = !isProMode && len === "60";
                   return (
                     <Pill
                       key={len}

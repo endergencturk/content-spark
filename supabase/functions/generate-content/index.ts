@@ -48,7 +48,6 @@ serve(async (req) => {
         : ["tiktok"];
 
     const lang = language === "tr" ? "Turkish" : "English";
-    const imgCount = 5;
     const depth = outputDepth || "standard";
     const hookCount = mode === "pro" ? 10 : 3;
 
@@ -62,7 +61,6 @@ serve(async (req) => {
       goal,
       hookIntensity,
       imageFormat: imageFormat || "9:16",
-      imgCount,
       depth,
       hookCount,
       customDescription,
@@ -189,19 +187,7 @@ function buildFreeSchema() {
   };
 }
 
-function buildProSchema(platforms: string[], hookCount: number) {
-  const scriptSection = {
-    type: "OBJECT",
-    properties: {
-      hook: { type: "STRING" },
-      beat1: { type: "STRING" },
-      beat2: { type: "STRING" },
-      beat3: { type: "STRING" },
-      cta: { type: "STRING" },
-    },
-    required: ["hook", "beat1", "beat2", "beat3", "cta"],
-  };
-
+function buildProSchema(platforms: string[], _hookCount: number) {
   const editingScene = {
     type: "OBJECT",
     properties: {
@@ -216,7 +202,7 @@ function buildProSchema(platforms: string[], hookCount: number) {
   const props: Record<string, any> = {
     bestHook: { type: "STRING" },
     hookVariations: { type: "ARRAY", items: { type: "STRING" } },
-    script: scriptSection,
+    script: { type: "STRING" },
     editingPlan: { type: "ARRAY", items: editingScene },
     voiceStyle: { type: "STRING" },
     postingStrategy: {
@@ -262,13 +248,12 @@ function buildProSchema(platforms: string[], hookCount: number) {
 
 // ── Prompt builder ──────────────────────────────────────────────────
 
-function getScriptLengthGuidance(scriptLength: string): string {
+function getScriptLineGuidance(scriptLength: string): string {
   switch (scriptLength) {
-    case "15": return "40–60 words. Very short sentences. Punchy and fast.";
-    case "30": return "80–120 words. Short sentences, quick pacing.";
-    case "60": return "150–220 words. Medium-length, clear narrative.";
-    case "90": return "250–350 words. Longer narrative with depth.";
-    default: return "80–120 words.";
+    case "15": return "15–25 lines total. Very short, punchy.";
+    case "30": return "35–55 lines total. Short sentences, quick pacing.";
+    case "60": return "70–100 lines total. Medium-length, clear narrative.";
+    default: return "35–55 lines total.";
   }
 }
 
@@ -296,7 +281,6 @@ interface PromptInput {
   goal: string;
   hookIntensity: number;
   imageFormat: string;
-  imgCount: number;
   depth: string;
   hookCount: number;
   customDescription?: string;
@@ -316,7 +300,7 @@ function buildPrompt(input: PromptInput) {
     })
     .join(", ");
 
-  const scriptGuidance = getScriptLengthGuidance(input.scriptLength);
+  const lineGuidance = getScriptLineGuidance(input.scriptLength);
   const styleInstructions = getStyleInstructions(input.style);
 
   const globalRules = `
@@ -328,9 +312,30 @@ GLOBAL RULES:
 - Use virality principles: curiosity gaps, open loops, emotional triggers, pattern interrupts.
 - Maintain fast pacing and high retention.`;
 
+  const scriptFormatRules = `
+VOICE SCRIPT (CRITICAL):
+- Generate a voiceover script optimized for ElevenLabs.
+- FORMAT (STRICT):
+  - Each sentence MUST be on a new line
+  - NEVER use paragraphs
+  - NEVER combine sentences
+  - Break lines aggressively
+  - Even 2–3 word phrases can be separate lines
+  - Add empty lines for pacing
+- STYLE:
+  - Cinematic voiceover
+  - High-retention storytelling
+  - Continuous tension building
+  - Micro-cliffhangers every 2–3 lines
+- STRUCTURE: Hook → Context → Escalation → Twist → Open loop
+- DO NOT use labels like "Beat 1", "Beat 2", "Hook:", "CTA:"
+- DO NOT write paragraphs — if the script is a paragraph, the output is INVALID
+- Line count target: ${lineGuidance}
+- Shorter duration = fewer lines, NOT denser text`;
+
   const imagePromptRules = `
 IMAGE PROMPTS:
-- Generate exactly ${input.imgCount} prompts.
+- Generate exactly 5 prompts.
 - Format: [scene description], [atmosphere], vertical 9:16, photorealistic, no text, no faces`;
 
   const seoRules = `
@@ -350,6 +355,8 @@ IMPORTANT:
 - Do not add extra commentary
 - Output only the structured result
 - Make everything instantly usable for content creation
+- Script must be directly readable for voice recording
+- If script is written as paragraph, output is INVALID
 - Return only valid JSON`;
 
   if (input.mode === "pro") {
@@ -366,8 +373,7 @@ Create a PRO content production package:
 - Platforms: ${platformList}
 - Content type: ${input.contentType}
 - Style: ${input.style}
-- Script length: ${input.scriptLength} seconds
-- Script word count: ${scriptGuidance}
+- Duration: ${input.scriptLength} seconds
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
 - Output depth: ${input.depth}
@@ -381,17 +387,7 @@ HOOK GENERATION:
 - Punchy and non-generic
 - Each must create curiosity instantly
 
-VOICE SCRIPT (CRITICAL):
-- Generate a voice-over script optimized for ElevenLabs
-- Each line max 6–8 words
-- One idea per line
-- No paragraphs
-- Use spacing between blocks for pacing
-- Structure: Hook → Context → Escalation → Twist → Open loop
-- High-retention storytelling, immersive and dynamic
-- Continuous tension building
-- Add micro-cliffhangers every 2–3 lines
-- Total word count: ${scriptGuidance}
+${scriptFormatRules}
 
 EDITING PLAN:
 - Provide scenes: Scene 1, Scene 2, etc.
@@ -409,11 +405,11 @@ ${platforms_include_instagram(input.platforms)}
 GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
 2. hookVariations: ${input.hookCount} rewrites (different angles, styles, emotional triggers)
-3. script: Structured voiceover with hook, beat1, beat2, beat3, cta sections
+3. script: Plain voiceover text, one sentence per line, with empty lines for pacing. NO labels, NO structure markers.
 4. editingPlan: scenes with visual, onScreenText, mood
 5. voiceStyle: recommended voice style
 6. postingStrategy: bestTime and platformTip
-7. imagePrompts: exactly ${input.imgCount} cinematic prompts
+7. imagePrompts: exactly 5 cinematic prompts
 8. youtube: title, description, tags
 9. tiktok: caption, hashtags
 ${input.platforms.includes("instagram-reels") ? "10. instagramCaption: Instagram caption with hashtags" : ""}
@@ -431,8 +427,7 @@ Create a content package:
 - Platform: ${platformList}
 - Content type: ${input.contentType}
 - Style: ${input.style}
-- Script length: ${input.scriptLength} seconds
-- Script word count: ${scriptGuidance}
+- Duration: ${input.scriptLength} seconds
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
 
@@ -445,15 +440,7 @@ HOOK GENERATION:
 - Punchy and non-generic
 - Each must create curiosity instantly
 
-VOICE SCRIPT (CRITICAL):
-- Generate a voice-over script optimized for ElevenLabs
-- Each line max 6–8 words
-- One idea per line
-- No paragraphs
-- Structure: Hook → Context → Escalation → Twist → Open loop
-- High-retention storytelling
-- Add micro-cliffhangers every 2–3 lines
-- Total: ${scriptGuidance}
+${scriptFormatRules}
 
 EDITING PLAN:
 - Provide scenes with visual description
