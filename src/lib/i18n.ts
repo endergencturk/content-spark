@@ -239,6 +239,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.bestTime": "En İyi Zaman",
     "result.platformTip": "Platform İpucu",
     "result.fullPack": "Tam İçerik Paketi",
+    "result.viralAnalysis": "Viral Analizi",
     "result.viewPack": "Tam İçerik Paketini Gör",
     "result.hidePack": "Gizle",
     "result.proAvailable": "Pro ile kullanılabilir",
