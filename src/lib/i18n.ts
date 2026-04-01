@@ -377,6 +377,17 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.proUnlock": "Sınırsız geçmiş için Pro'ya yükseltin",
     "history.saved": "Geçmişe kaydedildi ✓",
     "history.viewHistory": "Geçmişi Gör",
+    "history.all": "Tümü",
+
+    // Favorites
+    "favorites.title": "Favoriler",
+    "favorites.empty": "Henüz favori yok. Kaydetmek için bir oluşturmaya yıldız verin!",
+    "favorites.added": "Favorilere eklendi ⭐",
+    "favorites.removed": "Favorilerden kaldırıldı",
+    "favorites.limit": "Ücretsiz kullanıcılar 3 favori kaydedebilir. Sınırsız için Pro'ya yükseltin!",
+
+    // Copy full pack
+    "btn.copyFullPack": "Tam Paketi Kopyala",
 
     // Topic suggestions
     "topics.suggestions": "Trend Konular",

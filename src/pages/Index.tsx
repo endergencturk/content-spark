@@ -866,6 +866,29 @@ export default function Index() {
     setGoal(item.goal || "viral");
   }, []);
 
+  // History regenerate handler — loads settings then triggers generation
+  const handleHistoryRegenerate = useCallback((item: any) => {
+    setTopic(item.topic);
+    if (item.plan_type === "pro") {
+      setMode("pro");
+      setPlatforms(item.platforms || ["tiktok"]);
+    } else {
+      setMode("general");
+      setPlatform(item.platforms?.[0] || "tiktok");
+    }
+    setStyle(item.style || "viral");
+    setContentType(item.content_type || "story");
+    setScriptLength(item.duration || "30");
+    setGoal(item.goal || "viral");
+    // Clear old results so generate runs fresh
+    setProResult(null);
+    setGeneralResult(null);
+    // Trigger generation on next tick after state settles
+    setTimeout(() => {
+      document.getElementById("generate-btn")?.click();
+    }, 100);
+  }, []);
+
   const hasResults = isProMode ? proResult !== null : generalResult !== null;
 
   const copyAll = useCallback(() => {
