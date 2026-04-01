@@ -844,7 +844,27 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, locale]);
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId]);
+
+  // History reopen handler
+  const handleHistoryReopen = useCallback((item: any) => {
+    setTopic(item.topic);
+    if (item.plan_type === "pro") {
+      setMode("pro");
+      setPlatforms(item.platforms || ["tiktok"]);
+      setProResult(item.output_json as ProResult);
+      setGeneralResult(null);
+    } else {
+      setMode("general");
+      setPlatform(item.platforms?.[0] || "tiktok");
+      setGeneralResult(item.output_json as GeneralResult);
+      setProResult(null);
+    }
+    setStyle(item.style || "viral");
+    setContentType(item.content_type || "story");
+    setScriptLength(item.duration || "30");
+    setGoal(item.goal || "viral");
+  }, []);
 
   const hasResults = isProMode ? proResult !== null : generalResult !== null;
 
