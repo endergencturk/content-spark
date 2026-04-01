@@ -615,24 +615,7 @@ const ProResults = memo(function ProResults({
       )}
       {/* Viral Analysis */}
       {result.viralAnalysis && (
-        <section className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.viralAnalysis", locale)}
-          </h3>
-          <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/15 rounded-2xl p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-extrabold text-primary">{result.viralAnalysis.score}</span>
-              <span className="text-sm text-muted-foreground font-medium">/ 10</span>
-            </div>
-            <div className="space-y-1.5">
-              {result.viralAnalysis.reasons.map((reason, i) => (
-                <p key={i} className="text-sm text-foreground leading-relaxed flex items-start gap-2">
-                  <span className="text-primary mt-0.5">•</span>{reason}
-                </p>
-              ))}
-            </div>
-          </div>
-        </section>
+        <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
       )}
     </div>
   );
