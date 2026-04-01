@@ -166,6 +166,31 @@ const translations: Record<Locale, Record<string, string>> = {
     "trigger.detailed": "Unlock Detailed depth for maximum output quality.",
     "trigger.customDesc": "Describe your exact video intent with Pro — get AI-tailored output.",
     "trigger.highIntensity": "Unlock High intensity hooks with Pro.",
+
+    // History
+    "history.title": "History",
+    "history.loading": "Loading history…",
+    "history.empty": "No generations yet. Create your first content!",
+    "history.reuse": "Reuse Topic",
+    "history.proUnlock": "Upgrade to Pro for unlimited history",
+    "history.saved": "Saved to history ✓",
+    "history.viewHistory": "View History",
+
+    // Topic suggestions
+    "topics.suggestions": "Trending Topics",
+    "topics.surprise": "Surprise Me",
+    "topics.more": "More suggestions available with Pro",
+
+    // Viral categories
+    "viral.hookStrength": "Hook Strength",
+    "viral.curiosityGap": "Curiosity Gap",
+    "viral.emotionalTrigger": "Emotional Trigger",
+    "viral.clarity": "Clarity",
+    "viral.rewatchPotential": "Rewatch Potential",
+    "viral.commentPotential": "Comment Potential",
+    "viral.platformFit": "Platform Fit",
+    "viral.strengths": "Strengths",
+    "viral.weaknesses": "Weaknesses",
   },
   tr: {
     // App
