@@ -979,6 +979,39 @@ export default function Index() {
             {/* 2. Topic */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("input.topic", locale)}</p>
+
+              {/* Topic Suggestions */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/70 flex items-center gap-1">
+                    <Lightbulb className="h-3 w-3" />{t("topics.suggestions", locale)}
+                  </p>
+                  <button
+                    onClick={() => {
+                      const random = getRandomTopic(contentType, style);
+                      setTopic(random);
+                    }}
+                    className="text-[10px] font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+                  >
+                    <Shuffle className="h-3 w-3" />{t("topics.surprise", locale)}
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setTopic(s.topic)}
+                      className="text-[11px] px-2.5 py-1.5 rounded-xl bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors truncate max-w-[200px]"
+                    >
+                      {s.topic}
+                    </button>
+                  ))}
+                </div>
+                {!isProMode && (
+                  <p className="text-[10px] text-muted-foreground/50">{t("topics.more", locale)}</p>
+                )}
+              </div>
+
               <Input
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
