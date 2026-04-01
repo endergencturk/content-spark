@@ -89,13 +89,20 @@ interface EditingScene {
   mood?: string;
 }
 
+interface ViralAnalysis {
+  score: number;
+  reasons: string[];
+}
+
 interface GeneralResult {
   hooks: string[];
+  bestHook: string;
   script: string;
   editingPlan: EditingScene[];
   imagePrompts: string[];
   youtube: SeoPack["youtube"];
   tiktok: SeoPack["tiktok"];
+  viralAnalysis: ViralAnalysis;
 }
 
 interface ProResult {
