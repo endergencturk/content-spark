@@ -148,20 +148,7 @@ const Pill = memo(function Pill({
   );
 });
 
-// ── Script section ──────────────────────────────────────────────────
-
-const ScriptBlock = memo(function ScriptBlock({
-  label, content, accent,
-}: { label: string; content: string; accent?: boolean }) {
-  return (
-    <div className={`py-3 px-4 ${accent ? "bg-primary/5 border-l-2 border-primary" : "border-l-2 border-border/60"}`}>
-      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-1">{label}</p>
-      {content.split("\n").map((line, i) => (
-        <p key={i} className="text-sm text-foreground leading-relaxed">{line || <br />}</p>
-      ))}
-    </div>
-  );
-});
+// (ScriptBlock removed — scripts are now plain text)
 
 // ── Usage limit banner ──────────────────────────────────────────────
 
