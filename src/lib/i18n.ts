@@ -213,6 +213,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "btn.copied": "Kopyalandı!",
     "btn.copy": "Kopyala",
     "btn.upgradeContinue": "Devam etmek için yükseltin",
+    "btn.noCredits": "Kredi kalmadı",
+    "usage.switchPro": "Sınırsız oluşturma için Pro sekmesine geçin.",
 
     // Results
     "result.hooks": "Hook'lar",
