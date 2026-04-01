@@ -357,6 +357,31 @@ const translations: Record<Locale, Record<string, string>> = {
     "trigger.detailed": "Maksimum çıktı kalitesi için Detaylı derinliği açın.",
     "trigger.customDesc": "Pro ile videonuzun amacını tam olarak tanımlayın — AI'dan özel çıktı alın.",
     "trigger.highIntensity": "Pro ile Yüksek yoğunluklu hook'ları açın.",
+
+    // History
+    "history.title": "Geçmiş",
+    "history.loading": "Geçmiş yükleniyor…",
+    "history.empty": "Henüz oluşturma yok. İlk içeriğinizi oluşturun!",
+    "history.reuse": "Konuyu Tekrar Kullan",
+    "history.proUnlock": "Sınırsız geçmiş için Pro'ya yükseltin",
+    "history.saved": "Geçmişe kaydedildi ✓",
+    "history.viewHistory": "Geçmişi Gör",
+
+    // Topic suggestions
+    "topics.suggestions": "Trend Konular",
+    "topics.surprise": "Beni Şaşırt",
+    "topics.more": "Pro ile daha fazla öneri",
+
+    // Viral categories
+    "viral.hookStrength": "Hook Gücü",
+    "viral.curiosityGap": "Merak Boşluğu",
+    "viral.emotionalTrigger": "Duygusal Tetikleyici",
+    "viral.clarity": "Netlik",
+    "viral.rewatchPotential": "Tekrar İzleme Potansiyeli",
+    "viral.commentPotential": "Yorum Potansiyeli",
+    "viral.platformFit": "Platform Uyumu",
+    "viral.strengths": "Güçlü Yönler",
+    "viral.weaknesses": "Zayıf Yönler",
   },
 };
 

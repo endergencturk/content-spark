@@ -405,9 +405,25 @@ TIKTOK:
 - Hashtags: 5–8 relevant hashtags`;
 
   const viralAnalysisRules = `
-VIRAL ANALYSIS:
-- viralAnalysis.score: Rate this content's viral potential from 1 to 10
-- viralAnalysis.reasons: 2–3 short bullet points explaining WHY this content would go viral (e.g., "Strong curiosity gap in hook", "Emotional escalation creates shareability")`;
+VIRAL ANALYSIS (STRUCTURED SCORING):
+You MUST score this content honestly. Average content should score 5–7. Only truly exceptional content should score 8+. Never default to 9 or 10.
+
+Score each category from 1 to 10:
+- hookStrength: How scroll-stopping is the hook?
+- curiosityGap: Does it create an information gap the viewer NEEDS to fill?
+- emotionalTrigger: Does it provoke a strong emotion (fear, awe, anger, joy)?
+- clarity: Is the message instantly clear within 2 seconds?
+- rewatchPotential: Would someone watch this twice?
+- commentPotential: Would this provoke comments/debate?
+- platformFit: Is this optimized for the target platform's algorithm?
+
+Return:
+- viralAnalysis.score: The AVERAGE of all category scores (rounded to 1 decimal)
+- viralAnalysis.categories: Array of {name, score} for each category above
+- viralAnalysis.strengths: 2–3 short bullet points about what works well
+- viralAnalysis.weaknesses: 1–2 short bullet points about what could be improved
+
+CRITICAL: Do NOT inflate scores. Be honest and critical. A generic topic with a weak hook should score 4–6, not 8+.`;
 
   const outputRules = `
 IMPORTANT:
