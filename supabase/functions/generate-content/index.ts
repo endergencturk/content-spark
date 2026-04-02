@@ -275,10 +275,10 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
 function getScriptCharacterLimit(scriptLength: string): string {
   switch (scriptLength) {
-    case "15": return "STRICT CHARACTER LIMIT: 200–250 characters max. If exceeded, output is INVALID.";
-    case "30": return "STRICT CHARACTER LIMIT: 350–420 characters max. If exceeded, output is INVALID.";
-    case "60": return "STRICT CHARACTER LIMIT: 700–850 characters max. If exceeded, output is INVALID.";
-    default: return "STRICT CHARACTER LIMIT: 350–420 characters max. If exceeded, output is INVALID.";
+    case "15": return "STRICT CHARACTER LIMIT: 150–220 characters max. If exceeded, output is INVALID.";
+    case "30": return "STRICT CHARACTER LIMIT: 250–350 characters max. If exceeded, output is INVALID.";
+    case "60": return "STRICT CHARACTER LIMIT: 500–700 characters max. If exceeded, output is INVALID.";
+    default: return "STRICT CHARACTER LIMIT: 250–350 characters max. If exceeded, output is INVALID.";
   }
 }
 
@@ -369,20 +369,24 @@ VOICE SCRIPT (CRITICAL):
   - Each line = 2–6 words ONLY
   - One idea per line
   - Use many short lines
+  - Break sentences often
   - NEVER use paragraphs
   - NEVER combine sentences
-  - Add empty lines for pacing
+  - Add empty lines between sections for breathing space
+  - Use pauses: "..." and "—" for dramatic effect
+  - Use single-word lines when impactful (e.g., "Gone.", "Silence.", "Nothing.")
 - STYLE:
-  - Cinematic
+  - Dark
   - Suspenseful
-  - Fast pacing
-  - High retention
-  - Use pattern interrupts (e.g., "But then…", "And then…", "Suddenly…")
-- STRUCTURE: Hook → Context → Escalation → Twist → Open loop
+  - Psychological
+  - Immersive
+  - Use interruption patterns: "But then...", "Or so you think.", "Something is wrong."
+- STRUCTURE: Hook → Build tension → Disturbance → Twist → Open ending
 - CRITICAL:
   - First line MUST stop scrolling (shocking / unexpected)
-  - Ending MUST create curiosity (never fully resolve)
+  - Ending MUST create curiosity (never fully resolve — leave an open loop)
   - Count characters before returning — if over the limit, shorten the script
+  - Create breathing space for voice recording
 - DO NOT use labels like "Beat 1", "Beat 2", "Hook:", "CTA:"
 - DO NOT write paragraphs — if the script is a paragraph, the output is INVALID
 
