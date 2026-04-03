@@ -111,6 +111,7 @@ interface GeneralResult {
   imagePrompts: string[];
   youtube: SeoPack["youtube"];
   tiktok: SeoPack["tiktok"];
+  music?: string[];
   viralAnalysis: ViralAnalysis;
 }
 
