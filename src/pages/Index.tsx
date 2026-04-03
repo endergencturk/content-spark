@@ -5,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   Copy, Loader2, Sparkles, FileText, MessageSquare, RefreshCw,
-  Image, Clock, Flame, Crown, Hash, Youtube, Mic, Film,
+  Image, Clock, Flame, Crown, Hash, Youtube, Mic, Film, Music,
   CalendarClock, Target, Trophy, Zap, Instagram, ChevronDown,
   Package, Lock, TrendingUp, History, Shuffle, Lightbulb,
 } from "lucide-react";
