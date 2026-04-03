@@ -605,6 +605,14 @@ Create a content package:
 STYLE BEHAVIOR:
 ${styleInstructions}
 
+GOAL BEHAVIOR:
+${goalInstructions}
+
+${hookIntensityInstructions}
+
+CONTENT TYPE:
+${contentTypeInstructions}
+
 HOOK GENERATION:
 - Generate exactly 3 hooks
 - Must feel dangerous, forbidden, or shocking
@@ -628,6 +636,8 @@ ${imagePromptRules}
 ${seoRules}
 
 ${viralAnalysisRules}
+
+${qualityEnforcement}
 
 GENERATE:
 1. hooks: exactly 3 hooks
