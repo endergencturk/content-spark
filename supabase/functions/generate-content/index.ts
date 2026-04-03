@@ -205,9 +205,10 @@ function buildFreeSchema() {
         },
         required: ["caption", "hashtags"],
       },
+      music: { type: "ARRAY", items: { type: "STRING" } },
       viralAnalysis: viralAnalysisSchema,
     },
-    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "viralAnalysis"],
+    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "viralAnalysis"],
   };
 }
 
@@ -255,12 +256,13 @@ function buildProSchema(platforms: string[], _hookCount: number) {
       },
       required: ["caption", "hashtags"],
     },
+    music: { type: "ARRAY", items: { type: "STRING" } },
     viralAnalysis: viralAnalysisSchema,
   };
 
   const required = [
     "bestHook", "hookVariations", "script", "editingPlan",
-    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "viralAnalysis",
+    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "music", "viralAnalysis",
   ];
 
   if (platforms.includes("instagram-reels")) {
@@ -273,33 +275,29 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
 // ── Prompt builder ──────────────────────────────────────────────────
 
-function getScriptCharacterLimit(scriptLength: string): string {
+function getLineCountGuidance(scriptLength: string): string {
   switch (scriptLength) {
-    case "15": return "STRICT CHARACTER LIMIT: 150–220 characters max. If exceeded, output is INVALID.";
-    case "30": return "STRICT CHARACTER LIMIT: 250–350 characters max. If exceeded, output is INVALID.";
-    case "60": return "STRICT CHARACTER LIMIT: 500–700 characters max. If exceeded, output is INVALID.";
-    default: return "STRICT CHARACTER LIMIT: 250–350 characters max. If exceeded, output is INVALID.";
-  }
-}
-
-function getContentDensityGuidance(scriptLength: string): string {
-  switch (scriptLength) {
-    case "15": return `CONTENT DENSITY (15s):
+    case "15": return `LINE COUNT CONTROL (15s):
+- Target: 15–18 lines
+- Each line ≈ 0.8–1.2 seconds when spoken
+- Focus on immediate impact and curiosity
 - Use only 1–2 ideas maximum
-- Focus on the single most impactful moment
-- Do NOT try to cover the full story
-- Leave the viewer wanting more`;
-    case "30": return `CONTENT DENSITY (30s):
+- If script is too short, expand with micro-details or transitions`;
+    case "30": return `LINE COUNT CONTROL (30s):
+- Target: 25–35 lines
+- Each line ≈ 0.8–1.2 seconds when spoken
 - Use 2–3 key ideas
-- Focus on the most compelling parts
-- Keep buildup minimal
-- End with a strong open loop`;
-    case "60": return `CONTENT DENSITY (60s):
-- Add context, buildup, and escalation layers
+- Keep buildup minimal but present
+- If too short, add examples or micro-explanations`;
+    case "60": return `LINE COUNT CONTROL (60s):
+- Target: 50–70 lines
+- Each line ≈ 0.8–1.2 seconds when spoken
 - Develop 3–5 ideas with proper narrative flow
 - Allow room for tension building and payoff
-- Create a complete story arc`;
-    default: return "";
+- If too short, expand with context, examples, and transitions`;
+    default: return `LINE COUNT CONTROL (30s):
+- Target: 25–35 lines
+- Each line ≈ 0.8–1.2 seconds when spoken`;
   }
 }
 
@@ -387,8 +385,7 @@ function buildPrompt(input: PromptInput) {
     })
     .join(", ");
 
-  const charLimit = getScriptCharacterLimit(input.scriptLength);
-  const densityGuidance = getContentDensityGuidance(input.scriptLength);
+  const lineCountGuidance = getLineCountGuidance(input.scriptLength);
   const styleInstructions = getStyleInstructions(input.style);
   const goalInstructions = getGoalInstructions(input.goal);
   const hookIntensityInstructions = getHookIntensityInstructions(input.hookIntensity);
@@ -404,40 +401,77 @@ GLOBAL RULES:
 - Prioritize emotional impact over information.
 - Write for viewers, not readers.
 - Use virality principles: curiosity gaps, open loops, emotional triggers, pattern interrupts.
-- Content must feel like: "I need to watch this", "What happens next?", "This is not normal".`;
+- Content must feel human, not AI-generated.`;
+
+  const languageBehavior = input.language === "Turkish"
+    ? `
+LANGUAGE BEHAVIOR (TURKISH):
+- Write in natural, fluent, spoken Turkish
+- Do NOT translate from English — think in Turkish
+- Use culturally natural phrasing and idioms
+- Keep sentences clean and smooth
+- Avoid overly dramatic horror tone UNLESS the topic is actually horror/mystery
+- The output must sound like a native Turkish speaker wrote it`
+    : `
+LANGUAGE BEHAVIOR (ENGLISH):
+- Keep cinematic, engaging tone
+- Use natural spoken English rhythm
+- Adapt tone to match the topic category`;
+
+  const topicAdaptation = `
+TOPIC-AWARE TONE ADAPTATION (CRITICAL):
+- You MUST adapt your tone and style to match the topic category
+- Do NOT default to dark/horror tone for every topic
+
+If topic is educational (health, science, tips, how-to):
+  → Use clear, engaging, curiosity-driven tone
+  → Focus on value + intrigue
+  → No horror or suspense elements
+  → Structure: Hook → Value → Expansion → Insight → Ending
+
+If topic is horror / mystery / true crime:
+  → Use dark, suspenseful, psychological tone
+  → Structure: Hook → Unease → Escalation → Disturbance → Open-ended question
+
+If topic is self-improvement / motivation:
+  → Use motivational + curiosity tone
+  → Inspire action and self-reflection
+  → Structure: Hook → Challenge → Insight → Shift → Call to action
+
+If topic is entertainment / fun / lifestyle:
+  → Use fast, light, engaging tone
+  → Focus on relatability and shareability
+
+If topic is selling / product / business:
+  → Use persuasive curiosity tone
+  → Create desire through storytelling
+
+AI MUST match the topic category. Mismatched tone = INVALID output.`;
 
   const scriptFormatRules = `
 VOICE SCRIPT (CRITICAL):
-- Generate a voiceover script optimized for ElevenLabs.
-- ${charLimit}
+- Generate a voiceover script optimized for speaking/recording.
 - FORMAT (STRICT):
-  - Each line = 2–6 words ONLY
+  - Each line = 2–8 words
+  - Natural speaking rhythm
   - One idea per line
   - Use many short lines
   - Break sentences often
   - NEVER use paragraphs
   - NEVER combine sentences
   - Add empty lines between sections for breathing space
-  - Use pauses: "..." and "—" for dramatic effect
-  - Use single-word lines when impactful (e.g., "Gone.", "Silence.", "Nothing.")
-- STYLE:
-  - Dark
-  - Suspenseful
-  - Psychological
-  - Immersive
-  - Use interruption patterns: "But then…", "Or so you think.", "Something is wrong.", "You're not alone."
-  - Do NOT explain everything — leave gaps for the viewer to fill
-  - Every 2–3 lines must escalate tension
-- STRUCTURE: Hook → Unease → Escalation → Disturbance → Open-ended question
+  - Use pauses: "..." and "—" for dramatic effect (when tone calls for it)
+  - Use single-word lines when impactful
+- STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
 - CRITICAL:
-  - First line MUST stop scrolling (shocking / unexpected)
-  - Ending MUST create curiosity (never fully resolve — leave an open loop)
-  - Count characters before returning — if over the limit, shorten the script
+  - First line MUST stop scrolling
+  - Ending MUST create curiosity or impact (open loop or strong closer)
+  - DO NOT use labels like "Beat 1", "Beat 2", "Hook:", "CTA:"
+  - DO NOT write paragraphs — if the script is a paragraph, the output is INVALID
   - Create breathing space for voice recording
-- DO NOT use labels like "Beat 1", "Beat 2", "Hook:", "CTA:"
-- DO NOT write paragraphs — if the script is a paragraph, the output is INVALID
+  - If script is too short for the duration, expand with examples, micro-explanations, or transitions
 
-${densityGuidance}`;
+${lineCountGuidance}`;
 
   const imagePromptRules = `
 IMAGE PROMPTS:
@@ -455,6 +489,21 @@ YOUTUBE:
 TIKTOK:
 - Caption: short, emotional, curiosity-driven
 - Hashtags: 5–8 high-relevance tags`;
+
+  const musicRules = `
+🎵 VIRAL MUSIC SUGGESTIONS:
+- Suggest 2–3 music styles or specific trending sounds based on topic and content type
+- Match the mood and energy of the content
+
+Guidelines:
+- If horror/mystery: dark ambient, suspense drone, cinematic tension
+- If educational: light background beat, minimal lo-fi, clean corporate vibe
+- If motivational: uplifting instrumental, emotional piano, epic orchestral
+- If entertainment/fun: trending TikTok sounds, upbeat pop, catchy lo-fi
+- If selling/business: confident corporate, subtle electronic, modern minimal
+- If emotional: piano ballad, ambient strings, reflective acoustic
+
+Return as array of 2–3 short music style descriptions.`;
 
   const viralAnalysisRules = `
 VIRAL ANALYSIS (STRUCTURED SCORING):
@@ -479,28 +528,20 @@ CRITICAL: Do NOT inflate scores. Be honest and critical. A generic topic with a 
 
   const qualityEnforcement = `
 QUALITY ENFORCEMENT (CRITICAL):
-If output feels generic, flat, or safe → rewrite internally before returning.
+If output feels robotic, too generic, or has a tone mismatch with the topic → REWRITE internally before returning.
 The script MUST:
-- Start with a strong, unsettling or shocking line
-- Include at least one disturbing or unexpected moment
-- Maintain tension every 2–3 lines
-- Include at least one interruption moment
+- Start with a strong, attention-grabbing first line
+- Maintain engagement every 2–3 lines
+- Match the tone to the topic category (NOT always dark/horror)
+- Sound human and natural, not AI-generated
+- Be immediately usable for voice recording
 
 FORBIDDEN:
 - Flat narration
-- Neutral tone
+- Tone mismatch (e.g., horror tone for a health tip)
 - Over-explaining
-- Safe storytelling
-
-REQUIRED FEELING:
-"This is not normal"
-"Something is wrong"
-"I need to keep watching"
-
-OPENING RULE:
-First line must create instant tension.
-Bad example: "London, 1888."
-Good example: "He was never caught."`;
+- Robotic or translated-sounding language
+- Generic phrasing that could apply to any topic`;
 
   const outputRules = `
 IMPORTANT:
@@ -511,6 +552,8 @@ IMPORTANT:
 - Script must be directly readable for voice recording
 - If script is written as paragraph, output is INVALID
 - Content must feel human, not AI-generated
+- Must match topic type naturally
+- Must match language naturally
 - Return only valid JSON`;
 
   if (input.mode === "pro") {
@@ -518,8 +561,14 @@ IMPORTANT:
       ? `\nCUSTOM USER INSTRUCTIONS (prioritize these over presets):\n${input.customDescription}\n`
       : "";
 
-    return `You are an AI short-form content engine designed to generate viral-ready content for TikTok, Instagram Reels, and YouTube Shorts.
+    return `You are an advanced AI short-form content engine designed to generate viral-ready, high-retention content for TikTok, Instagram Reels, and YouTube Shorts.
+Your goal is to create content that is immediately usable, emotionally engaging, and optimized for maximum watch time and interaction.
+You MUST adapt tone, structure, and style based on the topic, language, and user selections.
 ${globalRules}
+
+${languageBehavior}
+
+${topicAdaptation}
 
 Create a PRO content production package:
 - Topic: ${input.topic}
@@ -545,11 +594,11 @@ ${contentTypeInstructions}
 
 HOOK GENERATION:
 - Generate 5–8 hooks
-- Must feel dangerous, forbidden, or shocking
 - Create immediate curiosity gap
 - Max 6 words per hook
 - Avoid safe or explanatory language
 - First hook must be the strongest
+- Adapt hook tone to match topic (not always dark/shocking)
 
 BEST HOOK:
 - Select the single most viral hook and return it as bestHook
@@ -562,12 +611,15 @@ EDITING PLAN:
 - Optional on-screen text
 - Mood/effect (if needed)
 - Keep it short and practical
+- Match content type
 
 ${imagePromptRules}
 
 ${seoRules}
 
 ${platforms_include_instagram(input.platforms)}
+
+${musicRules}
 
 ${viralAnalysisRules}
 
@@ -583,14 +635,21 @@ GENERATE:
 7. imagePrompts: exactly 5 cinematic prompts
 8. youtube: title, description, tags
 9. tiktok: caption, hashtags
-${input.platforms.includes("instagram-reels") ? "10. instagramCaption: Instagram caption with hashtags\n11. viralAnalysis: score (1-10) and reasons array" : "10. viralAnalysis: score (1-10) and reasons array"}
+10. music: 2–3 music style suggestions matching the content
+${input.platforms.includes("instagram-reels") ? "11. instagramCaption: Instagram caption with hashtags\n12. viralAnalysis: score (1-10) and reasons array" : "11. viralAnalysis: score (1-10) and reasons array"}
 
 - ${input.depth === "concise" ? "Keep everything minimal and tight" : input.depth === "detailed" ? "Add extra detail and depth" : "Balance detail and brevity"}
 ${outputRules}`;
   }
 
-  return `You are an AI short-form content engine designed to generate viral-ready content for TikTok, Instagram Reels, and YouTube Shorts.
+  return `You are an advanced AI short-form content engine designed to generate viral-ready, high-retention content for TikTok, Instagram Reels, and YouTube Shorts.
+Your goal is to create content that is immediately usable, emotionally engaging, and optimized for maximum watch time and interaction.
+You MUST adapt tone, structure, and style based on the topic, language, and user selections.
 ${globalRules}
+
+${languageBehavior}
+
+${topicAdaptation}
 
 Create a content package:
 - Topic: ${input.topic}
@@ -615,11 +674,11 @@ ${contentTypeInstructions}
 
 HOOK GENERATION:
 - Generate exactly 3 hooks
-- Must feel dangerous, forbidden, or shocking
 - Create immediate curiosity gap
 - Max 6 words per hook
 - Avoid safe or explanatory language
 - First hook must be the strongest
+- Adapt hook tone to match topic
 
 BEST HOOK:
 - Select the single most viral hook and return it as bestHook
@@ -630,10 +689,13 @@ EDITING PLAN:
 - Provide scenes with visual description
 - Optional on-screen text and mood
 - Keep it short and practical
+- Match content type
 
 ${imagePromptRules}
 
 ${seoRules}
+
+${musicRules}
 
 ${viralAnalysisRules}
 
@@ -647,7 +709,8 @@ GENERATE:
 5. imagePrompts: 5 prompts
 6. youtube: title, description, tags
 7. tiktok: caption, hashtags
-8. viralAnalysis: score (1-10) and reasons array
+8. music: 2–3 music style suggestions
+9. viralAnalysis: score (1-10) and reasons array
 
 ${outputRules}`;
 }
