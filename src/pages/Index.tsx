@@ -103,6 +103,12 @@ interface ViralAnalysis {
   weaknesses: string[];
 }
 
+interface MusicSuggestion {
+  type: string;
+  source: string;
+  why: string;
+}
+
 interface GeneralResult {
   hooks: string[];
   bestHook: string;
@@ -111,7 +117,8 @@ interface GeneralResult {
   imagePrompts: string[];
   youtube: SeoPack["youtube"];
   tiktok: SeoPack["tiktok"];
-  music?: string[];
+  music?: MusicSuggestion[];
+  seriesPotential?: string;
   viralAnalysis: ViralAnalysis;
 }
 
@@ -126,8 +133,19 @@ interface ProResult {
   youtube: SeoPack["youtube"];
   tiktok: SeoPack["tiktok"];
   instagramCaption?: string;
-  music?: string[];
+  music?: MusicSuggestion[];
+  seriesPotential?: string;
   viralAnalysis: ViralAnalysis;
+}
+
+interface DiscoveryIdea {
+  title: string;
+  why: string;
+}
+
+interface DiscoveryResult {
+  discoveryMode: true;
+  ideas: DiscoveryIdea[];
 }
 
 // ── Micro components ────────────────────────────────────────────────
@@ -434,15 +452,31 @@ const GeneralResults = memo(function GeneralResults({
           </h3>
           <div className="space-y-1.5">
             {result.music.map((m, i) => (
-              <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5">
-                <p className="text-xs text-muted-foreground">{m}</p>
+              <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5 space-y-1">
+                <p className="text-sm font-medium text-foreground">{typeof m === 'string' ? m : m.type}</p>
+                {typeof m !== 'string' && (
+                  <>
+                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.source", locale)}:</span>{m.source}</p>
+                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.why", locale)}:</span>{m.why}</p>
+                  </>
+                )}
               </div>
             ))}
           </div>
         </section>
       )}
 
-      {/* Viral Analysis */}
+      {/* Series Potential */}
+      {result.seriesPotential && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.seriesPotential", locale)}
+          </h3>
+          <div className="bg-muted/40 rounded-2xl px-4 py-3">
+            <p className="text-sm text-foreground leading-relaxed">{result.seriesPotential}</p>
+          </div>
+        </section>
+      )}
       {result.viralAnalysis && (
         <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
       )}
@@ -729,10 +763,28 @@ const ProResults = memo(function ProResults({
           </h3>
           <div className="space-y-1.5">
             {result.music.map((m, i) => (
-              <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5">
-                <p className="text-xs text-muted-foreground">{m}</p>
+              <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5 space-y-1">
+                <p className="text-sm font-medium text-foreground">{typeof m === 'string' ? m : m.type}</p>
+                {typeof m !== 'string' && (
+                  <>
+                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.source", locale)}:</span>{m.source}</p>
+                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.why", locale)}:</span>{m.why}</p>
+                  </>
+                )}
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* Series Potential */}
+      {result.seriesPotential && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.seriesPotential", locale)}
+          </h3>
+          <div className="bg-muted/40 rounded-2xl px-4 py-3">
+            <p className="text-sm text-foreground leading-relaxed">{result.seriesPotential}</p>
           </div>
         </section>
       )}
@@ -811,6 +863,8 @@ export default function Index() {
     setSuggestions(getTopicSuggestions(isProMode ? 6 : 3, contentType, style));
   }, [isProMode, contentType, style]);
 
+  const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+
   const togglePlatform = useCallback((value: string) => {
     setPlatforms((prev) =>
       prev.includes(value)
@@ -826,6 +880,38 @@ export default function Index() {
     setTimeout(() => setCopied(""), 1200);
   }, [locale]);
 
+  const discoverIdeas = useCallback(async () => {
+    setLoading(true);
+    setDiscoveryResult(null);
+    try {
+      const body = {
+        mode: isProMode ? "pro" : "general",
+        topic: "",
+        platform,
+        platforms: isProMode ? platforms : [platform],
+        contentType,
+        style,
+        language: locale,
+      };
+      const { data, error } = await supabase.functions.invoke("generate-content", { body });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setDiscoveryResult(data as DiscoveryResult);
+      setGeneralResult(null);
+      setProResult(null);
+    } catch (error: any) {
+      console.error("Discovery failed:", error);
+      const msg = error?.message || "";
+      if (/temporarily busy|try again/i.test(msg)) {
+        toast.error(t("toast.error.busy", locale));
+      } else {
+        toast.error(msg || t("toast.error.generic", locale));
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [isProMode, platform, platforms, contentType, style, locale]);
+
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
 
@@ -836,6 +922,7 @@ export default function Index() {
     }
 
     setLoading(true);
+    setDiscoveryResult(null);
     try {
       const body = isProMode
         ? {
@@ -1286,21 +1373,35 @@ export default function Index() {
               </div>
             )}
 
-            {/* Generate */}
-            <Button
-              id="generate-btn"
-              className="w-full h-13 text-base rounded-2xl font-bold"
-              disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
-              onClick={generateContent}
-            >
-              {loading ? (
-                <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
-              ) : !isProMode && isAtLimit ? (
-                <><Lock className="h-5 w-5" />{t("btn.noCredits", locale)}</>
-              ) : (
-                <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
-              )}
-            </Button>
+            {/* Generate + Discover */}
+            <div className="flex gap-2">
+              <Button
+                id="generate-btn"
+                className="flex-1 h-13 text-base rounded-2xl font-bold"
+                disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
+                onClick={generateContent}
+              >
+                {loading && topic.trim() ? (
+                  <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
+                ) : !isProMode && isAtLimit ? (
+                  <><Lock className="h-5 w-5" />{t("btn.noCredits", locale)}</>
+                ) : (
+                  <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                className="h-13 px-4 rounded-2xl font-bold text-sm"
+                disabled={loading}
+                onClick={discoverIdeas}
+              >
+                {loading && !topic.trim() ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /><span className="hidden sm:inline">{t("btn.discovering", locale)}</span></>
+                ) : (
+                  <><Lightbulb className="h-4 w-4" /><span className="hidden sm:inline">{t("btn.discover", locale)}</span></>
+                )}
+              </Button>
+            </div>
 
             {!isProMode && !isAtLimit && (
               <p className="text-center text-[11px] text-muted-foreground">
@@ -1338,7 +1439,28 @@ export default function Index() {
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} />
           )}
 
-          {!hasResults && !loading && (
+          {/* Discovery Results */}
+          {!loading && discoveryResult && discoveryResult.ideas?.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+                <Lightbulb className="h-3.5 w-3.5 text-primary" />{t("result.discovery", locale)}
+              </h3>
+              {discoveryResult.ideas.map((idea, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setTopic(idea.title); setDiscoveryResult(null); }}
+                  className="w-full text-left bg-muted/40 hover:bg-muted/60 rounded-2xl p-4 space-y-1 transition-colors"
+                >
+                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <span className="text-primary font-bold">#{i + 1}</span>{idea.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{idea.why}</p>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!hasResults && !loading && !discoveryResult && (
             <div className="text-center py-16 space-y-2">
               <div className="mx-auto h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-muted-foreground" />
