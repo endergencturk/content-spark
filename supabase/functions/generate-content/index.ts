@@ -33,13 +33,94 @@ serve(async (req) => {
       language,
     } = body;
 
-    if (!topic || typeof topic !== "string") {
-      return new Response(JSON.stringify({ error: "Topic is required" }), {
-        status: 400,
+    const lang = language === "tr" ? "Turkish" : "English";
+
+    // ── DISCOVERY MODE ──────────────────────────────────────────────
+    if (!topic || !topic.trim()) {
+      const selectedPlatforms: string[] =
+        platforms && Array.isArray(platforms) && platforms.length > 0
+          ? platforms
+          : platform
+          ? [platform]
+          : ["tiktok"];
+
+      const platformList = selectedPlatforms
+        .map((p: string) => {
+          if (p === "tiktok") return "TikTok";
+          if (p === "youtube-shorts") return "YouTube Shorts";
+          if (p === "instagram-reels") return "Instagram Reels";
+          return p;
+        })
+        .join(", ");
+
+      const discoveryPrompt = `You are a viral content strategist for ${platformList}.
+
+Generate 5 viral content ideas optimized for short-form video.
+
+Language: ${lang}
+${lang === "Turkish" ? "Write in natural, fluent Turkish. Do NOT translate from English." : ""}
+${contentType ? `Content type: ${contentType}` : ""}
+${style ? `Style: ${style}` : ""}
+
+Rules:
+- Focus on: curiosity gaps, emotional triggers, mystery, surprising facts
+- Avoid generic or overused ideas
+- Each idea must feel like "I NEED to make this video"
+- Ideas should be specific, not broad categories
+
+For each idea provide:
+- title: A specific, attention-grabbing content idea (max 10 words)
+- why: One sentence explaining why it can go viral
+
+Return exactly 5 ideas as JSON.`;
+
+      const discoverySchema = {
+        type: "OBJECT",
+        properties: {
+          ideas: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                title: { type: "STRING" },
+                why: { type: "STRING" },
+              },
+              required: ["title", "why"],
+            },
+          },
+        },
+        required: ["ideas"],
+      };
+
+      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+      const geminiBody = {
+        contents: [{ parts: [{ text: discoveryPrompt }] }],
+        generationConfig: {
+          temperature: 0.9,
+          responseMimeType: "application/json",
+          responseSchema: discoverySchema,
+        },
+      };
+
+      const response = await fetchWithRetry(geminiUrl, GEMINI_API_KEY, geminiBody);
+      if (!response || !response.ok) {
+        return new Response(
+          JSON.stringify({ error: "Model temporarily busy. Please try again in a moment." }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const result = await response.json();
+      const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error("Gemini returned empty response");
+
+      const parsed = JSON.parse(text);
+      return new Response(JSON.stringify({ discoveryMode: true, ...parsed }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // ── GENERATION MODE ─────────────────────────────────────────────
     const selectedPlatforms: string[] =
       platforms && Array.isArray(platforms) && platforms.length > 0
         ? platforms
@@ -47,7 +128,6 @@ serve(async (req) => {
         ? [platform]
         : ["tiktok"];
 
-    const lang = language === "tr" ? "Turkish" : "English";
     const depth = outputDepth || "standard";
     const hookCount = mode === "pro" ? 10 : 3;
 
@@ -81,43 +161,7 @@ serve(async (req) => {
       },
     };
 
-    let response: Response | null = null;
-
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 25000);
-        response = await fetch(geminiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-goog-api-key": GEMINI_API_KEY,
-          },
-          body: JSON.stringify(geminiBody),
-          signal: controller.signal,
-        });
-        clearTimeout(timeout);
-
-        if (response.ok) break;
-
-        const errBody = await response.text();
-        if (/high demand|overloaded|unavailable|503|429/i.test(errBody)) {
-          console.warn(`Gemini attempt ${attempt + 1} failed (transient): ${response.status}`);
-          response = null;
-          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
-          continue;
-        }
-
-        console.error("Gemini API error:", errBody);
-        throw new Error(errBody || "Gemini request failed");
-      } catch (e) {
-        if (e instanceof Error && e.name === "AbortError") {
-          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
-          continue;
-        }
-        throw e;
-      }
-    }
+    const response = await fetchWithRetry(geminiUrl, GEMINI_API_KEY, geminiBody);
 
     if (!response || !response.ok) {
       return new Response(
@@ -143,6 +187,48 @@ serve(async (req) => {
   }
 });
 
+// ── Fetch with retry ────────────────────────────────────────────────
+
+async function fetchWithRetry(url: string, apiKey: string, body: any): Promise<Response | null> {
+  let response: Response | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 25000);
+      response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-goog-api-key": apiKey,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      if (response.ok) break;
+
+      const errBody = await response.text();
+      if (/high demand|overloaded|unavailable|503|429/i.test(errBody)) {
+        console.warn(`Gemini attempt ${attempt + 1} failed (transient): ${response.status}`);
+        response = null;
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
+
+      console.error("Gemini API error:", errBody);
+      throw new Error(errBody || "Gemini request failed");
+    } catch (e) {
+      if (e instanceof Error && e.name === "AbortError") {
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
+      throw e;
+    }
+  }
+  return response;
+}
+
 // ── Viral Analysis schema ───────────────────────────────────────────
 
 const viralScoreCategory = {
@@ -163,6 +249,18 @@ const viralAnalysisSchema = {
     weaknesses: { type: "ARRAY", items: { type: "STRING" } },
   },
   required: ["score", "categories", "strengths", "weaknesses"],
+};
+
+// ── Music schema (structured) ───────────────────────────────────────
+
+const musicSuggestionSchema = {
+  type: "OBJECT",
+  properties: {
+    type: { type: "STRING" },
+    source: { type: "STRING" },
+    why: { type: "STRING" },
+  },
+  required: ["type", "source", "why"],
 };
 
 // ── Schema builders ─────────────────────────────────────────────────
@@ -205,10 +303,11 @@ function buildFreeSchema() {
         },
         required: ["caption", "hashtags"],
       },
-      music: { type: "ARRAY", items: { type: "STRING" } },
+      music: { type: "ARRAY", items: musicSuggestionSchema },
+      seriesPotential: { type: "STRING" },
       viralAnalysis: viralAnalysisSchema,
     },
-    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "viralAnalysis"],
+    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis"],
   };
 }
 
@@ -256,13 +355,14 @@ function buildProSchema(platforms: string[], _hookCount: number) {
       },
       required: ["caption", "hashtags"],
     },
-    music: { type: "ARRAY", items: { type: "STRING" } },
+    music: { type: "ARRAY", items: musicSuggestionSchema },
+    seriesPotential: { type: "STRING" },
     viralAnalysis: viralAnalysisSchema,
   };
 
   const required = [
     "bestHook", "hookVariations", "script", "editingPlan",
-    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "music", "viralAnalysis",
+    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis",
   ];
 
   if (platforms.includes("instagram-reels")) {
@@ -473,6 +573,42 @@ VOICE SCRIPT (CRITICAL):
 
 ${lineCountGuidance}`;
 
+  const scrollStopperRule = `
+SCROLL STOPPER RULE (CRITICAL):
+- The FIRST LINE of the script must:
+  - Feel unusual, dangerous, or confusing
+  - Stop scrolling instantly
+  - Create an immediate "wait, what?" reaction
+- If the first line is generic or explanatory → REWRITE internally
+- Bad: "London, 1888." / "Did you know that..." / "Today I want to talk about..."
+- Good: "He was never caught." / "Nobody talks about this." / "This changes everything."`;
+
+  const patternInterruptRule = `
+PATTERN INTERRUPT RULE:
+- Every 2–3 lines, break the rhythm:
+  - Use a short punch line (1–2 words)
+  - Insert an unexpected twist
+  - Change the emotional direction
+  - Add a micro-cliffhanger
+- Examples: "Wait.", "Think again.", "But here's the thing…", "Wrong."`;
+
+  const rewatchFactorRule = `
+REWATCH FACTOR:
+- Include at least one moment in the script that:
+  - Feels confusing on first watch
+  - Reveals new meaning on second watch
+  - Makes the viewer want to rewatch
+- If missing → rewrite internally`;
+
+  const commentTriggerRule = `
+COMMENT TRIGGER:
+- The ending MUST do at least one of:
+  - Ask a provocative question
+  - Suggest a theory viewers will debate
+  - Leave a mystery open
+  - Challenge the viewer's belief
+- Goal: maximize comments and engagement`;
+
   const imagePromptRules = `
 IMAGE PROMPTS:
 - Generate exactly 5 prompts.
@@ -491,19 +627,27 @@ TIKTOK:
 - Hashtags: 5–8 high-relevance tags`;
 
   const musicRules = `
-🎵 VIRAL MUSIC SUGGESTIONS:
-- Suggest 2–3 music styles or specific trending sounds based on topic and content type
-- Match the mood and energy of the content
+🎵 VIRAL MUSIC SYSTEM:
+- Suggest exactly 3 music ideas as structured objects.
+- Each must include:
+  - type: music style/genre (e.g., "dark ambient", "lo-fi beat", "emotional piano")
+  - source: where to find it (e.g., "TikTok trending", "CapCut library", "YouTube Audio Library", "generic royalty-free")
+  - why: one sentence explaining why this music works for this specific content
 
-Guidelines:
-- If horror/mystery: dark ambient, suspense drone, cinematic tension
-- If educational: light background beat, minimal lo-fi, clean corporate vibe
-- If motivational: uplifting instrumental, emotional piano, epic orchestral
-- If entertainment/fun: trending TikTok sounds, upbeat pop, catchy lo-fi
-- If selling/business: confident corporate, subtle electronic, modern minimal
-- If emotional: piano ballad, ambient strings, reflective acoustic
+Match music to content type:
+- Horror/mystery: dark ambient, suspense drone, distorted sounds
+- Educational: light background beat, minimal lo-fi, clean corporate
+- Motivational: uplifting instrumental, emotional piano, epic orchestral
+- Entertainment/fun: trending TikTok sounds, upbeat pop, catchy lo-fi
+- Selling/business: confident corporate, subtle electronic
+- Emotional: piano ballad, ambient strings, reflective acoustic`;
 
-Return as array of 2–3 short music style descriptions.`;
+  const seriesRule = `
+SERIES POTENTIAL:
+- Suggest how this content can become a series (1–2 sentences)
+- If the topic naturally lends itself to a multi-part series, describe the angle
+- Example: "This works as a '5 things nobody tells you about X' series — each episode covers one shocking fact."
+- If the topic doesn't fit a series, suggest a related series angle instead`;
 
   const viralAnalysisRules = `
 VIRAL ANALYSIS (STRUCTURED SCORING):
@@ -530,8 +674,10 @@ CRITICAL: Do NOT inflate scores. Be honest and critical. A generic topic with a 
 QUALITY ENFORCEMENT (CRITICAL):
 If output feels robotic, too generic, or has a tone mismatch with the topic → REWRITE internally before returning.
 The script MUST:
-- Start with a strong, attention-grabbing first line
-- Maintain engagement every 2–3 lines
+- Start with a strong, attention-grabbing first line (see SCROLL STOPPER RULE)
+- Maintain engagement every 2–3 lines (see PATTERN INTERRUPT RULE)
+- Include at least one rewatch-worthy moment (see REWATCH FACTOR)
+- End with a comment-triggering closer (see COMMENT TRIGGER)
 - Match the tone to the topic category (NOT always dark/horror)
 - Sound human and natural, not AI-generated
 - Be immediately usable for voice recording
@@ -541,7 +687,8 @@ FORBIDDEN:
 - Tone mismatch (e.g., horror tone for a health tip)
 - Over-explaining
 - Robotic or translated-sounding language
-- Generic phrasing that could apply to any topic`;
+- Generic phrasing that could apply to any topic
+- Safe, predictable endings`;
 
   const outputRules = `
 IMPORTANT:
@@ -605,6 +752,14 @@ BEST HOOK:
 
 ${scriptFormatRules}
 
+${scrollStopperRule}
+
+${patternInterruptRule}
+
+${rewatchFactorRule}
+
+${commentTriggerRule}
+
 EDITING PLAN:
 - Provide scenes: Scene 1, Scene 2, etc.
 - What is shown (visual)
@@ -613,6 +768,10 @@ EDITING PLAN:
 - Keep it short and practical
 - Match content type
 
+VISUAL SYNC:
+- Every 2–3 lines of the script must be visualizable
+- Avoid abstract-only writing — connect to concrete visuals
+
 ${imagePromptRules}
 
 ${seoRules}
@@ -620,6 +779,8 @@ ${seoRules}
 ${platforms_include_instagram(input.platforms)}
 
 ${musicRules}
+
+${seriesRule}
 
 ${viralAnalysisRules}
 
@@ -635,8 +796,9 @@ GENERATE:
 7. imagePrompts: exactly 5 cinematic prompts
 8. youtube: title, description, tags
 9. tiktok: caption, hashtags
-10. music: 2–3 music style suggestions matching the content
-${input.platforms.includes("instagram-reels") ? "11. instagramCaption: Instagram caption with hashtags\n12. viralAnalysis: score (1-10) and reasons array" : "11. viralAnalysis: score (1-10) and reasons array"}
+10. music: exactly 3 music suggestions, each with type, source, why
+11. seriesPotential: how this can become a series
+${input.platforms.includes("instagram-reels") ? "12. instagramCaption: Instagram caption with hashtags\n13. viralAnalysis: score (1-10) and reasons array" : "12. viralAnalysis: score (1-10) and reasons array"}
 
 - ${input.depth === "concise" ? "Keep everything minimal and tight" : input.depth === "detailed" ? "Add extra detail and depth" : "Balance detail and brevity"}
 ${outputRules}`;
@@ -685,17 +847,31 @@ BEST HOOK:
 
 ${scriptFormatRules}
 
+${scrollStopperRule}
+
+${patternInterruptRule}
+
+${rewatchFactorRule}
+
+${commentTriggerRule}
+
 EDITING PLAN:
 - Provide scenes with visual description
 - Optional on-screen text and mood
 - Keep it short and practical
 - Match content type
 
+VISUAL SYNC:
+- Every 2–3 lines of the script must be visualizable
+- Avoid abstract-only writing
+
 ${imagePromptRules}
 
 ${seoRules}
 
 ${musicRules}
+
+${seriesRule}
 
 ${viralAnalysisRules}
 
@@ -709,8 +885,9 @@ GENERATE:
 5. imagePrompts: 5 prompts
 6. youtube: title, description, tags
 7. tiktok: caption, hashtags
-8. music: 2–3 music style suggestions
-9. viralAnalysis: score (1-10) and reasons array
+8. music: exactly 3 music suggestions, each with type, source, why
+9. seriesPotential: how this can become a series
+10. viralAnalysis: score (1-10) and reasons array
 
 ${outputRules}`;
 }
