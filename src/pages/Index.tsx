@@ -1373,21 +1373,35 @@ export default function Index() {
               </div>
             )}
 
-            {/* Generate */}
-            <Button
-              id="generate-btn"
-              className="w-full h-13 text-base rounded-2xl font-bold"
-              disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
-              onClick={generateContent}
-            >
-              {loading ? (
-                <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
-              ) : !isProMode && isAtLimit ? (
-                <><Lock className="h-5 w-5" />{t("btn.noCredits", locale)}</>
-              ) : (
-                <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
-              )}
-            </Button>
+            {/* Generate + Discover */}
+            <div className="flex gap-2">
+              <Button
+                id="generate-btn"
+                className="flex-1 h-13 text-base rounded-2xl font-bold"
+                disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
+                onClick={generateContent}
+              >
+                {loading && topic.trim() ? (
+                  <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
+                ) : !isProMode && isAtLimit ? (
+                  <><Lock className="h-5 w-5" />{t("btn.noCredits", locale)}</>
+                ) : (
+                  <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                className="h-13 px-4 rounded-2xl font-bold text-sm"
+                disabled={loading}
+                onClick={discoverIdeas}
+              >
+                {loading && !topic.trim() ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /><span className="hidden sm:inline">{t("btn.discovering", locale)}</span></>
+                ) : (
+                  <><Lightbulb className="h-4 w-4" /><span className="hidden sm:inline">{t("btn.discover", locale)}</span></>
+                )}
+              </Button>
+            </div>
 
             {!isProMode && !isAtLimit && (
               <p className="text-center text-[11px] text-muted-foreground">
