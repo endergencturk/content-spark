@@ -103,6 +103,12 @@ interface ViralAnalysis {
   weaknesses: string[];
 }
 
+interface MusicSuggestion {
+  type: string;
+  source: string;
+  why: string;
+}
+
 interface GeneralResult {
   hooks: string[];
   bestHook: string;
@@ -111,7 +117,8 @@ interface GeneralResult {
   imagePrompts: string[];
   youtube: SeoPack["youtube"];
   tiktok: SeoPack["tiktok"];
-  music?: string[];
+  music?: MusicSuggestion[];
+  seriesPotential?: string;
   viralAnalysis: ViralAnalysis;
 }
 
@@ -126,8 +133,19 @@ interface ProResult {
   youtube: SeoPack["youtube"];
   tiktok: SeoPack["tiktok"];
   instagramCaption?: string;
-  music?: string[];
+  music?: MusicSuggestion[];
+  seriesPotential?: string;
   viralAnalysis: ViralAnalysis;
+}
+
+interface DiscoveryIdea {
+  title: string;
+  why: string;
+}
+
+interface DiscoveryResult {
+  discoveryMode: true;
+  ideas: DiscoveryIdea[];
 }
 
 // ── Micro components ────────────────────────────────────────────────
