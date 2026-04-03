@@ -390,6 +390,9 @@ function buildPrompt(input: PromptInput) {
   const charLimit = getScriptCharacterLimit(input.scriptLength);
   const densityGuidance = getContentDensityGuidance(input.scriptLength);
   const styleInstructions = getStyleInstructions(input.style);
+  const goalInstructions = getGoalInstructions(input.goal);
+  const hookIntensityInstructions = getHookIntensityInstructions(input.hookIntensity);
+  const contentTypeInstructions = getContentTypeInstructions(input.contentType);
 
   const globalRules = `
 GLOBAL RULES:
