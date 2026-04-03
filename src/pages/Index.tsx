@@ -721,6 +721,22 @@ const ProResults = memo(function ProResults({
           </Accordion>
         </div>
       )}
+      {/* Music Suggestions */}
+      {result.music && result.music.length > 0 && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <Music className="h-3.5 w-3.5 text-primary" />{t("result.music", locale)}
+          </h3>
+          <div className="space-y-1.5">
+            {result.music.map((m, i) => (
+              <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5">
+                <p className="text-xs text-muted-foreground">{m}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Viral Analysis */}
       {result.viralAnalysis && (
         <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
