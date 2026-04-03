@@ -477,6 +477,31 @@ Return:
 
 CRITICAL: Do NOT inflate scores. Be honest and critical. A generic topic with a weak hook should score 4–6, not 8+.`;
 
+  const qualityEnforcement = `
+QUALITY ENFORCEMENT (CRITICAL):
+If output feels generic, flat, or safe → rewrite internally before returning.
+The script MUST:
+- Start with a strong, unsettling or shocking line
+- Include at least one disturbing or unexpected moment
+- Maintain tension every 2–3 lines
+- Include at least one interruption moment
+
+FORBIDDEN:
+- Flat narration
+- Neutral tone
+- Over-explaining
+- Safe storytelling
+
+REQUIRED FEELING:
+"This is not normal"
+"Something is wrong"
+"I need to keep watching"
+
+OPENING RULE:
+First line must create instant tension.
+Bad example: "London, 1888."
+Good example: "He was never caught."`;
+
   const outputRules = `
 IMPORTANT:
 - Do not explain anything
@@ -485,6 +510,7 @@ IMPORTANT:
 - Make everything instantly usable for content creation
 - Script must be directly readable for voice recording
 - If script is written as paragraph, output is INVALID
+- Content must feel human, not AI-generated
 - Return only valid JSON`;
 
   if (input.mode === "pro") {
