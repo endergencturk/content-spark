@@ -402,13 +402,13 @@ IMAGE PROMPTS:
   const seoRules = `
 SEO PACK:
 YOUTUBE:
-- Title: curiosity-driven + SEO optimized + include #shorts
-- Description: 1–2 short sentences using keywords
-- Tags: relevant searchable keywords
+- Title: must include curiosity gap + emotional trigger + strong wording + #shorts. Avoid generic titles.
+- Description: 1–2 sentences, keyword-rich but natural
+- Tags: high-relevance searchable keywords
 
 TIKTOK:
-- Caption: short, curiosity-driven, slightly aggressive tone
-- Hashtags: 5–8 relevant hashtags`;
+- Caption: short, emotional, curiosity-driven
+- Hashtags: 5–8 high-relevance tags`;
 
   const viralAnalysisRules = `
 VIRAL ANALYSIS (STRUCTURED SCORING):
