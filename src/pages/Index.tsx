@@ -863,6 +863,8 @@ export default function Index() {
     setSuggestions(getTopicSuggestions(isProMode ? 6 : 3, contentType, style));
   }, [isProMode, contentType, style]);
 
+  const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+
   const togglePlatform = useCallback((value: string) => {
     setPlatforms((prev) =>
       prev.includes(value)
