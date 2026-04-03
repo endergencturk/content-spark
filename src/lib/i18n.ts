@@ -262,6 +262,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.script": "Senaryo",
     "result.caption": "Altyazı",
     "result.imagePrompts": "Görsel Promptları",
+    "result.music": "Müzik Önerileri",
     "result.topics": "Viral Konular & Hook'lar",
     "result.voiceover": "Seslendirmeye hazır senaryo",
     "result.youtube": "YouTube Shorts",
