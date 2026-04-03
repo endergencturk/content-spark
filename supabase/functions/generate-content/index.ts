@@ -382,7 +382,8 @@ VOICE SCRIPT (CRITICAL):
   - Psychological
   - Immersive
   - Use interruption patterns: "But then...", "Or so you think.", "Something is wrong."
-- STRUCTURE: Hook → Build tension → Disturbance → Twist → Open ending
+  - Every 2–3 lines must escalate tension
+- STRUCTURE: Hook → Unease → Escalation → Disturbance → Open-ended question
 - CRITICAL:
   - First line MUST stop scrolling (shocking / unexpected)
   - Ending MUST create curiosity (never fully resolve — leave an open loop)
