@@ -396,7 +396,8 @@ ${densityGuidance}`;
   const imagePromptRules = `
 IMAGE PROMPTS:
 - Generate exactly 5 prompts.
-- Format: [scene description], [atmosphere], vertical 9:16, photorealistic, no text, no faces`;
+- Each must include: scene description, lighting details, atmosphere, camera feel.
+- Format: [scene], [lighting], [atmosphere], cinematic, photorealistic, vertical 9:16, no text, no faces`;
 
   const seoRules = `
 SEO PACK:
