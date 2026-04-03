@@ -527,10 +527,10 @@ ${styleInstructions}
 
 HOOK GENERATION:
 - Generate exactly 3 hooks
+- Must feel dangerous, forbidden, or shocking
+- Create immediate curiosity gap
 - Max 6 words per hook
-- Extremely punchy and aggressive
-- Use curiosity + shock
-- Avoid safe phrasing
+- Avoid safe or explanatory language
 - First hook must be the strongest
 
 BEST HOOK:
