@@ -1439,7 +1439,28 @@ export default function Index() {
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} />
           )}
 
-          {!hasResults && !loading && (
+          {/* Discovery Results */}
+          {!loading && discoveryResult && discoveryResult.ideas?.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+                <Lightbulb className="h-3.5 w-3.5 text-primary" />{t("result.discovery", locale)}
+              </h3>
+              {discoveryResult.ideas.map((idea, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setTopic(idea.title); setDiscoveryResult(null); }}
+                  className="w-full text-left bg-muted/40 hover:bg-muted/60 rounded-2xl p-4 space-y-1 transition-colors"
+                >
+                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <span className="text-primary font-bold">#{i + 1}</span>{idea.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{idea.why}</p>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!hasResults && !loading && !discoveryResult && (
             <div className="text-center py-16 space-y-2">
               <div className="mx-auto h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-muted-foreground" />
