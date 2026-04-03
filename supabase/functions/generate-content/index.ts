@@ -354,12 +354,13 @@ function buildPrompt(input: PromptInput) {
 GLOBAL RULES:
 - Output must strictly follow ${input.language} language.
 - Optimize for short-form vertical video, mobile-first, fast consumption.
-- Every line must add new information.
-- Every line must increase curiosity, tension, or emotion.
+- Every line must increase tension, curiosity, or emotion.
 - No filler, no explanations, no long paragraphs.
-- Avoid weak or neutral sentences.
+- Avoid generic or neutral phrasing.
+- Prioritize emotional impact over information.
+- Write for viewers, not readers.
 - Use virality principles: curiosity gaps, open loops, emotional triggers, pattern interrupts.
-- Maintain fast pacing and high retention.`;
+- Content must feel like: "I need to watch this", "What happens next?", "This is not normal".`;
 
   const scriptFormatRules = `
 VOICE SCRIPT (CRITICAL):
@@ -380,8 +381,10 @@ VOICE SCRIPT (CRITICAL):
   - Suspenseful
   - Psychological
   - Immersive
-  - Use interruption patterns: "But then...", "Or so you think.", "Something is wrong."
-- STRUCTURE: Hook → Build tension → Disturbance → Twist → Open ending
+  - Use interruption patterns: "But then…", "Or so you think.", "Something is wrong.", "You're not alone."
+  - Do NOT explain everything — leave gaps for the viewer to fill
+  - Every 2–3 lines must escalate tension
+- STRUCTURE: Hook → Unease → Escalation → Disturbance → Open-ended question
 - CRITICAL:
   - First line MUST stop scrolling (shocking / unexpected)
   - Ending MUST create curiosity (never fully resolve — leave an open loop)
@@ -395,18 +398,19 @@ ${densityGuidance}`;
   const imagePromptRules = `
 IMAGE PROMPTS:
 - Generate exactly 5 prompts.
-- Format: [scene description], [atmosphere], vertical 9:16, photorealistic, no text, no faces`;
+- Each must include: scene description, lighting details, atmosphere, camera feel.
+- Format: [scene], [lighting], [atmosphere], cinematic, photorealistic, vertical 9:16, no text, no faces`;
 
   const seoRules = `
 SEO PACK:
 YOUTUBE:
-- Title: curiosity-driven + SEO optimized + include #shorts
-- Description: 1–2 short sentences using keywords
-- Tags: relevant searchable keywords
+- Title: must include curiosity gap + emotional trigger + strong wording + #shorts. Avoid generic titles.
+- Description: 1–2 sentences, keyword-rich but natural
+- Tags: high-relevance searchable keywords
 
 TIKTOK:
-- Caption: short, curiosity-driven, slightly aggressive tone
-- Hashtags: 5–8 relevant hashtags`;
+- Caption: short, emotional, curiosity-driven
+- Hashtags: 5–8 high-relevance tags`;
 
   const viralAnalysisRules = `
 VIRAL ANALYSIS (STRUCTURED SCORING):
@@ -462,11 +466,11 @@ STYLE BEHAVIOR:
 ${styleInstructions}
 
 HOOK GENERATION:
-- Generate 5–8 hooks (use stronger psychological triggers: fear, urgency, surprise, curiosity)
+- Generate 5–8 hooks
+- Must feel dangerous, forbidden, or shocking
+- Create immediate curiosity gap
 - Max 6 words per hook
-- Extremely punchy and aggressive
-- Use curiosity + shock
-- Avoid safe phrasing
+- Avoid safe or explanatory language
 - First hook must be the strongest
 
 BEST HOOK:
@@ -523,10 +527,10 @@ ${styleInstructions}
 
 HOOK GENERATION:
 - Generate exactly 3 hooks
+- Must feel dangerous, forbidden, or shocking
+- Create immediate curiosity gap
 - Max 6 words per hook
-- Extremely punchy and aggressive
-- Use curiosity + shock
-- Avoid safe phrasing
+- Avoid safe or explanatory language
 - First hook must be the strongest
 
 BEST HOOK:
