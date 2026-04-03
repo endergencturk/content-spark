@@ -354,12 +354,13 @@ function buildPrompt(input: PromptInput) {
 GLOBAL RULES:
 - Output must strictly follow ${input.language} language.
 - Optimize for short-form vertical video, mobile-first, fast consumption.
-- Every line must add new information.
-- Every line must increase curiosity, tension, or emotion.
+- Every line must increase tension, curiosity, or emotion.
 - No filler, no explanations, no long paragraphs.
-- Avoid weak or neutral sentences.
+- Avoid generic or neutral phrasing.
+- Prioritize emotional impact over information.
+- Write for viewers, not readers.
 - Use virality principles: curiosity gaps, open loops, emotional triggers, pattern interrupts.
-- Maintain fast pacing and high retention.`;
+- Content must feel like: "I need to watch this", "What happens next?", "This is not normal".`;
 
   const scriptFormatRules = `
 VOICE SCRIPT (CRITICAL):
