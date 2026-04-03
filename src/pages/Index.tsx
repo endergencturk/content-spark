@@ -763,10 +763,28 @@ const ProResults = memo(function ProResults({
           </h3>
           <div className="space-y-1.5">
             {result.music.map((m, i) => (
-              <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5">
-                <p className="text-xs text-muted-foreground">{m}</p>
+              <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5 space-y-1">
+                <p className="text-sm font-medium text-foreground">{typeof m === 'string' ? m : m.type}</p>
+                {typeof m !== 'string' && (
+                  <>
+                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.source", locale)}:</span>{m.source}</p>
+                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.why", locale)}:</span>{m.why}</p>
+                  </>
+                )}
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* Series Potential */}
+      {result.seriesPotential && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.seriesPotential", locale)}
+          </h3>
+          <div className="bg-muted/40 rounded-2xl px-4 py-3">
+            <p className="text-sm text-foreground leading-relaxed">{result.seriesPotential}</p>
           </div>
         </section>
       )}
