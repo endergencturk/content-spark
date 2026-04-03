@@ -535,6 +535,14 @@ ${customBlock}
 STYLE BEHAVIOR:
 ${styleInstructions}
 
+GOAL BEHAVIOR:
+${goalInstructions}
+
+${hookIntensityInstructions}
+
+CONTENT TYPE:
+${contentTypeInstructions}
+
 HOOK GENERATION:
 - Generate 5–8 hooks
 - Must feel dangerous, forbidden, or shocking
@@ -562,6 +570,8 @@ ${seoRules}
 ${platforms_include_instagram(input.platforms)}
 
 ${viralAnalysisRules}
+
+${qualityEnforcement}
 
 GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
