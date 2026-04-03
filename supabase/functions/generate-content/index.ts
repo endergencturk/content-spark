@@ -305,14 +305,55 @@ function getContentDensityGuidance(scriptLength: string): string {
 
 function getStyleInstructions(style: string): string {
   switch (style) {
-    case "high-retention": return "Use fast pacing, pattern interrupts, and open loops. Keep the viewer hooked every 3 seconds.";
-    case "curiosity": return "Create information gaps. Delay key reveals. Make the viewer NEED to keep watching.";
-    case "emotional": return "Use emotional triggers and deeply relatable language. Make them feel something.";
-    case "suspense": return "Build tension, ambiguity, and intrigue. Use cliffhanger-style pacing.";
-    case "controversial": return "Use bold, opinionated statements. Challenge conventional thinking. Be polarizing but not offensive.";
-    case "viral": return "Scroll-stopping energy. Trending hooks. Pattern-interrupt openers.";
-    case "educational": return "Clear, structured, valuable. Teach something useful fast.";
-    case "story": return "Narrative arc. Relatable situation. Emotional payoff.";
+    case "viral": return `Maximize shock, speed, and curiosity. Use aggressive short lines. Scroll-stopping energy. Pattern-interrupt openers. Every line must hit hard.`;
+    case "story": return `Add narrative flow: beginning → tension → escalation. Relatable situation. Emotional payoff. Build toward a twist.`;
+    case "high-retention": return `Add pattern breaks every 2 lines. Use interruptions frequently ("Wait.", "But here's the thing…"). Keep the viewer hooked every 3 seconds. Open loops everywhere.`;
+    case "emotional": return `Focus on feelings and internal tension. Slightly slower pacing. Use deeply relatable language. Make them feel something real. Emotional triggers over information.`;
+    case "suspense": return `Increase unknown elements. Avoid full explanations. Add eerie tone. Build tension, ambiguity, and intrigue. Cliffhanger-style pacing. Leave things unresolved.`;
+    case "controversial": return `Add bold, risky, tension-based statements. Challenge conventional thinking. Be polarizing but not offensive. Make viewers debate in comments.`;
+    case "curiosity": return `Increase questions and curiosity gaps. Delay key reveals. Create information gaps the viewer NEEDS to fill. Make them NEED to keep watching.`;
+    case "educational": return `Clear, structured, valuable. Teach something useful fast. Still engaging — not boring. Use surprising facts as hooks.`;
+    default: return "";
+  }
+}
+
+function getGoalInstructions(goal: string): string {
+  switch (goal) {
+    case "viral": return "Prioritize shareability and a strong, open-ended ending. Make it feel like something people MUST share.";
+    case "followers": return "Add subtle series or identity feel. Make the viewer want to follow for more. End with implicit 'follow for part 2' energy.";
+    case "brand": return "Maintain consistent tone throughout. Build authority and trust. The content should feel like a signature style.";
+    case "sell": return "Add light persuasive undertone. Do NOT hard-sell. Create desire through storytelling, not pitch.";
+    case "leads": return "Create value-first content that makes viewers want to learn more. Subtle call-to-action energy.";
+    case "storytelling": return "Strengthen narrative depth. Use full story arc. Build emotional investment over the duration.";
+    default: return "";
+  }
+}
+
+function getHookIntensityInstructions(intensity: number): string {
+  if (intensity === 0) return `HOOK INTENSITY: LOW
+- Soft curiosity hooks
+- Intriguing but not aggressive
+- Viewer feels pulled in gently`;
+  if (intensity === 1) return `HOOK INTENSITY: MEDIUM
+- Balanced curiosity + tension
+- Strong enough to stop scrolling
+- Clear emotional or curiosity trigger`;
+  return `HOOK INTENSITY: HIGH
+- Aggressive, shocking, risky hooks
+- Must feel dangerous or forbidden
+- Maximum scroll-stopping power
+- Push boundaries without being offensive`;
+}
+
+function getContentTypeInstructions(contentType: string): string {
+  switch (contentType) {
+    case "story": return "Use narrative storytelling format. Build characters, situations, and emotional arcs.";
+    case "educational": return "Slightly clearer delivery but still engaging. Use surprising facts. Structure: hook → insight → payoff.";
+    case "entertainment": return "Fast and engaging tone. Pure entertainment value. Make them laugh, gasp, or share.";
+    case "selling": return "Subtle persuasion through story. Create desire, not a pitch. Product/service woven into narrative.";
+    case "personal-brand": return "Show personality and expertise. Build parasocial connection. Make viewer feel they know you.";
+    case "hooks-only": return "OUTPUT ONLY HOOKS. No script, no editing plan. Just the strongest hooks possible.";
+    case "script-only": return "OUTPUT ONLY THE SCRIPT. No hooks list, no editing plan. Focus entirely on the voiceover script.";
     default: return "";
   }
 }
