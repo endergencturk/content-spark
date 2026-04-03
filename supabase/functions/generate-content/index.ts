@@ -381,7 +381,8 @@ VOICE SCRIPT (CRITICAL):
   - Suspenseful
   - Psychological
   - Immersive
-  - Use interruption patterns: "But then...", "Or so you think.", "Something is wrong."
+  - Use interruption patterns: "But then…", "Or so you think.", "Something is wrong.", "You're not alone."
+  - Do NOT explain everything — leave gaps for the viewer to fill
   - Every 2–3 lines must escalate tension
 - STRUCTURE: Hook → Unease → Escalation → Disturbance → Open-ended question
 - CRITICAL:
