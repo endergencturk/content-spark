@@ -57,6 +57,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.script": "Script",
     "result.caption": "Caption",
     "result.imagePrompts": "Image Prompts",
+    "result.music": "Music Suggestions",
     "result.topics": "Viral Topics & Hooks",
     "result.voiceover": "Voiceover-ready script",
     "result.youtube": "YouTube Shorts",
