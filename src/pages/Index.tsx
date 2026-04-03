@@ -880,6 +880,38 @@ export default function Index() {
     setTimeout(() => setCopied(""), 1200);
   }, [locale]);
 
+  const discoverIdeas = useCallback(async () => {
+    setLoading(true);
+    setDiscoveryResult(null);
+    try {
+      const body = {
+        mode: isProMode ? "pro" : "general",
+        topic: "",
+        platform,
+        platforms: isProMode ? platforms : [platform],
+        contentType,
+        style,
+        language: locale,
+      };
+      const { data, error } = await supabase.functions.invoke("generate-content", { body });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setDiscoveryResult(data as DiscoveryResult);
+      setGeneralResult(null);
+      setProResult(null);
+    } catch (error: any) {
+      console.error("Discovery failed:", error);
+      const msg = error?.message || "";
+      if (/temporarily busy|try again/i.test(msg)) {
+        toast.error(t("toast.error.busy", locale));
+      } else {
+        toast.error(msg || t("toast.error.generic", locale));
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [isProMode, platform, platforms, contentType, style, locale]);
+
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
 
@@ -890,6 +922,7 @@ export default function Index() {
     }
 
     setLoading(true);
+    setDiscoveryResult(null);
     try {
       const body = isProMode
         ? {
