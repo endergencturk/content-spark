@@ -52,8 +52,8 @@ const CopyBtn = memo(function CopyBtn({
 });
 
 export const GeneralResults = memo(function GeneralResults({
-  result, copied, onCopy, locale = "en",
-}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
+  result, copied, onCopy, locale = "en", targetAudience = "global",
+}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string }) {
   return (
     <div className="space-y-5">
       {/* ⭐ Best Hook */}
