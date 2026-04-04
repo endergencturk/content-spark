@@ -384,6 +384,23 @@ export default function Index() {
     );
   }, []);
 
+  // Auto-set hook style default based on platform
+  useEffect(() => {
+    if (platforms.includes("youtube-shorts") && !platforms.includes("tiktok")) {
+      setHookStyle("curiosity");
+    } else {
+      setHookStyle("aggressive");
+    }
+  }, [platforms]);
+
+  useEffect(() => {
+    if (platform === "youtube-shorts") {
+      setHookStyle("curiosity");
+    } else {
+      setHookStyle("aggressive");
+    }
+  }, [platform]);
+
   const copyToClipboard = useCallback(async (key: string, text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(key);
