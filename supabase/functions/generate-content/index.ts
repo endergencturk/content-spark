@@ -894,8 +894,9 @@ IMAGE PROMPTS:
 THUMBNAIL IDEAS:
 - Generate exactly 2 thumbnail ideas
 - Each must include:
-  - image: A thumbnail prompt, vertical 9:16, visually strong, platform-ready, high contrast, clickable
+  - image: A thumbnail prompt, vertical 9:16, visually strong, platform-ready, high contrast, clickable, no faces, no identifiable people, no portraits
   - text: Overlay text, UPPERCASE, max 5 words, punchy and attention-grabbing
+- CRITICAL: Every thumbnail image prompt MUST include "no faces, no identifiable people, no portraits"
 - Match thumbnail style to the selected Hook Style
 - Make prompts visually clickable and high-contrast
 - Keep text short and punchy
