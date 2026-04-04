@@ -713,14 +713,15 @@ AI MUST match the topic category. Mismatched tone = INVALID output.`;
   const factSafetyRule = `
 FACT SAFETY RULES (TOP PRIORITY — APPLY TO ALL OUTPUT):
 - Never invent dialogue or direct quotes
-- Never write 'he screamed' 'she whispered' or similar invented emotional actions
+- Never write invented dialogue or direct speech
+- Never write: screamed, whispered, cried, begged
 - Never add the word 'Reportedly' in script
-- Only describe verified facts generally
-- If uncertain → describe situation, not invented details
+- Never invent emotional reactions
+- Describe only what is verifiably known
+- If uncertain → use 'reportedly' style phrasing in narration only, never as script dialogue
 - Do not put words in real people's mouths
 - Do not fabricate specific actions or quotes
-- This rule applies to: Script, Hooks, SEO text, and all other output sections.
-These rules apply to script, hooks, and SEO text.`;
+- Apply to: script, hooks, all text output`;
 
   const autoFixRule = `
 AUTO-FIX RULE (CRITICAL — VIRAL SCORE THRESHOLD = 8):
