@@ -625,9 +625,16 @@ export default function Index() {
     if (!topic.trim()) return;
     setLoading(true);
     setAutoFixImproved(false);
+    setAutoFixScoreDiff(0);
     try {
       const prevResult = isProMode ? proResult : generalResult;
       const prevScore = prevResult?.viralAnalysis?.score || 0;
+
+      // Save original before overwriting
+      if (!autoFixUsed) {
+        if (isProMode && proResult) setOriginalProResult({ ...proResult });
+        if (!isProMode && generalResult) setOriginalGeneralResult({ ...generalResult });
+      }
 
       const body = isProMode
         ? {
@@ -658,8 +665,12 @@ export default function Index() {
         setProResult(null);
       }
 
+      setAutoFixUsed(true);
+      setShowOriginal(false);
+
       if (newScore > prevScore) {
         setAutoFixImproved(true);
+        setAutoFixScoreDiff(Math.round((newScore - prevScore) * 10) / 10);
       }
 
       toast.success(t("toast.autoFixDone", locale));
@@ -669,7 +680,7 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult]);
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult, autoFixUsed]);
 
   return (
     <div className="min-h-screen bg-background">
