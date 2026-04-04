@@ -20,7 +20,7 @@ import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
 
 // Normalize API responses where bestHook/hookVariations may be objects {type, hook}
-function normalizeResult<T extends Record<string, any>>(data: T): T {
+function normalizeResult(data: any): any {
   const out = { ...data };
   if (out.bestHook && typeof out.bestHook === "object" && out.bestHook.hook) {
     out.bestHook = out.bestHook.hook;
