@@ -665,13 +665,44 @@ If topic is selling / product / business:
 
 AI MUST match the topic category. Mismatched tone = INVALID output.`;
 
+  const factSafetyRule = `
+FACT SAFETY RULE (CRITICAL):
+- Never invent specific quotes, dialogue, or unverified details.
+- If uncertain about a fact → describe the situation generally, do not fabricate.
+- This is especially critical for true crime topics.
+- Do not put words in real people's mouths.
+- If a detail cannot be verified, use phrases like "reportedly", "according to sources", "it's believed that"`;
+
+  const autoFixRule = `
+AUTO-FIX RULE (CRITICAL — VIRAL SCORE THRESHOLD = 8):
+- After generating ALL content, evaluate the viral analysis score
+- If the estimated viral score is BELOW 8:
+  1. Rewrite the bestHook with a stronger, more shocking opening word
+  2. Add one pattern interrupt to the middle of the script (a short tension line like "Wait." or "Think again.")
+  3. Strengthen the loop ending to be more emotionally impactful
+- Do NOT return low-quality output. Only return the IMPROVED version.
+- Do NOT skip this step. Every output must meet the threshold.
+- If after improvement the score is still below 8, push harder on hook and ending.`;
+
+  const microRetentionRule = `
+MICRO-RETENTION TRIGGERS (EDITING CUES):
+- Every 3–4 lines in the script, insert ONE pacing note in square brackets
+- Format examples: [pause], [cut], [zoom], [whisper]
+- These are editing cues for the video editor, NOT voiceover text
+- Rules:
+  - Do NOT add to every line — only every 3–4 lines
+  - Do NOT overuse — max 3–4 cues per script
+  - Place them on their own line between script lines
+  - They must feel natural to the pacing
+  - The user will remove these before pasting to ElevenLabs`;
+
   const scriptFormatRules = `
 VOICE SCRIPT (CRITICAL — STRICT RULES):
 - Generate a voiceover script optimized for ElevenLabs TTS at speed 1.0.
 - OUTPUT FORMAT (MANDATORY):
-  - Pure voiceover text ONLY
+  - Pure voiceover text ONLY (plus [pause]/[cut]/[zoom]/[whisper] editing cues every 3-4 lines — see MICRO-RETENTION TRIGGERS)
   - NO asterisks (*word*) — ElevenLabs reads them literally
-  - NO stage directions (e.g., [pause], [whisper], *leans in*)
+  - NO stage directions other than the micro-retention cues
   - NO action notes or labels (Beat 1, Hook:, CTA:)
   - NO parenthetical instructions
   - Each line = one breath = max 6 words
@@ -681,12 +712,13 @@ VOICE SCRIPT (CRITICAL — STRICT RULES):
   - Add empty lines between sections for breathing space
 
 - WORD COUNT ENFORCEMENT (HARD LIMITS — DO NOT EXCEED):
-  - 15s duration = maximum 40 words
-  - 30s duration = maximum 80 words
-  - 60s duration = maximum 160 words
-  - Before returning the script, COUNT EVERY WORD
-  - If the word count exceeds the limit for the selected duration → CUT or COMPRESS lines until under the limit
-  - This is NON-NEGOTIABLE. Exceeding the word limit = INVALID output.
+  - 15s duration = 30–40 words (editing cues like [pause] do NOT count as words)
+  - 30s duration = 65–75 words (editing cues do NOT count)
+  - 60s duration = 130–150 words (editing cues do NOT count)
+  - Before returning the script, COUNT EVERY WORD (excluding bracketed cues)
+  - If the word count exceeds the max → CUT or COMPRESS lines until within range
+  - If the word count is below the min → ADD one tension line before ending
+  - This is NON-NEGOTIABLE. Outside the range = INVALID output.
 
 - STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
 - First line MUST stop scrolling
