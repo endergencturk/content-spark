@@ -933,6 +933,9 @@ Viral Score: ${viralScore}/10
           {/* Channel Profile Onboarding */}
           <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />
 
+          {/* Weekly Content Plan */}
+          <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />
+
           {/* USAGE BANNER (Free mode only) */}
           {!isProMode && (
             <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} locale={locale} />
