@@ -705,10 +705,10 @@ Viral Score: ${viralScore}/10
       const newScore = data?.viralAnalysis?.score || 0;
 
       if (isProMode) {
-        setProResult(data as ProResult);
+        setProResult(normalizeResult(data) as ProResult);
         setGeneralResult(null);
       } else {
-        setGeneralResult(data as GeneralResult);
+        setGeneralResult(normalizeResult(data) as GeneralResult);
         setProResult(null);
       }
 
