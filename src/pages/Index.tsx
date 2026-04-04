@@ -502,12 +502,58 @@ export default function Index() {
     }
   }, [isProMode, platform, platforms, contentType, style, selectedPreset, locale]);
 
-  const generateContent = useCallback(async () => {
+  const checkDuplicate = useCallback(async (): Promise<DuplicateWarning | null> => {
+    try {
+      const { data } = await supabase
+        .from("generations")
+        .select("id, topic, created_at, output_json, plan_type, platforms, style, content_type, duration, goal")
+        .eq("device_id", deviceId)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (!data || data.length === 0) return null;
+      const needle = topic.trim().toLowerCase();
+      const match = data.find((item: any) => {
+        const prev = (item.topic || "").toLowerCase();
+        // Check if topics are similar (contains or Levenshtein-like)
+        return prev === needle || prev.includes(needle) || needle.includes(prev);
+      });
+      if (match) {
+        return {
+          topic: match.topic,
+          date: new Date(match.created_at).toLocaleDateString(),
+          id: match.id,
+          output_json: match.output_json,
+          plan_type: match.plan_type,
+          platforms: match.platforms,
+          style: match.style,
+          content_type: match.content_type,
+          duration: match.duration,
+          goal: match.goal,
+        };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }, [deviceId, topic]);
+
+  const generateContent = useCallback(async (skipDuplicateCheck = false) => {
     if (!topic.trim()) return;
     if (!isProMode && isAtLimit) {
       toast.error(t("usage.noCredits", locale));
       return;
     }
+
+    // Duplicate check
+    if (!skipDuplicateCheck) {
+      const dup = await checkDuplicate();
+      if (dup) {
+        setDuplicateWarning(dup);
+        return;
+      }
+    }
+    setDuplicateWarning(null);
+
     setLoading(true);
     setDiscoveryResult(null);
     setAutoFixUsed(false);
