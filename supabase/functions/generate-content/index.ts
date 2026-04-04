@@ -886,7 +886,8 @@ COMMENT TRIGGER RULE:
 IMAGE PROMPTS:
 - Generate exactly 5 prompts.
 - Each must include: scene description, lighting details, atmosphere, camera feel.
-- Format: [scene], [lighting], [mood], cinematic, photorealistic, vertical 9:16, no text, no faces
+- Format: [scene], [lighting], [mood], cinematic, photorealistic, vertical 9:16, no text, no faces, no identifiable people, no portraits
+- CRITICAL: Every prompt MUST end with "no faces, no identifiable people, no portraits"
 - CRITICAL: At least 1 prompt MUST be unsettling, surreal, or visually impossible`;
 
   const thumbnailRules = `
