@@ -481,29 +481,24 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 function getLineCountGuidance(scriptLength: string): string {
   switch (scriptLength) {
     case "15": return `STRICT TIMING CONTROL (15s):
-- HARD LIMIT: 30–38 words total. Target 34 words. NEVER exceed 38. NEVER go below 30.
+- HARD LIMIT: 160–190 characters total (letters + spaces + punctuation). Target 175 characters.
 - Each line: 1 breath, max 6 words per line
-- Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 38 → remove lines from MIDDLE only (keep first 3 and last 3 lines). If still over → compress remaining middle. If under 30 → add one tension line before ending.
+- Count characters (not words) before finalizing. If over 190 → trim from MIDDLE only. If under 160 → add tension line.
 - Focus on immediate impact, 1–2 ideas max`;
     case "30": return `STRICT TIMING CONTROL (30s):
-- HARD LIMIT: 60–70 words total. Target 65 words. NEVER exceed 70. NEVER go below 60.
+- HARD LIMIT: 330–380 characters total (letters + spaces + punctuation). Target 355 characters.
 - Each line: 1 breath, max 6 words per line
-- Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 70 → remove lines from MIDDLE section only (always keep first 3 lines and last 3 lines). Then re-count. If still over → compress remaining middle lines. NEVER return script above 70 words.
-- If under 60 → add one tension line before ending.
+- Count characters (not words) before finalizing. If over 380 → trim from MIDDLE only. If under 330 → add tension line.
 - Use 2–3 key ideas, minimal buildup`;
     case "60": return `STRICT TIMING CONTROL (60s):
-- HARD LIMIT: 125–140 words total. Target 132 words. NEVER exceed 140. NEVER go below 125.
+- HARD LIMIT: 660–760 characters total (letters + spaces + punctuation). Target 710 characters.
 - Each line: 1 breath, max 6 words per line
-- Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 140 → remove lines from MIDDLE only (keep first 3 and last 3 lines). If still over → compress remaining middle. If under 125 → add one tension line before ending.
+- Count characters (not words) before finalizing. If over 760 → trim from MIDDLE only. If under 660 → add tension line.
 - Develop 3–5 ideas with narrative flow`;
     default: return `STRICT TIMING CONTROL (30s):
-- HARD LIMIT: 60–70 words total. Target 65 words. NEVER exceed 70. NEVER go below 60.
+- HARD LIMIT: 330–380 characters total (letters + spaces + punctuation). Target 355 characters.
 - Each line: 1 breath, max 6 words per line
-- Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 70 → compress. If under 60 → add tension line.`;
+- Count characters before finalizing. If over 380 → compress. If under 330 → add tension line.`;
   }
 }
 
@@ -769,18 +764,20 @@ VOICE SCRIPT (CRITICAL — STRICT RULES):
   - Use "..." for pauses and "—" for dramatic breaks
   - Add empty lines between sections for breathing space
 
-- MANDATORY WORD COUNT RULES - YOU MUST FOLLOW:
-  - 15 seconds = write EXACTLY 30-38 words. Count them.
-  - 30 seconds = write EXACTLY 60-70 words. Count them.
-  - 60 seconds = write EXACTLY 125-140 words. Count them.
+- MANDATORY CHARACTER COUNT RULES - YOU MUST FOLLOW:
+  - Count characters in script (letters + spaces + punctuation).
+  - 15 seconds = write exactly 160-190 characters. Count them.
+  - 30 seconds = write exactly 330-380 characters. Count them.
+  - 60 seconds = write exactly 660-760 characters. Count them.
   - After writing the script:
-    1. Count every word
+    1. Count every character (including spaces and punctuation)
     2. If under minimum → add tension lines before ending
     3. If over maximum → remove lines from middle only
     4. Count again
-    5. Only return script when word count is correct
+    5. Only return script when character count is correct
   - This rule overrides everything else.
   - This is NON-NEGOTIABLE. Outside the range = INVALID output.
+  - Never return script outside these ranges.
 
 - STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
 - First line MUST stop scrolling
@@ -1014,7 +1011,7 @@ If output feels robotic, too generic, or has a tone mismatch with the topic → 
 
 QUALITY GATE CHECKLIST (check ALL before returning):
 ✔ Best hook starts with situation word, not pronoun
-✔ Script word count is WITHIN the hard limit range (15s=30-38, 30s=60-70, 60s=125-140 words) — if outside range, trim from MIDDLE only (keep first 3 and last 3 lines), then re-check. NEVER return script above limit.
+✔ Script character count is WITHIN the hard limit range (15s=160-190, 30s=330-380, 60s=660-760 characters) — if outside range, trim from MIDDLE only (keep first 3 and last 3 lines), then re-check. NEVER return script above limit.
 ✔ Script contains NO asterisks (*word*), NO stage directions, NO bracketed cues — pure voiceover only
 ✔ Script has NO "LOOP:" prefix on any line — last line must be plain text
 ✔ Subject revealed mid-script, not at line 1

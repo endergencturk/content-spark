@@ -2,29 +2,18 @@ import React, { useState, useMemo, memo } from "react";
 import { Copy } from "lucide-react";
 import { t, type Locale } from "@/lib/i18n";
 
-interface WordRange {
+interface CharRange {
   min: number;
   max: number;
 }
 
-const WORD_RANGES: Record<string, WordRange> = {
-  "15": { min: 30, max: 38 },
-  "30": { min: 60, max: 70 },
-  "60": { min: 125, max: 140 },
+const CHAR_RANGES: Record<string, CharRange> = {
+  "15": { min: 160, max: 190 },
+  "30": { min: 330, max: 380 },
+  "60": { min: 660, max: 760 },
 };
 
-function countWords(text: string): number {
-  return text
-    .split("\n")
-    .filter((l) => !/^\[.+\]$/.test(l.trim()))
-    .join(" ")
-    .replace(/LOOP:\s*/gi, "")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-}
-
-function getColor(count: number, range: WordRange): string {
+function getColor(count: number, range: CharRange): string {
   if (count >= range.min && count <= range.max) return "text-green-500";
   return count < range.min ? "text-yellow-500" : "text-destructive";
 }
@@ -58,11 +47,10 @@ export const ScriptEditor = memo(function ScriptEditor({
 
   const [script, setScript] = useState(cleanScript);
 
-  const range = WORD_RANGES[scriptLength] || WORD_RANGES["30"];
-  const wordCount = countWords(script);
+  const range = CHAR_RANGES[scriptLength] || CHAR_RANGES["30"];
   const charCount = script.length;
-  const estDuration = (wordCount * 0.47).toFixed(1);
-  const colorClass = getColor(wordCount, range);
+  const estDuration = (charCount * 0.084).toFixed(1);
+  const colorClass = getColor(charCount, range);
 
   return (
     <div className="space-y-2">
@@ -86,13 +74,10 @@ export const ScriptEditor = memo(function ScriptEditor({
       />
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-1">
         <span className={`text-xs font-semibold ${colorClass}`}>
-          Words: {wordCount}{" "}
+          Characters: {charCount}{" "}
           <span className="font-normal text-muted-foreground">
-            ({range.min}–{range.max})
+            / target: {range.min}–{range.max}
           </span>
-        </span>
-        <span className="text-xs text-muted-foreground">
-          Characters: {charCount}
         </span>
         <span className="text-xs text-muted-foreground">
           Est. Duration: {estDuration}s
