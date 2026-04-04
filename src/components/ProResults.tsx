@@ -1,7 +1,7 @@
 import React, { memo, useState } from "react";
 import {
   Copy, Trophy, FileText, Youtube, Hash, Instagram, Film, Image, Mic,
-  CalendarClock, Target, Music, TrendingUp, Package, ChevronDown,
+  CalendarClock, Target, Music, TrendingUp, Package, ChevronDown, Clock, Layout,
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { t, type Locale } from "@/lib/i18n";
