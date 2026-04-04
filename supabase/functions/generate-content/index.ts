@@ -1302,7 +1302,8 @@ ${editSyncRule}
 ${platformBehaviorRule}
 
 EDITING PLAN:
-- Provide scenes with visual description
+- Provide scenes with sequential numbering (scene: 1, scene: 2, etc.)
+- The "visual" field must describe the visual ONLY — do NOT start with "Scene 1:" or "Scene X:" prefix. The UI adds scene numbers automatically.
 - Optional on-screen text and mood
 - Keep it short and practical
 - Match content type
