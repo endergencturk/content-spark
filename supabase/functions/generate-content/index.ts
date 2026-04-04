@@ -1211,7 +1211,6 @@ ${loopEndingRule}
 
 ${angleVariationRule}
 
-${factSafetyRule}
 
 ${autoFixRule}
 
