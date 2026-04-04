@@ -1007,6 +1007,8 @@ VISUAL SYNC:
 
 ${imagePromptRules}
 
+${thumbnailRules}
+
 ${seoRules}
 
 ${platforms_include_instagram(input.platforms)}
