@@ -815,7 +815,7 @@ LOOP ENDING RULE (CRITICAL):
 - The LAST line of the script MUST connect back to the opening
 - It must reference the first word or situation from the hook
 - Example: if hook starts "Vanished." → ending references vanishing
-- Add the prefix "LOOP: " before the final line in the script output
+- Do NOT add any "LOOP:" prefix or label in the script output — the final line must be plain text only
 - This creates a circular narrative that rewards rewatching
 - The loop ending must still feel natural and not forced`;
 
