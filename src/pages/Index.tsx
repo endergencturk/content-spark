@@ -615,7 +615,34 @@ export default function Index() {
     if (!result) return;
     const all = buildFullPackText(result, isProMode);
     const slug = topic.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40) || "content";
-    const blob = new Blob([all], { type: "text/plain;charset=utf-8" });
+
+    const now = new Date();
+    const dateStr = now.toISOString().replace("T", " ").slice(0, 19);
+    const platformLabels = (isProMode ? platforms : [platform]).map((p: string) => {
+      if (p === "tiktok") return "TikTok";
+      if (p === "youtube-shorts") return "YouTube Shorts";
+      if (p === "instagram-reels") return "Instagram Reels";
+      return p;
+    }).join(", ");
+    const viralScore = result.viralAnalysis?.score || "N/A";
+
+    const metadata = `=== CONTENT PACK INFO ===
+Topic: ${topic.trim()}
+Platform: ${platformLabels}
+Target Audience: ${targetAudience}
+Hook Style: ${hookStyle}
+Duration: ${scriptLength}s
+Style: ${style}
+Content Type: ${contentType}
+Goal: ${goal}
+Auto-Fix Used: ${autoFixUsed ? "Yes" : "No"}
+Generated: ${dateStr}
+Viral Score: ${viralScore}/10
+=========================
+
+`;
+
+    const blob = new Blob([metadata + all], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -625,7 +652,7 @@ export default function Index() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast.success(t("toast.downloaded", locale));
-  }, [isProMode, generalResult, proResult, topic, buildFullPackText, locale]);
+  }, [isProMode, generalResult, proResult, topic, buildFullPackText, locale, platforms, platform, targetAudience, hookStyle, scriptLength, style, contentType, goal, autoFixUsed]);
 
   const autoFix = useCallback(async () => {
     if (!topic.trim()) return;
