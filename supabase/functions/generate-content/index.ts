@@ -445,7 +445,8 @@ function getLineCountGuidance(scriptLength: string): string {
 - HARD LIMIT: 65–75 words total. Target 70 words. NEVER exceed 75. NEVER go below 65.
 - Each line: 1 breath, max 6 words per line
 - Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 75 → compress sentences, remove filler. If still over → shorten middle. If under 65 → add one tension line.
+- Count every word before finalizing. If over 75 → remove lines from MIDDLE section only (always keep first 3 lines and last 3 lines). Then re-count. If still over → compress remaining middle lines. NEVER return script above 75 words.
+- If under 65 → add one tension line before ending.
 - Use 2–3 key ideas, minimal buildup`;
     case "60": return `STRICT TIMING CONTROL (60s):
 - HARD LIMIT: 130–150 words total. Target 140 words. NEVER exceed 150. NEVER go below 130.
