@@ -1269,6 +1269,10 @@ Viral Score: ${viralScore}/10
                 </div>
               )}
             </div>
+            {/* Generate */}
+            <div>
+              <Button
+                id="generate-btn"
                 className="h-13 text-base rounded-2xl font-bold w-full"
                 disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
                 onClick={() => generateContent()}
