@@ -2,12 +2,11 @@ import React, { useState, useCallback, memo, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
-  Copy, Loader2, Sparkles, FileText, MessageSquare, RefreshCw,
-  Image, Clock, Flame, Crown, Hash, Youtube, Mic, Film, Music,
-  CalendarClock, Target, Trophy, Zap, Instagram, ChevronDown,
-  Package, Lock, TrendingUp, History, Shuffle, Lightbulb,
+  Copy, Loader2, Sparkles, RefreshCw,
+  Image, Clock, Flame, Crown, Hash, Youtube, Mic,
+  Lock, TrendingUp, Shuffle, Lightbulb, Zap, Instagram,
+  Search, Dumbbell, DollarSign, Brain, Skull, BookOpen,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,10 +14,12 @@ import { Navbar } from "@/components/Navbar";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
-import { BlurredPreview } from "@/components/BlurredPreview";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
+import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
+import { ProResults, type ProResult } from "@/components/ProResults";
+import { LoadingState } from "@/components/LoadingState";
 
 // ── Constants ───────────────────────────────────────────────────────
 
@@ -69,74 +70,150 @@ const PLATFORM_OPTIONS = [
 
 const LENGTH_OPTIONS = ["15", "30", "60"];
 
-const DEPTH_OPTIONS = [
-  { value: "concise", label: "Concise" },
-  { value: "standard", label: "Standard" },
-  { value: "detailed", label: "Detailed" },
+// ── Niche Presets ───────────────────────────────────────────────────
+
+interface NichePreset {
+  id: string;
+  label: string;
+  labelTr: string;
+  icon: React.ElementType;
+  style: string;
+  topics: string[];
+  topicsTr: string[];
+}
+
+const NICHE_PRESETS: NichePreset[] = [
+  {
+    id: "mystery",
+    label: "Mystery / Crime",
+    labelTr: "Gizem / Suç",
+    icon: Search,
+    style: "suspense",
+    topics: [
+      "Brian Shaffer vanished from a bar — no trace",
+      "The Zodiac Killer's last unsolved cipher",
+      "A plane disappeared with 239 people on board",
+      "The boy who was found living someone else's life",
+      "A serial killer who was never caught",
+    ],
+    topicsTr: [
+      "Bir bardan kaybolan adam — iz yok",
+      "Zodiac Katili'nin çözülmemiş son şifresi",
+      "239 kişiyle birlikte kaybolan uçak",
+      "Başka birinin hayatını yaşayan çocuk",
+      "Hiç yakalanmayan seri katil",
+    ],
+  },
+  {
+    id: "educational",
+    label: "Educational",
+    labelTr: "Eğitim",
+    icon: BookOpen,
+    style: "educational",
+    topics: [
+      "Why you forget 90% of what you read",
+      "How your phone rewires your brain",
+      "The science behind why we procrastinate",
+      "5 psychology tricks marketers use on you",
+      "Why cold showers change your body",
+    ],
+    topicsTr: [
+      "Okuduğunuzun %90'ını neden unutuyorsunuz",
+      "Telefonunuz beyninizi nasıl yeniden programlıyor",
+      "Neden erteliyoruz — bilimsel açıklama",
+      "Pazarlamacıların kullandığı 5 psikoloji hilesi",
+      "Soğuk duş vücudunuzu neden değiştirir",
+    ],
+  },
+  {
+    id: "motivation",
+    label: "Motivation",
+    labelTr: "Motivasyon",
+    icon: Brain,
+    style: "emotional",
+    topics: [
+      "Why the smartest people are usually the loneliest",
+      "How a homeless man became a tech CEO",
+      "The habit that changed everything for me",
+      "Why most people quit right before success",
+      "The mindset shift that made me unstoppable",
+    ],
+    topicsTr: [
+      "En zeki insanlar neden genellikle en yalnız",
+      "Evsiz bir adam nasıl teknoloji CEO'su oldu",
+      "Hayatımı değiştiren tek alışkanlık",
+      "Çoğu insan başarıya ulaşmadan neden vazgeçer",
+      "Beni durdurulamaz yapan zihinsel değişim",
+    ],
+  },
+  {
+    id: "horror",
+    label: "Horror",
+    labelTr: "Korku",
+    icon: Skull,
+    style: "suspense",
+    topics: [
+      "The experiment that proved we live in a simulation",
+      "Why NASA deleted this photo",
+      "The island where no one is allowed to go",
+      "What really happens when you die for 7 minutes",
+      "The camera footage that was never explained",
+    ],
+    topicsTr: [
+      "Simülasyonda yaşadığımızı kanıtlayan deney",
+      "NASA bu fotoğrafı neden sildi",
+      "Kimsenin giremediği ada",
+      "7 dakika öldüğünüzde gerçekte ne oluyor",
+      "Hiç açıklanamayan kamera görüntüsü",
+    ],
+  },
+  {
+    id: "finance",
+    label: "Finance",
+    labelTr: "Finans",
+    icon: DollarSign,
+    style: "viral",
+    topics: [
+      "The man who sold his house to buy Bitcoin in 2013",
+      "Why 99% of people fail at online business",
+      "The $0 marketing strategy that makes millions",
+      "Passive income myths nobody talks about",
+      "How a janitor secretly became a millionaire",
+    ],
+    topicsTr: [
+      "2013'te evini satıp Bitcoin alan adam",
+      "Online iş kuranların %99'u neden başarısız",
+      "Milyonlar kazandıran sıfır bütçeli strateji",
+      "Kimsenin konuşmadığı pasif gelir mitleri",
+      "Gizlice milyoner olan temizlikçi",
+    ],
+  },
+  {
+    id: "fitness",
+    label: "Fitness",
+    labelTr: "Fitness",
+    icon: Dumbbell,
+    style: "educational",
+    topics: [
+      "What happens to your body when you stop eating sugar",
+      "The real reason coffee makes you tired",
+      "Why stretching before workouts is a myth",
+      "The 5-minute routine that burns more fat than running",
+      "Why your diet isn't working — the science",
+    ],
+    topicsTr: [
+      "Şekeri bırakınca vücudunuza ne olur",
+      "Kahvenin sizi yormasının gerçek nedeni",
+      "Egzersiz öncesi esneme neden bir mit",
+      "Koşmaktan daha çok yağ yakan 5 dakikalık rutin",
+      "Diyetiniz neden işe yaramıyor — bilimsel",
+    ],
+  },
 ];
 
 type Mode = "general" | "pro";
 
 // ── Types ───────────────────────────────────────────────────────────
-
-interface SeoPack {
-  youtube: { title: string; description: string; tags: string[] };
-  tiktok: { caption: string; hashtags: string[] };
-}
-
-interface EditingScene {
-  scene: number;
-  visual: string;
-  onScreenText?: string;
-  mood?: string;
-}
-
-interface ViralScoreCategory {
-  name: string;
-  score: number;
-}
-
-interface ViralAnalysis {
-  score: number;
-  categories: ViralScoreCategory[];
-  strengths: string[];
-  weaknesses: string[];
-}
-
-interface MusicSuggestion {
-  type: string;
-  source: string;
-  why: string;
-}
-
-interface GeneralResult {
-  hooks: string[];
-  bestHook: string;
-  script: string;
-  editingPlan: EditingScene[];
-  imagePrompts: string[];
-  youtube: SeoPack["youtube"];
-  tiktok: SeoPack["tiktok"];
-  music?: MusicSuggestion[];
-  seriesPotential?: string;
-  viralAnalysis: ViralAnalysis;
-}
-
-interface ProResult {
-  bestHook: string;
-  hookVariations: string[];
-  script: string;
-  editingPlan: EditingScene[];
-  voiceStyle: string;
-  postingStrategy: { bestTime: string; platformTip: string };
-  imagePrompts: string[];
-  youtube: SeoPack["youtube"];
-  tiktok: SeoPack["tiktok"];
-  instagramCaption?: string;
-  music?: MusicSuggestion[];
-  seriesPotential?: string;
-  viralAnalysis: ViralAnalysis;
-}
 
 interface DiscoveryIdea {
   title: string;
@@ -149,20 +226,6 @@ interface DiscoveryResult {
 }
 
 // ── Micro components ────────────────────────────────────────────────
-
-const CopyBtn = memo(function CopyBtn({
-  text, label, copied, onCopy, locale = "en", customLabel,
-}: { text: string; label: string; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; customLabel?: string }) {
-  return (
-    <button
-      className="shrink-0 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
-      onClick={() => onCopy(label, text)}
-    >
-      <Copy className="h-3 w-3 inline mr-1" />
-      {copied === label ? t("btn.copied", locale) : (customLabel || t("btn.copy", locale))}
-    </button>
-  );
-});
 
 const Pill = memo(function Pill({
   selected, onClick, children, locked, icon,
@@ -182,84 +245,6 @@ const Pill = memo(function Pill({
       {children}
       {locked && <Lock className="h-3 w-3 ml-0.5" />}
     </button>
-  );
-});
-
-// (ScriptBlock removed — scripts are now plain text)
-
-// ── Viral Analysis Card ─────────────────────────────────────────────
-
-const CATEGORY_KEY_MAP: Record<string, string> = {
-  hookStrength: "viral.hookStrength",
-  curiosityGap: "viral.curiosityGap",
-  emotionalTrigger: "viral.emotionalTrigger",
-  clarity: "viral.clarity",
-  rewatchPotential: "viral.rewatchPotential",
-  commentPotential: "viral.commentPotential",
-  platformFit: "viral.platformFit",
-};
-
-function scoreColor(score: number): string {
-  if (score >= 8) return "text-green-500";
-  if (score >= 6) return "text-primary";
-  if (score >= 4) return "text-yellow-500";
-  return "text-destructive";
-}
-
-const ViralAnalysisCard = memo(function ViralAnalysisCard({
-  analysis, locale = "en",
-}: { analysis: ViralAnalysis; locale?: Locale }) {
-  return (
-    <section className="space-y-2.5">
-      <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-        <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.viralAnalysis", locale)}
-      </h3>
-      <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/15 rounded-2xl p-4 space-y-4">
-        {/* Overall score */}
-        <div className="flex items-center gap-2">
-          <span className={`text-2xl font-extrabold ${scoreColor(analysis.score)}`}>{analysis.score}</span>
-          <span className="text-sm text-muted-foreground font-medium">/ 10</span>
-        </div>
-
-        {/* Category subscores */}
-        {analysis.categories?.length > 0 && (
-          <div className="grid grid-cols-2 gap-2">
-            {analysis.categories.map((cat, i) => (
-              <div key={i} className="flex items-center justify-between bg-muted/40 rounded-xl px-3 py-2">
-                <span className="text-[11px] text-muted-foreground">
-                  {t(CATEGORY_KEY_MAP[cat.name] || cat.name, locale)}
-                </span>
-                <span className={`text-xs font-bold ${scoreColor(cat.score)}`}>{cat.score}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Strengths */}
-        {analysis.strengths?.length > 0 && (
-          <div className="space-y-1">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-green-500">{t("viral.strengths", locale)}</p>
-            {analysis.strengths.map((s, i) => (
-              <p key={i} className="text-sm text-foreground leading-relaxed flex items-start gap-2">
-                <span className="text-green-500 mt-0.5">✓</span>{s}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {/* Weaknesses */}
-        {analysis.weaknesses?.length > 0 && (
-          <div className="space-y-1">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-yellow-500">{t("viral.weaknesses", locale)}</p>
-            {analysis.weaknesses.map((w, i) => (
-              <p key={i} className="text-sm text-foreground leading-relaxed flex items-start gap-2">
-                <span className="text-yellow-500 mt-0.5">△</span>{w}
-              </p>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
   );
 });
 
@@ -305,519 +290,6 @@ const UsageBanner = memo(function UsageBanner({
   );
 });
 
-// ── General Results ─────────────────────────────────────────────────
-
-const GeneralResults = memo(function GeneralResults({
-  result, copied, onCopy, locale = "en",
-}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
-  return (
-    <div className="space-y-5">
-      {/* ⭐ Best Hook */}
-      {result.bestHook && (
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5">
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center">
-              <Trophy className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("result.bestHook", locale)}</p>
-              <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
-            </div>
-            <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
-          </div>
-        </div>
-      )}
-      {/* Hooks */}
-      <section className="space-y-2.5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.hooks", locale)}</h3>
-        {result.hooks.map((hook, i) => (
-          <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
-            <p className="text-sm text-foreground leading-relaxed">
-              <span className="text-primary font-bold mr-1.5">#{i + 1}</span>{hook}
-            </p>
-            <CopyBtn text={hook} label={`hook-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
-          </div>
-        ))}
-        <UpsellBanner
-          message={t("upsell.hooks", locale)}
-          onUpgrade={() => {}}
-          locale={locale}
-        />
-      </section>
-
-      {/* Script */}
-      <section className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("result.script", locale)}</h3>
-          <CopyBtn text={result.script} label="script" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-        <div className="bg-muted/40 rounded-2xl p-4">
-          {result.script.split("\n").map((line, i) => (
-            <p key={i} className="text-sm text-foreground leading-loose">{line || <br />}</p>
-          ))}
-        </div>
-        <UpsellBanner
-          message={t("upsell.script", locale)}
-          onUpgrade={() => {}}
-          locale={locale}
-        />
-      </section>
-
-      {/* Editing Plan */}
-      {result.editingPlan?.length > 0 && (
-        <section className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.editingPlan", locale)}</h3>
-          {result.editingPlan.map((scene, i) => (
-            <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-1">
-              <p className="text-xs font-bold text-primary">Scene {scene.scene}</p>
-              <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{scene.visual}</p>
-              {scene.onScreenText && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Text:</span>{scene.onScreenText}</p>}
-              {scene.mood && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Mood:</span>{scene.mood}</p>}
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* SEO — YouTube */}
-      <section className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
-          </h3>
-          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${result.youtube.tags.join(", ")}`} label="yt-seo" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
-            <p className="text-sm font-semibold text-foreground">{result.youtube.title}</p>
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
-            <p className="text-sm text-foreground">{result.youtube.description}</p>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-0.5">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.tags", locale)}</p>
-              <CopyBtn text={result.youtube.tags.join(", ")} label="yt-tags" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyTags", locale)} />
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {result.youtube.tags.map((tag, i) => (
-                <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{tag}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SEO — TikTok */}
-      <section className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
-          </h3>
-          <CopyBtn text={`${result.tiktok.caption}\n${result.tiktok.hashtags.join(" ")}`} label="tt-seo" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
-          <p className="text-sm text-foreground leading-relaxed">{result.tiktok.caption}</p>
-          <div className="flex items-center justify-between mb-0.5">
-            <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Hashtags</span>
-            <CopyBtn text={result.tiktok.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" ")} label="tt-hashtags" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyHashtags", locale)} />
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {result.tiktok.hashtags.map((ht, i) => (
-              <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{ht}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Image Prompts */}
-      <section className="space-y-2.5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.imagePrompts", locale)}</h3>
-        {result.imagePrompts.map((p, i) => (
-          <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <span className="text-foreground font-semibold mr-1">{i + 1}.</span>{p}
-            </p>
-            <CopyBtn text={p} label={`img-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
-          </div>
-        ))}
-      </section>
-
-      {/* Music Suggestions */}
-      {result.music && result.music.length > 0 && (
-        <section className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <Music className="h-3.5 w-3.5 text-primary" />{t("result.music", locale)}
-          </h3>
-          <div className="space-y-1.5">
-            {result.music.map((m, i) => (
-              <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5 space-y-1">
-                <p className="text-sm font-medium text-foreground">{typeof m === 'string' ? m : m.type}</p>
-                {typeof m !== 'string' && (
-                  <>
-                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.source", locale)}:</span>{m.source}</p>
-                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.why", locale)}:</span>{m.why}</p>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Series Potential */}
-      {result.seriesPotential && (
-        <section className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.seriesPotential", locale)}
-          </h3>
-          <div className="bg-muted/40 rounded-2xl px-4 py-3">
-            <p className="text-sm text-foreground leading-relaxed">{result.seriesPotential}</p>
-          </div>
-        </section>
-      )}
-      {result.viralAnalysis && (
-        <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
-      )}
-
-      {/* Blurred Pro previews */}
-      <div className="space-y-5 pt-3">
-        <div className="flex items-center gap-2 px-1">
-          <Crown className="h-3.5 w-3.5 text-primary" />
-          <p className="text-[10px] uppercase tracking-widest font-bold text-primary">{t("result.proAvailable", locale)}</p>
-        </div>
-
-        <BlurredPreview
-          title={t("blurred.hookVariations", locale)}
-          previewLines={[
-            "V1: " + (result.hooks[0]?.slice(0, 50) || "What if everything you knew was wrong?") + "…",
-            "V2: A completely different angle that hooks in 0.5 seconds",
-            "V3: The emotional rewrite that keeps viewers watching",
-          ]}
-          onUpgrade={() => {}}
-          locale={locale}
-        />
-
-        <BlurredPreview
-          title={t("blurred.editingPlan", locale)}
-          previewLines={[
-            "Scene 1 (0-3s): Quick zoom with trending audio drop",
-            "Scene 2 (3-8s): B-roll montage with text overlay",
-            "Scene 3 (8-15s): Direct-to-camera with cinematic shift",
-          ]}
-          onUpgrade={() => {}}
-          locale={locale}
-        />
-
-        <BlurredPreview
-          title={t("blurred.voiceStyle", locale)}
-          previewLines={["Dark & slow — dramatic pauses, low energy open"]}
-          onUpgrade={() => {}}
-          locale={locale}
-        />
-
-        <BlurredPreview
-          title={t("blurred.postingStrategy", locale)}
-          previewLines={[
-            "Best time: Tuesday 7-9 PM EST",
-            "Platform tip: Use trending sounds within first 2 hours",
-          ]}
-          onUpgrade={() => {}}
-          locale={locale}
-        />
-      </div>
-
-      {/* Bottom CTA */}
-      <div className="text-center py-4 space-y-2">
-        <p className="text-xs text-muted-foreground">{t("upsell.bottom", locale)}</p>
-      </div>
-    </div>
-  );
-});
-
-// ── Pro Results ─────────────────────────────────────────────────────
-
-const ProResults = memo(function ProResults({
-  result, platforms, copied, onCopy, locale = "en",
-}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
-  const [showPack, setShowPack] = useState(false);
-
-  return (
-    <div className="space-y-6">
-      {/* Best Hook — hero card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5">
-        <div className="flex items-start gap-3">
-          <div className="shrink-0 h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center">
-            <Trophy className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("result.bestHook", locale)}</p>
-            <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
-          </div>
-          <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-      </div>
-
-      {/* Script — plain voiceover */}
-      <section className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-primary" />{t("result.voiceover", locale)}
-          </h3>
-          <CopyBtn text={result.script} label="pro-script" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-        <div className="bg-muted/40 rounded-2xl p-4">
-          {result.script.split("\n").map((line, i) => (
-            <p key={i} className="text-sm text-foreground leading-loose">{line || <br />}</p>
-          ))}
-        </div>
-      </section>
-
-      {/* SEO — YouTube */}
-      <section className="space-y-2">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
-          </h3>
-          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${result.youtube.tags.join(", ")}`} label="yt" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
-            <p className="text-sm font-semibold text-foreground">{result.youtube.title}</p>
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
-            <p className="text-sm text-foreground">{result.youtube.description}</p>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-0.5">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.tags", locale)}</p>
-              <CopyBtn text={result.youtube.tags.join(", ")} label="yt-tags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyTags", locale)} />
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {result.youtube.tags.map((tag, i) => (
-                <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{tag}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SEO — TikTok */}
-      <section className="space-y-2">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
-          </h3>
-          <CopyBtn text={`${result.tiktok.caption}\n${result.tiktok.hashtags.join(" ")}`} label="tt" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-        <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
-          <p className="text-sm text-foreground leading-relaxed">{result.tiktok.caption}</p>
-          <div className="flex items-center justify-between mb-0.5">
-            <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Hashtags</span>
-            <CopyBtn text={result.tiktok.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" ")} label="tt-hashtags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyHashtags", locale)} />
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {result.tiktok.hashtags.map((ht, i) => (
-              <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{ht}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Instagram */}
-      {platforms.includes("instagram-reels") && result.instagramCaption && (
-        <section className="space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <Instagram className="h-3.5 w-3.5 text-primary" />{t("result.instagram", locale)}
-            </h3>
-            <CopyBtn text={result.instagramCaption} label="instagram" copied={copied} onCopy={onCopy} locale={locale} />
-          </div>
-          <div className="bg-muted/40 rounded-2xl p-4">
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.instagramCaption}</p>
-          </div>
-        </section>
-      )}
-
-      {/* VIEW FULL CONTENT PACK */}
-      {!showPack && (
-        <button
-          onClick={() => setShowPack(true)}
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-primary/30 bg-primary/5 text-primary text-sm font-semibold hover:bg-primary/10 transition-colors"
-        >
-          <Package className="h-4 w-4" />
-          {t("result.viewPack", locale)}
-          <ChevronDown className="h-4 w-4" />
-        </button>
-      )}
-
-      {showPack && (
-        <div className="space-y-4 pt-2">
-          <div className="flex items-center justify-between px-1">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.fullPack", locale)}</p>
-            <button onClick={() => setShowPack(false)} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">{t("result.hidePack", locale)}</button>
-          </div>
-
-          <Accordion type="multiple" defaultValue={["hooks"]} className="space-y-2.5">
-            {result.hookVariations?.length > 0 && (
-              <AccordionItem value="hooks" className="border border-border/50 rounded-2xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />{t("result.hookVariations", locale)} ({result.hookVariations.length})</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <div className="space-y-2">
-                    {result.hookVariations.map((v, i) => (
-                      <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-xl p-3">
-                        <p className="text-sm text-foreground leading-relaxed">
-                          <span className="text-xs font-bold text-primary mr-1.5">V{i + 1}</span>{v}
-                        </p>
-                        <CopyBtn text={v} label={`hv-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-
-            {result.editingPlan?.length > 0 && (
-              <AccordionItem value="editing" className="border border-border/50 rounded-2xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Film className="h-4 w-4 text-primary" />{t("result.editingPlan", locale)}</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <div className="space-y-2.5">
-                    {result.editingPlan.map((scene, i) => (
-                      <div key={i} className="bg-muted/40 rounded-xl p-3 space-y-1">
-                        <p className="text-xs font-bold text-primary">Scene {scene.scene}</p>
-                        <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{scene.visual}</p>
-                        {scene.onScreenText && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Text:</span>{scene.onScreenText}</p>}
-                        {scene.mood && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Mood:</span>{scene.mood}</p>}
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-
-            <AccordionItem value="images" className="border border-border/50 rounded-2xl overflow-hidden">
-              <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                <span className="flex items-center gap-2"><Image className="h-4 w-4 text-primary" />{t("result.imagePrompts", locale)} ({result.imagePrompts.length})</span>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
-                <div className="space-y-2">
-                  {result.imagePrompts.map((p, i) => (
-                    <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-xl p-3">
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        <span className="text-foreground font-semibold mr-1">{i + 1}.</span>{p}
-                      </p>
-                      <CopyBtn text={p} label={`pi-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            {result.voiceStyle && (
-              <AccordionItem value="voice" className="border border-border/50 rounded-2xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />{t("result.voiceStyle", locale)}</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <div className="bg-muted/40 rounded-xl p-3">
-                    <p className="text-sm font-medium text-foreground">{result.voiceStyle}</p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-
-            {result.postingStrategy && (
-              <AccordionItem value="posting" className="border border-border/50 rounded-2xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><CalendarClock className="h-4 w-4 text-primary" />{t("result.postingStrategy", locale)}</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <div className="space-y-2">
-                    <div className="bg-muted/40 rounded-xl p-3">
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.bestTime", locale)}</p>
-                      <p className="text-sm font-medium text-foreground">{result.postingStrategy.bestTime}</p>
-                    </div>
-                    <div className="bg-muted/40 rounded-xl p-3">
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.platformTip", locale)}</p>
-                      <p className="text-sm text-foreground">{result.postingStrategy.platformTip}</p>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
-          </Accordion>
-        </div>
-      )}
-      {/* Music Suggestions */}
-      {result.music && result.music.length > 0 && (
-        <section className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <Music className="h-3.5 w-3.5 text-primary" />{t("result.music", locale)}
-          </h3>
-          <div className="space-y-1.5">
-            {result.music.map((m, i) => (
-              <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5 space-y-1">
-                <p className="text-sm font-medium text-foreground">{typeof m === 'string' ? m : m.type}</p>
-                {typeof m !== 'string' && (
-                  <>
-                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.source", locale)}:</span>{m.source}</p>
-                    <p className="text-[10px] text-muted-foreground"><span className="font-bold uppercase tracking-widest mr-1">{t("result.music.why", locale)}:</span>{m.why}</p>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Series Potential */}
-      {result.seriesPotential && (
-        <section className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.seriesPotential", locale)}
-          </h3>
-          <div className="bg-muted/40 rounded-2xl px-4 py-3">
-            <p className="text-sm text-foreground leading-relaxed">{result.seriesPotential}</p>
-          </div>
-        </section>
-      )}
-
-      {/* Viral Analysis */}
-      {result.viralAnalysis && (
-        <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
-      )}
-    </div>
-  );
-});
-
-// ── Loading ─────────────────────────────────────────────────────────
-
-const LoadingState = memo(function LoadingState({ mode, locale = "en" }: { mode: Mode; locale?: Locale }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 space-y-4">
-      <div className="relative h-12 w-12">
-        <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
-        <div className="relative h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-          <Sparkles className="h-5 w-5 text-primary animate-pulse" />
-        </div>
-      </div>
-      <div className="text-center space-y-1">
-        <p className="text-sm font-semibold text-foreground">
-          {mode === "pro" ? t("loading.pro", locale) : t("loading.general", locale)}
-        </p>
-        <p className="text-xs text-muted-foreground">{t("loading.time", locale)}</p>
-      </div>
-    </div>
-  );
-});
-
 // ── Main page ───────────────────────────────────────────────────────
 
 export default function Index() {
@@ -825,7 +297,6 @@ export default function Index() {
   const locale = settings.language;
   const { remaining, isAtLimit, increment, nextRefillLabel } = useUsageLimit();
 
-  // Device ID for history (anonymous, no auth)
   const [deviceId] = useState<string>(() => {
     const key = "viralengine-device-id";
     let id = localStorage.getItem(key);
@@ -844,26 +315,41 @@ export default function Index() {
   const [contentType, setContentType] = useState("story");
   const [scriptLength, setScriptLength] = useState(settings.defaultScriptLength);
   const [goal, setGoal] = useState("viral");
-  const [hookIntensity, setHookIntensity] = useState(1);
+  const [hookIntensity, setHookIntensity] = useState(0); // 0 = Low, 1 = High
   const [imagePromptCount, setImagePromptCount] = useState(3);
-  const [outputDepth, setOutputDepth] = useState("standard");
   const [customDescription, setCustomDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState("");
   const [generalResult, setGeneralResult] = useState<GeneralResult | null>(null);
   const [proResult, setProResult] = useState<ProResult | null>(null);
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  const [presetTopics, setPresetTopics] = useState<string[]>([]);
 
-  // Topic suggestions
   const isProMode = mode === "pro";
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
 
-  // Refresh suggestions when mode/content/style changes
   useEffect(() => {
     setSuggestions(getTopicSuggestions(isProMode ? 6 : 3, contentType, style));
   }, [isProMode, contentType, style]);
 
   const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+
+  const handlePresetClick = useCallback((preset: NichePreset) => {
+    setSelectedPreset(preset.id);
+    setStyle(preset.style);
+    // Set content type based on preset
+    if (preset.id === "educational" || preset.id === "fitness") {
+      setContentType("educational");
+    } else if (preset.id === "mystery" || preset.id === "horror") {
+      setContentType("story");
+    } else if (preset.id === "motivation") {
+      setContentType("story");
+    } else if (preset.id === "finance") {
+      setContentType("entertainment");
+    }
+    setPresetTopics(locale === "tr" ? preset.topicsTr : preset.topics);
+  }, [locale]);
 
   const togglePlatform = useCallback((value: string) => {
     setPlatforms((prev) =>
@@ -891,6 +377,7 @@ export default function Index() {
         platforms: isProMode ? platforms : [platform],
         contentType,
         style,
+        niche: selectedPreset || undefined,
         language: locale,
       };
       const { data, error } = await supabase.functions.invoke("generate-content", { body });
@@ -910,24 +397,21 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, platform, platforms, contentType, style, locale]);
+  }, [isProMode, platform, platforms, contentType, style, selectedPreset, locale]);
 
   const generateContent = useCallback(async () => {
     if (!topic.trim()) return;
-
-    // Free mode: check credits
     if (!isProMode && isAtLimit) {
       toast.error(t("usage.noCredits", locale));
       return;
     }
-
     setLoading(true);
     setDiscoveryResult(null);
     try {
       const body = isProMode
         ? {
             mode: "pro", topic, platforms, contentType, style, scriptLength, goal, hookIntensity,
-            imageFormat: "9:16", imagePromptCount, outputDepth,
+            imageFormat: "9:16", imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale,
           }
@@ -947,10 +431,9 @@ export default function Index() {
       } else {
         setGeneralResult(data as GeneralResult);
         setProResult(null);
-        increment(); // only deduct credit in Free mode
+        increment();
       }
 
-      // Auto-save to history
       try {
         await supabase.from("generations").insert({
           device_id: deviceId,
@@ -979,9 +462,8 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, outputDepth, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId]);
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId]);
 
-  // History reopen handler
   const handleHistoryReopen = useCallback((item: any) => {
     setTopic(item.topic);
     if (item.plan_type === "pro") {
@@ -1001,7 +483,6 @@ export default function Index() {
     setGoal(item.goal || "viral");
   }, []);
 
-  // History regenerate handler — loads settings then triggers generation
   const handleHistoryRegenerate = useCallback((item: any) => {
     setTopic(item.topic);
     if (item.plan_type === "pro") {
@@ -1015,10 +496,8 @@ export default function Index() {
     setContentType(item.content_type || "story");
     setScriptLength(item.duration || "30");
     setGoal(item.goal || "viral");
-    // Clear old results so generate runs fresh
     setProResult(null);
     setGeneralResult(null);
-    // Trigger generation on next tick after state settles
     setTimeout(() => {
       document.getElementById("generate-btn")?.click();
     }, 100);
@@ -1135,52 +614,96 @@ export default function Index() {
               {isProMode && <p className="text-[10px] text-muted-foreground text-center">{t("selector.platform.multi", locale)}</p>}
             </div>
 
-            {/* 2. Topic */}
+            {/* 2. Niche Presets */}
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("input.topic", locale)}</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                {t("preset.title", locale)}
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {NICHE_PRESETS.map((preset) => {
+                  const isSelected = selectedPreset === preset.id;
+                  const PresetIcon = preset.icon;
+                  return (
+                    <button
+                      key={preset.id}
+                      onClick={() => handlePresetClick(preset)}
+                      className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl text-xs font-medium transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      <PresetIcon className="h-4 w-4" />
+                      {locale === "tr" ? preset.labelTr : preset.label}
+                    </button>
+                  );
+                })}
+              </div>
 
-              {/* Topic Suggestions */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/70 flex items-center gap-1">
-                    <Lightbulb className="h-3 w-3" />{t("topics.suggestions", locale)}
-                  </p>
-                  <button
-                    onClick={() => {
-                      const random = getRandomTopic(contentType, style);
-                      setTopic(random);
-                    }}
-                    className="text-[10px] font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
-                  >
-                    <Shuffle className="h-3 w-3" />{t("topics.surprise", locale)}
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {suggestions.map((s, i) => (
+              {/* Preset topic chips */}
+              {presetTopics.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {presetTopics.map((topicText, i) => (
                     <button
                       key={i}
-                      onClick={() => setTopic(s.topic)}
-                      className="text-[11px] px-2.5 py-1.5 rounded-xl bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors truncate max-w-[200px]"
+                      onClick={() => setTopic(topicText)}
+                      className="text-[11px] px-2.5 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors truncate max-w-[220px]"
                     >
-                      {s.topic}
+                      {topicText}
                     </button>
                   ))}
                 </div>
-                {!isProMode && (
-                  <p className="text-[10px] text-muted-foreground/50">{t("topics.more", locale)}</p>
-                )}
-              </div>
+              )}
+            </div>
+
+            {/* 3. Topic */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("input.topic", locale)}</p>
+
+              {/* Topic Suggestions (hidden when preset topics are showing) */}
+              {presetTopics.length === 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/70 flex items-center gap-1">
+                      <Lightbulb className="h-3 w-3" />{t("topics.suggestions", locale)}
+                    </p>
+                    <button
+                      onClick={() => {
+                        const random = getRandomTopic(contentType, style);
+                        setTopic(random);
+                      }}
+                      className="text-[10px] font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+                    >
+                      <Shuffle className="h-3 w-3" />{t("topics.surprise", locale)}
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setTopic(s.topic)}
+                        className="text-[11px] px-2.5 py-1.5 rounded-xl bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors truncate max-w-[200px]"
+                      >
+                        {s.topic}
+                      </button>
+                    ))}
+                  </div>
+                  {!isProMode && (
+                    <p className="text-[10px] text-muted-foreground/50">{t("topics.more", locale)}</p>
+                  )}
+                </div>
+              )}
 
               <Input
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder={t("input.topic.placeholder", locale)}
+                placeholder={locale === "tr" ? "ör. Brian Shaffer gizemi, pasif gelir mitleri..." : "e.g. Brian Shaffer mystery, passive income myths..."}
                 className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
                 onKeyDown={(e) => e.key === "Enter" && generateContent()}
               />
             </div>
 
-            {/* 3. Length */}
+            {/* 4. Length */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.length", locale)}</p>
               <div className="flex gap-2">
@@ -1202,55 +725,59 @@ export default function Index() {
               </div>
             </div>
 
-            {/* 4. Style */}
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.style", locale)}</p>
-              <div className="flex gap-2 flex-wrap">
-                {FREE_STYLES.map((s) => (
-                  <Pill key={s.value} selected={style === s.value} onClick={() => setStyle(s.value)}>
-                    {s.label}
-                  </Pill>
-                ))}
-                {PRO_STYLES.map((s) => (
-                  <Pill
-                    key={s.value}
-                    selected={style === s.value}
-                    locked={!isProMode}
-                    onClick={() => {
-                      if (isProMode) setStyle(s.value);
-                    }}
-                  >
-                    {s.label}
-                  </Pill>
-                ))}
+            {/* 5. Style (hidden when preset is selected in free mode) */}
+            {(isProMode || !selectedPreset) && (
+              <div className="space-y-2">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.style", locale)}</p>
+                <div className="flex gap-2 flex-wrap">
+                  {FREE_STYLES.map((s) => (
+                    <Pill key={s.value} selected={style === s.value} onClick={() => setStyle(s.value)}>
+                      {s.label}
+                    </Pill>
+                  ))}
+                  {PRO_STYLES.map((s) => (
+                    <Pill
+                      key={s.value}
+                      selected={style === s.value}
+                      locked={!isProMode}
+                      onClick={() => {
+                        if (isProMode) setStyle(s.value);
+                      }}
+                    >
+                      {s.label}
+                    </Pill>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* 5. Content Type */}
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.content", locale)}</p>
-              <div className="flex gap-2 flex-wrap">
-                {FREE_CONTENT_TYPES.map((ct) => (
-                  <Pill key={ct.value} selected={contentType === ct.value} onClick={() => setContentType(ct.value)}>
-                    {ct.label}
-                  </Pill>
-                ))}
-                {PRO_CONTENT_TYPES.map((ct) => (
-                  <Pill
-                    key={ct.value}
-                    selected={contentType === ct.value}
-                    locked={!isProMode}
-                    onClick={() => {
-                      if (isProMode) setContentType(ct.value);
-                    }}
-                  >
-                    {ct.label}
-                  </Pill>
-                ))}
+            {/* 6. Content Type (hidden when preset is selected in free mode) */}
+            {(isProMode || !selectedPreset) && (
+              <div className="space-y-2">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.content", locale)}</p>
+                <div className="flex gap-2 flex-wrap">
+                  {FREE_CONTENT_TYPES.map((ct) => (
+                    <Pill key={ct.value} selected={contentType === ct.value} onClick={() => setContentType(ct.value)}>
+                      {ct.label}
+                    </Pill>
+                  ))}
+                  {PRO_CONTENT_TYPES.map((ct) => (
+                    <Pill
+                      key={ct.value}
+                      selected={contentType === ct.value}
+                      locked={!isProMode}
+                      onClick={() => {
+                        if (isProMode) setContentType(ct.value);
+                      }}
+                    >
+                      {ct.label}
+                    </Pill>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* 6. Goal */}
+            {/* 7. Goal */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.goal", locale)}</p>
               <div className="flex gap-2 flex-wrap">
@@ -1274,36 +801,39 @@ export default function Index() {
               </div>
             </div>
 
-            {/* 7. Hook Intensity */}
+            {/* 8. Hook Intensity — simplified Low/High toggle */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
                 <Flame className="h-3 w-3" />{t("selector.hookIntensity", locale)}
               </p>
               <div className="flex gap-2">
-                {[t("hook.low", locale), t("hook.medium", locale), t("hook.high", locale)].map((label, lvl) => {
-                  const isLocked = !isProMode && lvl === 2;
-                  return (
-                    <button
-                      key={lvl}
-                      onClick={() => {
-                        if (!isLocked) setHookIntensity(lvl);
-                      }}
-                      className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                        isLocked
-                          ? "bg-muted/30 text-muted-foreground/50 border border-dashed border-border/50 cursor-not-allowed"
-                          : hookIntensity === lvl
-                            ? "bg-primary/10 text-primary border border-primary/30"
-                            : "bg-muted/60 text-muted-foreground border border-transparent"
-                      }`}
-                    >
-                      {label}{isLocked && " 🔒"}
-                    </button>
-                  );
-                })}
+                <button
+                  onClick={() => setHookIntensity(0)}
+                  className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+                    hookIntensity === 0
+                      ? "bg-primary/10 text-primary border border-primary/30"
+                      : "bg-muted/60 text-muted-foreground border border-transparent"
+                  }`}
+                >
+                  {t("hook.low", locale)}
+                </button>
+                <button
+                  onClick={() => {
+                    if (isProMode) setHookIntensity(2);
+                    else setHookIntensity(2);
+                  }}
+                  className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+                    hookIntensity === 2
+                      ? "bg-primary/10 text-primary border border-primary/30"
+                      : "bg-muted/60 text-muted-foreground border border-transparent"
+                  }`}
+                >
+                  {t("hook.high", locale)}
+                </button>
               </div>
             </div>
 
-            {/* 8. Image Prompts */}
+            {/* 9. Image Prompts */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
                 <Image className="h-3 w-3" />{t("selector.imagePrompts", locale)}
@@ -1329,28 +859,6 @@ export default function Index() {
               )}
             </div>
 
-            {/* 9. Depth */}
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.depth", locale)}</p>
-              <div className="flex gap-2">
-                {DEPTH_OPTIONS.map((d) => {
-                  const isLocked = d.value === "detailed" && !isProMode;
-                  return (
-                    <Pill
-                      key={d.value}
-                      selected={outputDepth === d.value}
-                      locked={isLocked}
-                      onClick={() => {
-                        if (!isLocked) setOutputDepth(d.value);
-                      }}
-                    >
-                      {t(`selector.depth.${d.value}`, locale)}
-                    </Pill>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* 10. Custom description (Pro mode only) */}
             {isProMode && (
               <div className="space-y-2">
@@ -1366,18 +874,12 @@ export default function Index() {
                 />
               </div>
             )}
-            {!isProMode && (
-              <div className="w-full py-2.5 rounded-xl bg-muted/30 border border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5">
-                <Lock className="h-3 w-3" />
-                {t("selector.customDesc.locked", locale)}
-              </div>
-            )}
 
             {/* Generate + Discover */}
             <div className="flex gap-2">
               <Button
                 id="generate-btn"
-                className="flex-1 h-13 text-base rounded-2xl font-bold"
+                className="flex-1 h-13 text-base rounded-2xl font-bold w-full"
                 disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
                 onClick={generateContent}
               >
@@ -1414,7 +916,6 @@ export default function Index() {
           {/* ACTION BAR */}
           {hasResults && !loading && (
             <div className="space-y-3">
-              {/* Copy Full Pack — prominent */}
               <button
                 onClick={copyAll}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
