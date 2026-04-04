@@ -1080,7 +1080,6 @@ ${loopEndingRule}
 
 ${angleVariationRule}
 
-${factSafetyRule}
 
 ${autoFixRule}
 
