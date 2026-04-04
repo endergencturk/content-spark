@@ -1,19 +1,9 @@
 import React, { useState, useMemo, memo } from "react";
 import { Copy } from "lucide-react";
 import { t, type Locale } from "@/lib/i18n";
+import { CHAR_TARGETS_BY_SPEED, VOICE_SPEED_CONFIG, type VoiceSpeed } from "@/contexts/SettingsContext";
 
-interface CharRange {
-  min: number;
-  max: number;
-}
-
-const CHAR_RANGES: Record<string, CharRange> = {
-  "15": { min: 160, max: 190 },
-  "30": { min: 330, max: 380 },
-  "60": { min: 660, max: 760 },
-};
-
-function getColor(count: number, range: CharRange): string {
+function getColor(count: number, range: { min: number; max: number }): string {
   if (count >= range.min && count <= range.max) return "text-green-500";
   return count < range.min ? "text-yellow-500" : "text-destructive";
 }
@@ -25,6 +15,7 @@ interface ScriptEditorProps {
   onCopy: (key: string, text: string) => void;
   copyLabel: string;
   locale?: Locale;
+  voiceSpeed?: VoiceSpeed;
 }
 
 export const ScriptEditor = memo(function ScriptEditor({
@@ -34,6 +25,7 @@ export const ScriptEditor = memo(function ScriptEditor({
   onCopy,
   copyLabel,
   locale = "en",
+  voiceSpeed = "0.9",
 }: ScriptEditorProps) {
   const cleanScript = useMemo(
     () =>
@@ -47,9 +39,11 @@ export const ScriptEditor = memo(function ScriptEditor({
 
   const [script, setScript] = useState(cleanScript);
 
-  const range = CHAR_RANGES[scriptLength] || CHAR_RANGES["30"];
+  const targets = CHAR_TARGETS_BY_SPEED[voiceSpeed] || CHAR_TARGETS_BY_SPEED["0.9"];
+  const range = targets[scriptLength] || targets["30"];
   const charCount = script.length;
-  const estDuration = (charCount * 0.084).toFixed(1);
+  const secPerChar = VOICE_SPEED_CONFIG[voiceSpeed]?.charPerSec || 0.084;
+  const estDuration = (charCount * secPerChar).toFixed(1);
   const colorClass = getColor(charCount, range);
 
   return (
@@ -84,7 +78,7 @@ export const ScriptEditor = memo(function ScriptEditor({
         </span>
       </div>
       <p className="text-[10px] text-muted-foreground/60 px-1">
-        Optimized for ElevenLabs Speed 0.90
+        Optimized for ElevenLabs Speed {voiceSpeed}
       </p>
     </div>
   );

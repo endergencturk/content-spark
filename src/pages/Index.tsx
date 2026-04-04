@@ -12,7 +12,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
-import { useSettings } from "@/contexts/SettingsContext";
+import { useSettings, CHAR_TARGETS_BY_SPEED } from "@/contexts/SettingsContext";
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
@@ -600,12 +600,8 @@ export default function Index() {
             hookStyle,
           };
 
-      // Character count target ranges
-      const CHAR_TARGETS: Record<string, { min: number; max: number }> = {
-        "15": { min: 160, max: 190 },
-        "30": { min: 330, max: 380 },
-        "60": { min: 660, max: 760 },
-      };
+      // Character count target ranges based on voice speed
+      const CHAR_TARGETS = CHAR_TARGETS_BY_SPEED[settings.voiceSpeed] || CHAR_TARGETS_BY_SPEED["0.9"];
 
       let { data, error } = await supabase.functions.invoke("generate-content", { body });
       if (error) throw error;
@@ -784,6 +780,7 @@ Platform: ${platformLabels}
 Target Audience: ${targetAudience}
 Hook Style: ${hookStyle}
 Duration: ${scriptLength}s
+Voice Speed: ${settings.voiceSpeed}
 Style: ${style}
 Content Type: ${contentType}
 Goal: ${goal}
@@ -1433,10 +1430,10 @@ Viral Score: ${viralScore}/10
           )}
 
           {!loading && !isProMode && generalResult && !showOriginal && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
           )}
           {!loading && isProMode && proResult && !showOriginal && (
-            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
+            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
           )}
 
           {/* A/B Hook Tester — shown after results */}
@@ -1465,10 +1462,10 @@ Viral Score: ${viralScore}/10
                   : ""}
               </p>
               {!isProMode && originalGeneralResult && (
-                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
+                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
               )}
               {isProMode && originalProResult && (
-                <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
+                <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
               )}
             </>
           )}
