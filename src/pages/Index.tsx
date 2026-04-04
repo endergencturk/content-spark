@@ -1378,22 +1378,45 @@ Viral Score: ${viralScore}/10
 
           {/* Discovery Results */}
           {!loading && discoveryResult && discoveryResult.ideas?.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
                 <Lightbulb className="h-3.5 w-3.5 text-primary" />{t("result.discovery", locale)}
               </h3>
-              {discoveryResult.ideas.map((idea, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setTopic(idea.title); setDiscoveryResult(null); }}
-                  className="w-full text-left bg-muted/40 hover:bg-muted/60 rounded-2xl p-4 space-y-1 transition-colors"
-                >
-                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <span className="text-primary font-bold">#{i + 1}</span>{idea.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{idea.why}</p>
-                </button>
-              ))}
+              {/* Category Filter */}
+              <div className="flex flex-wrap gap-1.5 px-1">
+                {DISCOVERY_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setDiscoveryFilter(cat)}
+                    className={`px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${
+                      discoveryFilter === cat
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/60 text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              {/* Card Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {discoveryResult.ideas
+                  .filter((idea) => discoveryFilter === "All" || (idea.category || "").toLowerCase() === discoveryFilter.toLowerCase())
+                  .map((idea, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setTopic(idea.title); setDiscoveryResult(null); setDiscoveryFilter("All"); }}
+                    className="text-left bg-muted/40 hover:bg-muted/60 rounded-2xl p-4 space-y-1.5 transition-colors border border-border/30"
+                  >
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {idea.region && <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg">{idea.region}</span>}
+                      {idea.category && <span className="text-[10px] font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-lg">{idea.category}</span>}
+                    </div>
+                    <p className="text-sm font-semibold text-foreground leading-snug">{idea.title}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{idea.why}</p>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
