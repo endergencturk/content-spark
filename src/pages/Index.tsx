@@ -1030,13 +1030,22 @@ export default function Index() {
           {/* ACTION BAR */}
           {hasResults && !loading && (
             <div className="space-y-3">
-              <button
-                onClick={copyAll}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
-              >
-                <Copy className="h-4 w-4" />
-                {copied === "all" ? t("btn.copied", locale) : t("btn.copyFullPack", locale)}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={copyAll}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
+                >
+                  <Copy className="h-4 w-4" />
+                  {copied === "all" ? t("btn.copied", locale) : t("btn.copyFullPack", locale)}
+                </button>
+                <button
+                  onClick={downloadTxt}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-muted/60 border border-border/50 text-foreground text-sm font-semibold hover:bg-muted transition-colors"
+                >
+                  <Download className="h-4 w-4" />
+                  {t("btn.downloadTxt", locale)}
+                </button>
+              </div>
               <div className="flex justify-center gap-3">
                 <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                   <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
