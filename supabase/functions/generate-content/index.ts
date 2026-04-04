@@ -1098,6 +1098,10 @@ COMMENT TRIGGER RULE:
   const imagePromptRules = `
 IMAGE PROMPTS:
 - Generate exactly 5 prompts.
+- imagePrompts must be an array of plain strings.
+- Each prompt is a single text string.
+- Example: ["Dark forest path, cinematic, vertical 9:16", "Empty airport corridor, eerie, vertical 9:16"]
+- Never return objects. Always return strings.
 - Each must include: scene description, lighting details, atmosphere, camera feel.
 - Format: [scene], [lighting], [mood], cinematic, photorealistic, vertical 9:16, no text, no faces, no identifiable people, no portraits
 - CRITICAL: Every prompt MUST end with "no faces, no identifiable people, no portraits"
@@ -1107,8 +1111,9 @@ IMAGE PROMPTS:
 THUMBNAIL IDEAS:
 - Generate exactly 2 thumbnail ideas
 - Each must include:
-  - image: A thumbnail prompt, vertical 9:16, visually strong, platform-ready, high contrast, clickable, no faces, no identifiable people, no portraits
+  - image: A plain string thumbnail prompt (NOT an object), vertical 9:16, visually strong, platform-ready, high contrast, clickable, no faces, no identifiable people, no portraits
   - text: Overlay text, UPPERCASE, max 5 words, punchy and attention-grabbing
+- CRITICAL: thumbnail "image" field must be a plain string, never an object
 - CRITICAL: Every thumbnail image prompt MUST include "no faces, no identifiable people, no portraits"
 - Match thumbnail style to the selected Hook Style
 - Make prompts visually clickable and high-contrast

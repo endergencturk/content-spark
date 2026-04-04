@@ -36,14 +36,30 @@ function normalizeResult(data: any): any {
   if (Array.isArray(out.hookVariations)) {
     out.hookVariations = out.hookVariations.map(extractHook);
   }
-  if (Array.isArray(out.hooks)) {
-    // hooks can be TypedHook[] — that's fine for GeneralResults which handles it,
-    // but ensure no raw objects slip through as plain strings where expected
-  }
   if (Array.isArray(out.angleVariations)) {
     out.angleVariations = out.angleVariations.map((a: any) =>
       typeof a === "object" && a !== null ? { type: a.type || "", hook: typeof a.hook === "string" ? a.hook : String(a.hook || "") } : { type: "", hook: String(a) }
     );
+  }
+  // Normalize imagePrompts: ensure every item is a plain string
+  if (Array.isArray(out.imagePrompts)) {
+    out.imagePrompts = out.imagePrompts.map((p: any) =>
+      typeof p === 'object' && p !== null
+        ? (p.prompt || p.description || p.text || JSON.stringify(p))
+        : String(p)
+    );
+  }
+  // Normalize thumbnail image fields
+  if (Array.isArray(out.thumbnails)) {
+    out.thumbnails = out.thumbnails.map((th: any) => ({
+      ...th,
+      image: typeof th.image === 'object' && th.image !== null
+        ? (th.image.prompt || th.image.description || th.image.text || JSON.stringify(th.image))
+        : String(th.image || ''),
+      text: typeof th.text === 'object' && th.text !== null
+        ? (th.text.text || th.text.label || JSON.stringify(th.text))
+        : String(th.text || ''),
+    }));
   }
   if (out.youtube?.tags && !Array.isArray(out.youtube.tags)) {
     out.youtube = { ...out.youtube, tags: String(out.youtube.tags).split(",").map((s: string) => s.trim()) };
@@ -742,7 +758,7 @@ export default function Index() {
       result.music?.length ? `🎵 MUSIC SUGGESTIONS:\n${result.music.map((m: any) => typeof m === "string" ? m : `${m.type} — ${m.source} (${m.why})`).join("\n")}` : "",
       `⏰ BEST POSTING TIME:\nPrimary: ${pt.primary}\nBackup: ${pt.backup}\nReason: ${pt.reason}`,
       result.angleVariations?.length ? `🔄 ANGLE VARIATIONS:\n${result.angleVariations.map((a: any) => `[${a.type}] ${a.hook}`).join("\n")}` : "",
-      isPro && (result as ProResult).hookVariations?.length ? `🎯 HOOK VARIATIONS:\n${(result as ProResult).hookVariations.map((v: string, i: number) => `V${i + 1}: ${v}`).join("\n")}` : "",
+      (result as any).hookVariations?.length ? `🎯 HOOK VARIATIONS (V1-V${(result as any).hookVariations.length}):\n${(result as any).hookVariations.map((v: string, i: number) => `V${i + 1}: ${v}`).join("\n")}` : "",
       isPro && (result as ProResult).voiceStyle ? `🎙️ VOICE STYLE: ${(result as ProResult).voiceStyle}` : "",
       result.seriesPotential ? `📈 SERIES POTENTIAL: ${result.seriesPotential}` : "",
       result.viralAnalysis ? `📊 VIRAL SCORE: ${result.viralAnalysis.score}/10\n${(result.viralAnalysis.strengths || []).map((r: string) => `✓ ${r}`).join("\n")}\n${(result.viralAnalysis.weaknesses || []).map((r: string) => `△ ${r}`).join("\n")}` : "",
