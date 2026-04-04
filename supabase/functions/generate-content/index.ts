@@ -953,10 +953,12 @@ YOUTUBE:
 - Title: must include curiosity gap + emotional trigger + strong wording + #shorts. Avoid generic titles.
 - Description: 1–2 sentences, keyword-rich but natural
 - Tags: high-relevance searchable keywords
+- youtube.tags MUST be a JSON array of strings. Example: ["tag1", "tag2", "tag3"]. Never return tags as a comma-separated string.
 
 TIKTOK:
 - Caption: short, emotional, curiosity-driven
-- Hashtags: 5–8 high-relevance tags`;
+- Hashtags: 5–8 high-relevance tags
+- tiktok.hashtags MUST be a JSON array of strings. Example: ["#tag1", "#tag2"]. Never return hashtags as a comma-separated string.`;
 
   const musicRules = `
 🎵 VIRAL MUSIC SYSTEM:

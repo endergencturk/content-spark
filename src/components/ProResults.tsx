@@ -3,6 +3,9 @@ import {
   Copy, Trophy, FileText, Youtube, Hash, Instagram, Film, Image, Mic,
   CalendarClock, Target, Music, TrendingUp, Package, ChevronDown, Clock, Layout, Shuffle,
 } from "lucide-react";
+
+const safeArray = (val: any): string[] =>
+  Array.isArray(val) ? val : typeof val === "string" ? val.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { t, type Locale } from "@/lib/i18n";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
@@ -110,7 +113,7 @@ export const ProResults = memo(function ProResults({
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
             <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
           </h3>
-          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${result.youtube.tags.join(", ")}`} label="yt" copied={copied} onCopy={onCopy} locale={locale} />
+          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${safeArray(result.youtube.tags).join(", ")}`} label="yt" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
           <div>
@@ -124,10 +127,10 @@ export const ProResults = memo(function ProResults({
           <div>
             <div className="flex items-center justify-between mb-0.5">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.tags", locale)}</p>
-              <CopyBtn text={result.youtube.tags.join(", ")} label="yt-tags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyTags", locale)} />
+              <CopyBtn text={safeArray(result.youtube.tags).join(", ")} label="yt-tags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyTags", locale)} />
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {result.youtube.tags.map((tag, i) => (
+              {safeArray(result.youtube.tags).map((tag, i) => (
                 <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{tag}</span>
               ))}
             </div>
@@ -141,16 +144,16 @@ export const ProResults = memo(function ProResults({
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
             <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
           </h3>
-          <CopyBtn text={`${result.tiktok.caption}\n${result.tiktok.hashtags.join(" ")}`} label="tt" copied={copied} onCopy={onCopy} locale={locale} />
+          <CopyBtn text={`${result.tiktok.caption}\n${safeArray(result.tiktok.hashtags).join(" ")}`} label="tt" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
           <p className="text-sm text-foreground leading-relaxed">{result.tiktok.caption}</p>
           <div className="flex items-center justify-between mb-0.5">
             <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Hashtags</span>
-            <CopyBtn text={result.tiktok.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" ")} label="tt-hashtags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyHashtags", locale)} />
+            <CopyBtn text={safeArray(result.tiktok.hashtags).map(h => h.startsWith("#") ? h : `#${h}`).join(" ")} label="tt-hashtags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyHashtags", locale)} />
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {result.tiktok.hashtags.map((ht, i) => (
+            {safeArray(result.tiktok.hashtags).map((ht, i) => (
               <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{ht}</span>
             ))}
           </div>
