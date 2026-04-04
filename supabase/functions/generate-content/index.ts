@@ -1261,7 +1261,7 @@ ${qualityEnforcement}
 GENERATE:
 1. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
 2. bestHook: the single strongest hook (marked with ⭐ in output)
-3. script: voiceover text, one line per sentence. Last line prefixed with "LOOP: " connecting back to opening.
+3. script: voiceover text, one line per sentence. Last line connects back to opening (no LOOP: prefix).
 4. editingPlan: scenes
 5. imagePrompts: 5 prompts
 6. youtube: title, description, tags
