@@ -168,6 +168,7 @@ Return exactly 5 ideas as JSON.`;
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: mode === "pro" ? 0.8 : 0.7,
+        maxOutputTokens: 8192,
         responseMimeType: "application/json",
         responseSchema: schema,
       },
