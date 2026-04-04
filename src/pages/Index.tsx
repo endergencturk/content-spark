@@ -1439,7 +1439,24 @@ Viral Score: ${viralScore}/10
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
           )}
 
-          {/* Original Version (collapsed by default, shown when toggled) */}
+          {/* A/B Hook Tester — shown after results */}
+          {!loading && hasResults && (
+            <ABHookTester
+              topic={topic}
+              isPro={isProMode}
+              locale={locale}
+              style={style}
+              scriptLength={scriptLength}
+              onSelectHook={(hook) => {
+                if (isProMode && proResult) {
+                  setProResult({ ...proResult, bestHook: hook });
+                } else if (generalResult) {
+                  setGeneralResult({ ...generalResult, bestHook: hook });
+                }
+              }}
+            />
+          )}
+
           {!loading && autoFixUsed && showOriginal && (
             <>
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.originalVersion", locale)}
