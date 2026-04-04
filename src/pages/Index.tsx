@@ -39,6 +39,12 @@ function normalizeResult(data: any): any {
       typeof a === "object" && a !== null ? { type: a.type || "", hook: typeof a.hook === "string" ? a.hook : String(a.hook || "") } : { type: "", hook: String(a) }
     );
   }
+  if (out.youtube?.tags && !Array.isArray(out.youtube.tags)) {
+    out.youtube = { ...out.youtube, tags: String(out.youtube.tags).split(",").map((s: string) => s.trim()) };
+  }
+  if (out.tiktok?.hashtags && !Array.isArray(out.tiktok.hashtags)) {
+    out.tiktok = { ...out.tiktok, hashtags: String(out.tiktok.hashtags).split(",").map((s: string) => s.trim()) };
+  }
   return out;
 }
 import { ProResults, type ProResult } from "@/components/ProResults";
