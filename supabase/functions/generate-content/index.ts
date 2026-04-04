@@ -767,14 +767,35 @@ CRITICAL: Do NOT inflate scores. Be honest and critical. A generic topic with a 
   const qualityEnforcement = `
 QUALITY ENFORCEMENT (CRITICAL):
 If output feels robotic, too generic, or has a tone mismatch with the topic → REWRITE internally before returning.
+
+QUALITY GATE CHECKLIST (check ALL before returning):
+✔ Best hook starts with situation word, not pronoun
+✔ Script word count fits target duration (30s=75-90 words, 60s=140-180 words)
+✔ Subject revealed mid-script, not at line 1
+✔ Script ends with tension/teaser, not summary
+✔ At least 1 unsettling image prompt included
+✔ Music suggestions included and match content type
+✔ Each hook uses a different emotional trigger
+✔ Editing plan syncs with script beats
+
 The script MUST:
-- Start with a strong, attention-grabbing first line (see SCROLL STOPPER RULE)
+- Start with a situation word (see OPENING WORD RULE)
+- Delay subject reveal (see INFORMATION DELAY)
 - Maintain engagement every 2–3 lines (see PATTERN INTERRUPT RULE)
-- Include at least one rewatch-worthy moment (see REWATCH FACTOR)
-- End with a comment-triggering closer (see COMMENT TRIGGER)
+- Include at least one rewatch-worthy moment (see REWATCH LOOP)
+- End with a forward-looking teaser (see RETENTION HOOK)
+- End with a comment trigger (see COMMENT TRIGGER)
 - Match the tone to the topic category (NOT always dark/horror)
 - Sound human and natural, not AI-generated
 - Be immediately usable for voice recording
+- Must feel like a PERFORMANCE, not narration
+
+PACING MUST FEEL LIKE A PERFORMANCE:
+- Opening: 1–3 word punch
+- Middle: tension build, 3–6 words
+- Peak: short fast cuts
+- End: slow down → tension
+- Never repeat same-length sentences consecutively
 
 FORBIDDEN:
 - Flat narration
@@ -782,7 +803,9 @@ FORBIDDEN:
 - Over-explaining
 - Robotic or translated-sounding language
 - Generic phrasing that could apply to any topic
-- Safe, predictable endings`;
+- Safe, predictable endings
+- Opening with pronouns (He/She/They)
+- Revealing the subject in line 1`;
 
   const outputRules = `
 IMPORTANT:
