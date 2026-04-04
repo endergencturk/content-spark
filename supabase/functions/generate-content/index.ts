@@ -1136,17 +1136,21 @@ ${contentTypeInstructions}
 ${platformHookRules}
 
 HOOK GENERATION:
-- Generate exactly 3 hooks
+- Generate exactly 5 hooks with different psychological angles (see HOOK ENGINE)
+- Each hook = { type, hook } object
 - Create immediate curiosity gap
 - Max 6 words per hook
 - Avoid safe or explanatory language
-- First hook must be the strongest
 - Adapt hook tone to match topic
 
 BEST HOOK:
 - Select the single most viral hook and return it as bestHook
 
 ${hookVariationRule}
+
+${loopEndingRule}
+
+${angleVariationRule}
 
 ${scriptFormatRules}
 
