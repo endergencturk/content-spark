@@ -262,6 +262,7 @@ export const ProResults = memo(function ProResults({
               </AccordionItem>
             )}
 
+            {result.editingPlan?.length > 0 && (
               <AccordionItem value="editing" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
                   <span className="flex items-center gap-2"><Film className="h-4 w-4 text-primary" />{t("result.editingPlan", locale)}</span>
