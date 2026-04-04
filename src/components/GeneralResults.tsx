@@ -300,7 +300,7 @@ export const GeneralResults = memo(function GeneralResults({
         <BlurredPreview
           title={t("blurred.hookVariations", locale)}
           previewLines={[
-            "V1: " + (result.hooks[0]?.slice(0, 50) || "What if everything you knew was wrong?") + "…",
+            "V1: " + (typeof result.hooks[0] === "object" ? (result.hooks[0] as TypedHook).hook?.slice(0, 50) : (result.hooks[0] as string)?.slice(0, 50) || "What if everything you knew was wrong?") + "…",
             "V2: A completely different angle that hooks in 0.5 seconds",
             "V3: The emotional rewrite that keeps viewers watching",
           ]}
