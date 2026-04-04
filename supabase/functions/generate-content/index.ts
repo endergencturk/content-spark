@@ -36,6 +36,8 @@ serve(async (req) => {
     const lang = language === "tr" ? "Turkish" : "English";
 
     // ── DISCOVERY MODE ──────────────────────────────────────────────
+    const niche = body.niche;
+
     if (!topic || !topic.trim()) {
       const selectedPlatforms: string[] =
         platforms && Array.isArray(platforms) && platforms.length > 0
@@ -53,12 +55,17 @@ serve(async (req) => {
         })
         .join(", ");
 
+      const nicheBlock = niche
+        ? `Niche: ${niche}\n- ALL ideas MUST be specifically about the "${niche}" niche\n- Do NOT generate generic ideas outside this niche`
+        : "";
+
       const discoveryPrompt = `You are a viral content strategist for ${platformList}.
 
 Generate 5 viral content ideas optimized for short-form video.
 
 Language: ${lang}
 ${lang === "Turkish" ? "Write in natural, fluent Turkish. Do NOT translate from English." : ""}
+${nicheBlock}
 ${contentType ? `Content type: ${contentType}` : ""}
 ${style ? `Style: ${style}` : ""}
 
@@ -67,6 +74,7 @@ Rules:
 - Avoid generic or overused ideas
 - Each idea must feel like "I NEED to make this video"
 - Ideas should be specific, not broad categories
+${niche ? `- Every idea must be directly related to the "${niche}" niche` : ""}
 
 For each idea provide:
 - title: A specific, attention-grabbing content idea (max 10 words)
@@ -593,12 +601,35 @@ PATTERN INTERRUPT RULE:
 - Examples: "Wait.", "Think again.", "But here's the thing…", "Wrong."`;
 
   const rewatchFactorRule = `
-REWATCH FACTOR:
-- Include at least one moment in the script that:
-  - Feels confusing on first watch
-  - Reveals new meaning on second watch
-  - Makes the viewer want to rewatch
-- If missing → rewrite internally`;
+REWATCH MOMENT RULE (CRITICAL):
+- You MUST include exactly one line in the script that:
+  - Feels confusing or ambiguous on first watch
+  - Reveals a completely new meaning when viewed a second time
+  - Makes the viewer go "wait... I need to watch that again"
+- This line should be subtle — not obvious
+- Mark it internally during generation (do not label it in output)
+- If no such moment exists → REWRITE the script until it does`;
+
+  const retentionHookRule = `
+RETENTION HOOK RULE (CRITICAL):
+- The LAST LINE of every script MUST be a forward-looking teaser
+- It must hint at another mystery, story, or revelation
+- Goal: make the viewer want to see the next video
+- Examples:
+  "And this wasn't the only case like this..."
+  "But that's not even the strangest part."
+  "What they found next... changed everything."
+  "And nobody has explained it since."
+- If the ending does not tease something more → REWRITE the ending`;
+
+  const hookQualityGate = `
+HOOK QUALITY GATE (MANDATORY):
+- Before returning ANY hook, check if it contains at least one of these power words:
+  "vanished", "never found", "last seen", "no trace", "on camera", "disappeared", "caught", "exposed", "deleted", "hidden", "forbidden", "secret"
+- If the best hook does NOT contain at least one of these words → REWRITE the hook until it does
+- This applies to bestHook specifically — other hooks can vary
+- Exception: If the topic is clearly educational/motivational and none of these words fit naturally, use equivalent high-tension words like: "nobody tells you", "they don't want you to know", "the truth about", "what really happens"
+- NEVER return a weak, generic hook`;
 
   const commentTriggerRule = `
 COMMENT TRIGGER:
@@ -758,6 +789,10 @@ ${patternInterruptRule}
 
 ${rewatchFactorRule}
 
+${retentionHookRule}
+
+${hookQualityGate}
+
 ${commentTriggerRule}
 
 EDITING PLAN:
@@ -852,6 +887,10 @@ ${scrollStopperRule}
 ${patternInterruptRule}
 
 ${rewatchFactorRule}
+
+${retentionHookRule}
+
+${hookQualityGate}
 
 ${commentTriggerRule}
 
