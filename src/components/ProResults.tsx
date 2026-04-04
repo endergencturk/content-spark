@@ -127,10 +127,10 @@ export const ProResults = memo(function ProResults({
           <div>
             <div className="flex items-center justify-between mb-0.5">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.tags", locale)}</p>
-              <CopyBtn text={result.youtube.tags.join(", ")} label="yt-tags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyTags", locale)} />
+              <CopyBtn text={safeArray(result.youtube.tags).join(", ")} label="yt-tags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyTags", locale)} />
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {result.youtube.tags.map((tag, i) => (
+              {safeArray(result.youtube.tags).map((tag, i) => (
                 <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{tag}</span>
               ))}
             </div>
