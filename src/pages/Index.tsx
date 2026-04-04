@@ -70,6 +70,29 @@ const PLATFORM_OPTIONS = [
 
 const LENGTH_OPTIONS = ["15", "30", "60"];
 
+const TARGET_AUDIENCE_OPTIONS = [
+  { value: "global", labelKey: "audience.global" },
+  { value: "usa", labelKey: "audience.usa" },
+  { value: "europe", labelKey: "audience.europe" },
+  { value: "latam", labelKey: "audience.latam" },
+  { value: "turkey", labelKey: "audience.turkey" },
+];
+
+const HOOK_STYLE_OPTIONS = [
+  { value: "aggressive", labelKey: "hookStyle.aggressive" },
+  { value: "curiosity", labelKey: "hookStyle.curiosity" },
+  { value: "emotional", labelKey: "hookStyle.emotional" },
+  { value: "dark", labelKey: "hookStyle.dark" },
+];
+
+const POSTING_TIMES: Record<string, { primary: string; backup: string; reason: string; reasonTr: string }> = {
+  usa: { primary: "21:00", backup: "00:30", reason: "Best overlap for USA peak scrolling hours.", reasonTr: "ABD'nin en yoğun sosyal medya saatlerine denk gelir." },
+  europe: { primary: "19:00", backup: "21:00", reason: "Peak evening hours across European time zones.", reasonTr: "Avrupa saat dilimlerinde akşam zirve saatleri." },
+  latam: { primary: "22:00", backup: "00:00", reason: "Latin America evening peak overlapping with USA.", reasonTr: "Latin Amerika akşam zirvesi, ABD ile örtüşür." },
+  global: { primary: "21:00", backup: "23:00", reason: "Optimal overlap across major global audiences.", reasonTr: "Büyük küresel kitlelerde en iyi örtüşme." },
+  turkey: { primary: "20:00", backup: "22:00", reason: "Turkey evening prime time for social media.", reasonTr: "Türkiye'de sosyal medya için akşam zirve saati." },
+};
+
 // ── Niche Presets ───────────────────────────────────────────────────
 
 interface NichePreset {
@@ -318,6 +341,8 @@ export default function Index() {
   const [hookIntensity, setHookIntensity] = useState(0); // 0 = Low, 1 = High
   const [imagePromptCount, setImagePromptCount] = useState(3);
   const [customDescription, setCustomDescription] = useState("");
+  const [targetAudience, setTargetAudience] = useState("global");
+  const [hookStyle, setHookStyle] = useState("aggressive");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState("");
   const [generalResult, setGeneralResult] = useState<GeneralResult | null>(null);
@@ -358,6 +383,23 @@ export default function Index() {
         : [...prev, value]
     );
   }, []);
+
+  // Auto-set hook style default based on platform
+  useEffect(() => {
+    if (platforms.includes("youtube-shorts") && !platforms.includes("tiktok")) {
+      setHookStyle("curiosity");
+    } else {
+      setHookStyle("aggressive");
+    }
+  }, [platforms]);
+
+  useEffect(() => {
+    if (platform === "youtube-shorts") {
+      setHookStyle("curiosity");
+    } else {
+      setHookStyle("aggressive");
+    }
+  }, [platform]);
 
   const copyToClipboard = useCallback(async (key: string, text: string) => {
     await navigator.clipboard.writeText(text);
@@ -414,11 +456,15 @@ export default function Index() {
             imageFormat: "9:16", imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale,
+            targetAudience,
+            hookStyle,
           }
         : {
             mode: "general", topic, platform, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", outputStyle: settings.outputStyle,
             language: locale,
+            targetAudience,
+            hookStyle,
           };
 
       const { data, error } = await supabase.functions.invoke("generate-content", { body });
@@ -462,7 +508,7 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId]);
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId, targetAudience, hookStyle]);
 
   const handleHistoryReopen = useCallback((item: any) => {
     setTopic(item.topic);
@@ -614,7 +660,39 @@ export default function Index() {
               {isProMode && <p className="text-[10px] text-muted-foreground text-center">{t("selector.platform.multi", locale)}</p>}
             </div>
 
-            {/* 2. Niche Presets */}
+            {/* 2. Target Audience */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.targetAudience", locale)}</p>
+              <div className="flex gap-2 flex-wrap">
+                {TARGET_AUDIENCE_OPTIONS.map((o) => (
+                  <Pill
+                    key={o.value}
+                    selected={targetAudience === o.value}
+                    onClick={() => setTargetAudience(o.value)}
+                  >
+                    {t(o.labelKey, locale)}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. Hook Style */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.hookStyle", locale)}</p>
+              <div className="flex gap-2 flex-wrap">
+                {HOOK_STYLE_OPTIONS.map((o) => (
+                  <Pill
+                    key={o.value}
+                    selected={hookStyle === o.value}
+                    onClick={() => setHookStyle(o.value)}
+                  >
+                    {t(o.labelKey, locale)}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+
+            {/* 4. Niche Presets */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                 {t("preset.title", locale)}
@@ -934,10 +1012,10 @@ export default function Index() {
           {loading && <LoadingState mode={mode} locale={locale} />}
 
           {!loading && !isProMode && generalResult && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
           )}
           {!loading && isProMode && proResult && (
-            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} />
+            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
           )}
 
           {/* Discovery Results */}

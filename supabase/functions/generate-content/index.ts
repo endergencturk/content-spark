@@ -31,6 +31,8 @@ serve(async (req) => {
       outputDepth,
       customDescription,
       language,
+      targetAudience,
+      hookStyle,
     } = body;
 
     const lang = language === "tr" ? "Turkish" : "English";
@@ -153,6 +155,8 @@ Return exactly 5 ideas as JSON.`;
       hookCount,
       customDescription,
       language: lang,
+      targetAudience: targetAudience || "global",
+      hookStyle: hookStyle || "aggressive",
     });
 
     const schema = mode === "pro"
@@ -314,8 +318,19 @@ function buildFreeSchema() {
       music: { type: "ARRAY", items: musicSuggestionSchema },
       seriesPotential: { type: "STRING" },
       viralAnalysis: viralAnalysisSchema,
+      thumbnails: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            image: { type: "STRING" },
+            text: { type: "STRING" },
+          },
+          required: ["image", "text"],
+        },
+      },
     },
-    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis"],
+    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails"],
   };
 }
 
@@ -366,11 +381,22 @@ function buildProSchema(platforms: string[], _hookCount: number) {
     music: { type: "ARRAY", items: musicSuggestionSchema },
     seriesPotential: { type: "STRING" },
     viralAnalysis: viralAnalysisSchema,
+    thumbnails: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          image: { type: "STRING" },
+          text: { type: "STRING" },
+        },
+        required: ["image", "text"],
+      },
+    },
   };
 
   const required = [
     "bestHook", "hookVariations", "script", "editingPlan",
-    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis",
+    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails",
   ];
 
   if (platforms.includes("instagram-reels")) {
@@ -479,6 +505,63 @@ interface PromptInput {
   hookCount: number;
   customDescription?: string;
   language: string;
+  targetAudience: string;
+  hookStyle: string;
+}
+
+function getTargetAudienceInstructions(audience: string): string {
+  switch (audience) {
+    case "usa": return `TARGET AUDIENCE: USA
+- Bold, direct English
+- Use American cultural references
+- Fast, confident, assertive tone
+- Slang is OK if natural`;
+    case "europe": return `TARGET AUDIENCE: EUROPE
+- Neutral, clear English
+- Avoid American-specific slang
+- Slightly more formal but still engaging
+- Universal European appeal`;
+    case "latam": return `TARGET AUDIENCE: LATIN AMERICA
+- Simple, clear English
+- Slightly Spanish-friendly phrasing where natural
+- Warm, energetic tone
+- Relatable across Latin American cultures`;
+    case "turkey": return `TARGET AUDIENCE: TURKEY
+- Write in natural, spoken Turkish
+- Use Turkish rhythm and cadence
+- Culturally relevant references
+- No translated-sounding phrases`;
+    default: return `TARGET AUDIENCE: GLOBAL
+- Simple, universally clear English
+- No region-specific slang or references
+- Accessible to non-native English speakers
+- Clean, direct phrasing`;
+  }
+}
+
+function getHookStyleInstructions(hookStyle: string): string {
+  switch (hookStyle) {
+    case "curiosity": return `HOOK STYLE: CURIOSITY
+- Open-loop phrasing
+- "Nobody noticed...", "What if...", unanswered tension
+- Create information gaps the viewer NEEDS to fill
+- Delay the reveal as long as possible`;
+    case "emotional": return `HOOK STYLE: EMOTIONAL
+- Personal, relatable, human-centered framing
+- Use "you" and "your" to connect
+- Tap into shared human experiences
+- Make the viewer feel seen or understood`;
+    case "dark": return `HOOK STYLE: DARK
+- Suspenseful, unsettling, slower tension
+- Ominous word choices
+- Build dread gradually
+- Leave something unexplained`;
+    default: return `HOOK STYLE: AGGRESSIVE
+- Shocking opening, maximum impact
+- Strongest possible first phrase
+- Max 4 words in opening line
+- Hit hard and fast, no buildup`;
+  }
 }
 
 function buildPrompt(input: PromptInput) {
@@ -499,6 +582,8 @@ function buildPrompt(input: PromptInput) {
   const goalInstructions = getGoalInstructions(input.goal);
   const hookIntensityInstructions = getHookIntensityInstructions(input.hookIntensity);
   const contentTypeInstructions = getContentTypeInstructions(input.contentType);
+  const targetAudienceInstructions = getTargetAudienceInstructions(input.targetAudience);
+  const hookStyleInstructions = getHookStyleInstructions(input.hookStyle);
 
   const globalRules = `
 GLOBAL RULES:
@@ -709,6 +794,17 @@ IMAGE PROMPTS:
 - Format: [scene], [lighting], [mood], cinematic, photorealistic, vertical 9:16, no text, no faces
 - CRITICAL: At least 1 prompt MUST be unsettling, surreal, or visually impossible`;
 
+  const thumbnailRules = `
+THUMBNAIL IDEAS:
+- Generate exactly 2 thumbnail ideas
+- Each must include:
+  - image: A thumbnail prompt, vertical 9:16, visually strong, platform-ready, high contrast, clickable
+  - text: Overlay text, UPPERCASE, max 5 words, punchy and attention-grabbing
+- Match thumbnail style to the selected Hook Style
+- Make prompts visually clickable and high-contrast
+- Keep text short and punchy
+- Do not add extra explanation text`;
+
   const seoRules = `
 SEO PACK:
 YOUTUBE:
@@ -843,8 +939,14 @@ Create a PRO content production package:
 - Duration: ${input.scriptLength} seconds
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
+- Target audience: ${input.targetAudience}
+- Hook style: ${input.hookStyle}
 - Output depth: ${input.depth}
 ${customBlock}
+${targetAudienceInstructions}
+
+${hookStyleInstructions}
+
 STYLE BEHAVIOR:
 ${styleInstructions}
 
@@ -905,6 +1007,8 @@ VISUAL SYNC:
 
 ${imagePromptRules}
 
+${thumbnailRules}
+
 ${seoRules}
 
 ${platforms_include_instagram(input.platforms)}
@@ -929,7 +1033,8 @@ GENERATE:
 9. tiktok: caption, hashtags
 10. music: exactly 3 music suggestions, each with type, source, why
 11. seriesPotential: how this can become a series
-${input.platforms.includes("instagram-reels") ? "12. instagramCaption: Instagram caption with hashtags\n13. viralAnalysis: score (1-10) and reasons array" : "12. viralAnalysis: score (1-10) and reasons array"}
+12. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
+${input.platforms.includes("instagram-reels") ? "13. instagramCaption: Instagram caption with hashtags\n14. viralAnalysis: score (1-10) and reasons array" : "13. viralAnalysis: score (1-10) and reasons array"}
 
 - ${input.depth === "concise" ? "Keep everything minimal and tight" : input.depth === "detailed" ? "Add extra detail and depth" : "Balance detail and brevity"}
 ${outputRules}`;
@@ -953,6 +1058,12 @@ Create a content package:
 - Duration: ${input.scriptLength} seconds
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
+- Target audience: ${input.targetAudience}
+- Hook style: ${input.hookStyle}
+
+${targetAudienceInstructions}
+
+${hookStyleInstructions}
 
 STYLE BEHAVIOR:
 ${styleInstructions}
@@ -1012,6 +1123,8 @@ VISUAL SYNC:
 
 ${imagePromptRules}
 
+${thumbnailRules}
+
 ${seoRules}
 
 ${musicRules}
@@ -1032,7 +1145,8 @@ GENERATE:
 7. tiktok: caption, hashtags
 8. music: exactly 3 music suggestions, each with type, source, why
 9. seriesPotential: how this can become a series
-10. viralAnalysis: score (1-10) and reasons array
+10. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
+11. viralAnalysis: score (1-10) and reasons array
 
 ${outputRules}`;
 }

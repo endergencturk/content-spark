@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Copy, Trophy, Crown, Youtube, Hash, Image, Music, TrendingUp } from "lucide-react";
+import { Copy, Trophy, Crown, Youtube, Hash, Image, Music, TrendingUp, Clock, Layout } from "lucide-react";
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
@@ -18,6 +18,11 @@ interface MusicSuggestion {
   why: string;
 }
 
+export interface ThumbnailIdea {
+  image: string;
+  text: string;
+}
+
 export interface GeneralResult {
   hooks: string[];
   bestHook: string;
@@ -29,6 +34,7 @@ export interface GeneralResult {
   music?: MusicSuggestion[];
   seriesPotential?: string;
   viralAnalysis: ViralAnalysis;
+  thumbnails?: ThumbnailIdea[];
 }
 
 const CopyBtn = memo(function CopyBtn({
@@ -46,8 +52,8 @@ const CopyBtn = memo(function CopyBtn({
 });
 
 export const GeneralResults = memo(function GeneralResults({
-  result, copied, onCopy, locale = "en",
-}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
+  result, copied, onCopy, locale = "en", targetAudience = "global",
+}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string }) {
   return (
     <div className="space-y-5">
       {/* ⭐ Best Hook */}
@@ -174,6 +180,29 @@ export const GeneralResults = memo(function GeneralResults({
         ))}
       </section>
 
+      {/* Thumbnail Ideas */}
+      {result.thumbnails && result.thumbnails.length > 0 && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <Layout className="h-3.5 w-3.5 text-primary" />{t("result.thumbnails", locale)}
+          </h3>
+          {result.thumbnails.map((thumb, i) => (
+            <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-2">
+              <p className="text-xs font-bold text-primary">THUMBNAIL {i + 1}</p>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.thumbnail.image", locale)}</p>
+                <p className="text-sm text-foreground leading-relaxed">{thumb.image}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.thumbnail.text", locale)}</p>
+                <p className="text-sm font-bold text-foreground">{thumb.text}</p>
+              </div>
+              <CopyBtn text={`Image: ${thumb.image}\nText: ${thumb.text}`} label={`thumb-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+            </div>
+          ))}
+        </section>
+      )}
+
       {/* Music Suggestions */}
       {result.music && result.music.length > 0 && (
         <section className="space-y-2.5">
@@ -210,6 +239,39 @@ export const GeneralResults = memo(function GeneralResults({
       {result.viralAnalysis && (
         <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
       )}
+
+      {/* Best Posting Time */}
+      {(() => {
+        const times: Record<string, { primary: string; backup: string; reason: string; reasonTr: string }> = {
+          usa: { primary: "21:00", backup: "00:30", reason: "Best overlap for USA peak scrolling hours.", reasonTr: "ABD'nin en yoğun sosyal medya saatlerine denk gelir." },
+          europe: { primary: "19:00", backup: "21:00", reason: "Peak evening hours across European time zones.", reasonTr: "Avrupa saat dilimlerinde akşam zirve saatleri." },
+          latam: { primary: "22:00", backup: "00:00", reason: "Latin America evening peak overlapping with USA.", reasonTr: "Latin Amerika akşam zirvesi, ABD ile örtüşür." },
+          global: { primary: "21:00", backup: "23:00", reason: "Optimal overlap across major global audiences.", reasonTr: "Büyük küresel kitlelerde en iyi örtüşme." },
+          turkey: { primary: "20:00", backup: "22:00", reason: "Turkey evening prime time for social media.", reasonTr: "Türkiye'de sosyal medya için akşam zirve saati." },
+        };
+        const pt = times[targetAudience] || times.global;
+        return (
+          <section className="space-y-2.5">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-primary" />{t("result.postingTime", locale)}
+            </h3>
+            <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
+              <div className="flex justify-between items-center">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.postingTime.primary", locale)}</p>
+                <p className="text-sm font-bold text-foreground">{pt.primary}</p>
+              </div>
+              <div className="flex justify-between items-center">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.postingTime.backup", locale)}</p>
+                <p className="text-sm font-medium text-foreground">{pt.backup}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.postingTime.reason", locale)}</p>
+                <p className="text-xs text-muted-foreground">{locale === "tr" ? pt.reasonTr : pt.reason}</p>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Blurred Pro previews */}
       <div className="space-y-5 pt-3">
