@@ -313,25 +313,6 @@ export const ProResults = memo(function ProResults({
               </AccordionItem>
             )}
 
-            {result.postingStrategy && (
-              <AccordionItem value="posting" className="border border-border/50 rounded-2xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><CalendarClock className="h-4 w-4 text-primary" />{t("result.postingStrategy", locale)}</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <div className="space-y-2">
-                    <div className="bg-muted/40 rounded-xl p-3">
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.bestTime", locale)}</p>
-                      <p className="text-sm font-medium text-foreground">{result.postingStrategy.bestTime}</p>
-                    </div>
-                    <div className="bg-muted/40 rounded-xl p-3">
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.platformTip", locale)}</p>
-                      <p className="text-sm text-foreground">{result.postingStrategy.platformTip}</p>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
           </Accordion>
         </div>
       )}
