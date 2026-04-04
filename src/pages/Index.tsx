@@ -1251,7 +1251,7 @@ Viral Score: ${viralScore}/10
                   : ""}
               </p>
               {!isProMode && originalGeneralResult && (
-                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
               )}
               {isProMode && originalProResult && (
                 <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
