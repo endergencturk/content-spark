@@ -381,11 +381,22 @@ function buildProSchema(platforms: string[], _hookCount: number) {
     music: { type: "ARRAY", items: musicSuggestionSchema },
     seriesPotential: { type: "STRING" },
     viralAnalysis: viralAnalysisSchema,
+    thumbnails: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          image: { type: "STRING" },
+          text: { type: "STRING" },
+        },
+        required: ["image", "text"],
+      },
+    },
   };
 
   const required = [
     "bestHook", "hookVariations", "script", "editingPlan",
-    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis",
+    "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails",
   ];
 
   if (platforms.includes("instagram-reels")) {
