@@ -1136,7 +1136,7 @@ GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
 2. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
 3. hookVariations: ${input.hookCount} rewrites (different angles, styles, emotional triggers)
-4. script: Plain voiceover text, one sentence per line, with empty lines for pacing. NO labels, NO structure markers. Last line prefixed with "LOOP: " and connects back to opening.
+4. script: Plain voiceover text, one sentence per line, with empty lines for pacing. NO labels, NO structure markers, NO "LOOP:" prefix. Last line connects back to opening naturally.
 5. editingPlan: scenes with visual, onScreenText, mood
 6. voiceStyle: recommended voice style
 7. postingStrategy: bestTime and platformTip
