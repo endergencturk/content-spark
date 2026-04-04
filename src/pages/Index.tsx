@@ -1248,7 +1248,7 @@ Viral Score: ${viralScore}/10
                 </button>
               </div>
               <div className="flex justify-center gap-3">
-                <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={() => generateContent()} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                   <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
                 </button>
                 <button onClick={autoFix} disabled={loading} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
