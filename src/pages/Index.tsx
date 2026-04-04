@@ -350,6 +350,11 @@ export default function Index() {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [presetTopics, setPresetTopics] = useState<string[]>([]);
   const [autoFixImproved, setAutoFixImproved] = useState(false);
+  const [autoFixScoreDiff, setAutoFixScoreDiff] = useState(0);
+  const [originalGeneralResult, setOriginalGeneralResult] = useState<GeneralResult | null>(null);
+  const [originalProResult, setOriginalProResult] = useState<ProResult | null>(null);
+  const [showOriginal, setShowOriginal] = useState(false);
+  const [autoFixUsed, setAutoFixUsed] = useState(false);
   const isProMode = mode === "pro";
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
@@ -449,6 +454,12 @@ export default function Index() {
     }
     setLoading(true);
     setDiscoveryResult(null);
+    setAutoFixUsed(false);
+    setAutoFixImproved(false);
+    setAutoFixScoreDiff(0);
+    setOriginalGeneralResult(null);
+    setOriginalProResult(null);
+    setShowOriginal(false);
     try {
       const body = isProMode
         ? {
@@ -604,7 +615,34 @@ export default function Index() {
     if (!result) return;
     const all = buildFullPackText(result, isProMode);
     const slug = topic.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40) || "content";
-    const blob = new Blob([all], { type: "text/plain;charset=utf-8" });
+
+    const now = new Date();
+    const dateStr = now.toISOString().replace("T", " ").slice(0, 19);
+    const platformLabels = (isProMode ? platforms : [platform]).map((p: string) => {
+      if (p === "tiktok") return "TikTok";
+      if (p === "youtube-shorts") return "YouTube Shorts";
+      if (p === "instagram-reels") return "Instagram Reels";
+      return p;
+    }).join(", ");
+    const viralScore = result.viralAnalysis?.score || "N/A";
+
+    const metadata = `=== CONTENT PACK INFO ===
+Topic: ${topic.trim()}
+Platform: ${platformLabels}
+Target Audience: ${targetAudience}
+Hook Style: ${hookStyle}
+Duration: ${scriptLength}s
+Style: ${style}
+Content Type: ${contentType}
+Goal: ${goal}
+Auto-Fix Used: ${autoFixUsed ? "Yes" : "No"}
+Generated: ${dateStr}
+Viral Score: ${viralScore}/10
+=========================
+
+`;
+
+    const blob = new Blob([metadata + all], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -614,15 +652,22 @@ export default function Index() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast.success(t("toast.downloaded", locale));
-  }, [isProMode, generalResult, proResult, topic, buildFullPackText, locale]);
+  }, [isProMode, generalResult, proResult, topic, buildFullPackText, locale, platforms, platform, targetAudience, hookStyle, scriptLength, style, contentType, goal, autoFixUsed]);
 
   const autoFix = useCallback(async () => {
     if (!topic.trim()) return;
     setLoading(true);
     setAutoFixImproved(false);
+    setAutoFixScoreDiff(0);
     try {
       const prevResult = isProMode ? proResult : generalResult;
       const prevScore = prevResult?.viralAnalysis?.score || 0;
+
+      // Save original before overwriting
+      if (!autoFixUsed) {
+        if (isProMode && proResult) setOriginalProResult({ ...proResult });
+        if (!isProMode && generalResult) setOriginalGeneralResult({ ...generalResult });
+      }
 
       const body = isProMode
         ? {
@@ -653,8 +698,12 @@ export default function Index() {
         setProResult(null);
       }
 
+      setAutoFixUsed(true);
+      setShowOriginal(false);
+
       if (newScore > prevScore) {
         setAutoFixImproved(true);
+        setAutoFixScoreDiff(Math.round((newScore - prevScore) * 10) / 10);
       }
 
       toast.success(t("toast.autoFixDone", locale));
@@ -664,7 +713,7 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult]);
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult, autoFixUsed]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -1103,12 +1152,48 @@ export default function Index() {
                 <button onClick={autoFix} disabled={loading} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
                   <Zap className="h-3 w-3" />{t("btn.autoFix", locale)}
                 </button>
+                {autoFixUsed && (originalGeneralResult || originalProResult) && (
+                  <button
+                    onClick={() => {
+                      if (showOriginal) {
+                        setShowOriginal(false);
+                      } else {
+                        setShowOriginal(true);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showOriginal ? t("result.autoFixedVersion", locale) : t("result.originalVersion", locale)}
+                  </button>
+                )}
               </div>
               {autoFixImproved && (
-                <div className="flex justify-center">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-full">
-                    ✓ {t("badge.improved", locale)}
+                <div className="flex justify-center gap-2">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                    ✓ {autoFixScoreDiff > 0 ? t("badge.improvedBy", locale).replace("{x}", String(autoFixScoreDiff)) : t("badge.improved", locale)}
                   </span>
+                </div>
+              )}
+              {autoFixUsed && (originalGeneralResult || originalProResult) && !showOriginal && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      if (isProMode && originalProResult) {
+                        setProResult(originalProResult);
+                        setOriginalProResult(null);
+                      } else if (!isProMode && originalGeneralResult) {
+                        setGeneralResult(originalGeneralResult);
+                        setOriginalGeneralResult(null);
+                      }
+                      setAutoFixUsed(false);
+                      setAutoFixImproved(false);
+                      setAutoFixScoreDiff(0);
+                      setShowOriginal(false);
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {t("btn.revertOriginal", locale)}
+                  </button>
                 </div>
               )}
             </div>
@@ -1116,11 +1201,33 @@ export default function Index() {
 
           {loading && <LoadingState mode={mode} locale={locale} />}
 
-          {!loading && !isProMode && generalResult && (
+          {/* Auto-Fixed Version label */}
+          {!loading && autoFixUsed && !showOriginal && hasResults && (
+            <p className="text-xs font-bold uppercase tracking-widest text-primary px-1">{t("result.autoFixedVersion", locale)}</p>
+          )}
+
+          {!loading && !isProMode && generalResult && !showOriginal && (
             <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
           )}
-          {!loading && isProMode && proResult && (
+          {!loading && isProMode && proResult && !showOriginal && (
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+          )}
+
+          {/* Original Version (collapsed by default, shown when toggled) */}
+          {!loading && autoFixUsed && showOriginal && (
+            <>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.originalVersion", locale)}
+                {originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score
+                  ? ` (Score: ${(originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score)}/10)`
+                  : ""}
+              </p>
+              {!isProMode && originalGeneralResult && (
+                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+              )}
+              {isProMode && originalProResult && (
+                <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+              )}
+            </>
           )}
 
           {/* Discovery Results */}
