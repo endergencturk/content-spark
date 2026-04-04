@@ -939,8 +939,14 @@ Create a PRO content production package:
 - Duration: ${input.scriptLength} seconds
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
+- Target audience: ${input.targetAudience}
+- Hook style: ${input.hookStyle}
 - Output depth: ${input.depth}
 ${customBlock}
+${targetAudienceInstructions}
+
+${hookStyleInstructions}
+
 STYLE BEHAVIOR:
 ${styleInstructions}
 
