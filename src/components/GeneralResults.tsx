@@ -109,15 +109,7 @@ export const GeneralResults = memo(function GeneralResults({
 
       {/* Script */}
       <section className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("result.script", locale)}</h3>
-          <CopyBtn text={result.script.split("\n").filter(l => !/^\[.+\]$/.test(l.trim())).map(l => l.replace(/^LOOP:\s*/i, '')).join("\n")} label="script" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-        <div className="bg-muted/40 rounded-2xl p-4">
-          {result.script.split("\n").filter(line => !/^\[.+\]$/.test(line.trim())).map((line, i) => (
-            <p key={i} className="text-sm leading-loose text-foreground">{line.replace(/^LOOP:\s*/i, '') || <br />}</p>
-          ))}
-        </div>
+        <ScriptEditor initialScript={result.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="script" locale={locale} />
         <UpsellBanner message={t("upsell.script", locale)} onUpgrade={() => {}} locale={locale} />
       </section>
 
