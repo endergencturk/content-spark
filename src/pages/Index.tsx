@@ -418,6 +418,8 @@ export default function Index() {
   }, [isProMode, contentType, style]);
 
   const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+  const [discoveryFilter, setDiscoveryFilter] = useState("All");
+  const [duplicateWarning, setDuplicateWarning] = useState<DuplicateWarning | null>(null);
 
   const handlePresetClick = useCallback((preset: NichePreset) => {
     setSelectedPreset(preset.id);
