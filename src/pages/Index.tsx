@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo, useMemo, useEffect } from "react";
+import React, { useState, useCallback, memo, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -7,6 +7,7 @@ import {
   Image, Clock, Flame, Crown, Hash, Youtube, Mic,
   Lock, TrendingUp, Shuffle, Lightbulb, Zap, Instagram,
   Search, Dumbbell, DollarSign, Brain, Skull, BookOpen,
+  ChevronDown, ChevronUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -18,6 +19,8 @@ import { useUsageLimit } from "@/hooks/useUsageLimit";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
+import { ChannelProfile, loadChannelProfile, type ChannelProfileData } from "@/components/ChannelProfile";
+import { TrendingPanel } from "@/components/TrendingPanel";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
@@ -412,10 +415,24 @@ export default function Index() {
   const isProMode = mode === "pro";
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [profileForceOpen, setProfileForceOpen] = useState(false);
 
   useEffect(() => {
     setSuggestions(getTopicSuggestions(isProMode ? 6 : 3, contentType, style));
   }, [isProMode, contentType, style]);
+
+  // Apply channel profile defaults on first load
+  useEffect(() => {
+    const profile = loadChannelProfile();
+    if (profile) {
+      if (profile.audience) setTargetAudience(profile.audience);
+      if (profile.niche) {
+        const presetMatch = NICHE_PRESETS.find(p => p.id === profile.niche);
+        if (presetMatch) handlePresetClick(presetMatch);
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
   const [discoveryFilter, setDiscoveryFilter] = useState("All");
@@ -847,9 +864,25 @@ Viral Score: ${viralScore}/10
     }
   }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult, autoFixUsed]);
 
+  const handleProfileSave = useCallback((profile: ChannelProfileData) => {
+    if (profile.audience) setTargetAudience(profile.audience);
+    if (profile.niche) {
+      const presetMatch = NICHE_PRESETS.find(p => p.id === profile.niche);
+      if (presetMatch) handlePresetClick(presetMatch);
+    }
+  }, [handlePresetClick]);
+
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar onEditProfile={() => setProfileForceOpen(true)} />
+
+      {/* Trending Panel */}
+      <TrendingPanel
+        niche={selectedPreset}
+        audience={targetAudience}
+        locale={locale}
+        onSelectTopic={(t) => setTopic(t)}
+      />
 
       <div className="py-8 px-4">
         <div className="mx-auto max-w-lg space-y-7">
@@ -893,6 +926,9 @@ Viral Score: ${viralScore}/10
               <Crown className="h-4 w-4" />{t("mode.pro", locale)}
             </button>
           </div>
+
+          {/* Channel Profile Onboarding */}
+          <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />
 
           {/* USAGE BANNER (Free mode only) */}
           {!isProMode && (
@@ -1078,156 +1114,161 @@ Viral Score: ${viralScore}/10
               </div>
             </div>
 
-            {/* 5. Style (hidden when preset is selected in free mode) */}
-            {(isProMode || !selectedPreset) && (
-              <div className="space-y-2">
-                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.style", locale)}</p>
-                <div className="flex gap-2 flex-wrap">
-                  {FREE_STYLES.map((s) => (
-                    <Pill key={s.value} selected={style === s.value} onClick={() => setStyle(s.value)}>
-                      {s.label}
-                    </Pill>
-                  ))}
-                  {PRO_STYLES.map((s) => (
-                    <Pill
-                      key={s.value}
-                      selected={style === s.value}
-                      locked={!isProMode}
-                      onClick={() => {
-                        if (isProMode) setStyle(s.value);
-                      }}
-                    >
-                      {s.label}
-                    </Pill>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* ⚙️ Advanced Settings (collapsible) */}
+            <div className="rounded-2xl border border-border/40 overflow-hidden">
+              <button
+                onClick={() => setAdvancedOpen(!advancedOpen)}
+                className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <span>⚙️ {locale === "tr" ? "Gelişmiş Ayarlar" : "Advanced Settings"}</span>
+                {advancedOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+              </button>
 
-            {/* 6. Content Type (hidden when preset is selected in free mode) */}
-            {(isProMode || !selectedPreset) && (
-              <div className="space-y-2">
-                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.content", locale)}</p>
-                <div className="flex gap-2 flex-wrap">
-                  {FREE_CONTENT_TYPES.map((ct) => (
-                    <Pill key={ct.value} selected={contentType === ct.value} onClick={() => setContentType(ct.value)}>
-                      {ct.label}
-                    </Pill>
-                  ))}
-                  {PRO_CONTENT_TYPES.map((ct) => (
-                    <Pill
-                      key={ct.value}
-                      selected={contentType === ct.value}
-                      locked={!isProMode}
-                      onClick={() => {
-                        if (isProMode) setContentType(ct.value);
-                      }}
-                    >
-                      {ct.label}
-                    </Pill>
-                  ))}
-                </div>
-              </div>
-            )}
+              {advancedOpen && (
+                <div className="px-4 pb-4 space-y-5">
+                  {/* Style */}
+                  {(isProMode || !selectedPreset) && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.style", locale)}</p>
+                      <div className="flex gap-2 flex-wrap">
+                        {FREE_STYLES.map((s) => (
+                          <Pill key={s.value} selected={style === s.value} onClick={() => setStyle(s.value)}>
+                            {s.label}
+                          </Pill>
+                        ))}
+                        {PRO_STYLES.map((s) => (
+                          <Pill
+                            key={s.value}
+                            selected={style === s.value}
+                            locked={!isProMode}
+                            onClick={() => { if (isProMode) setStyle(s.value); }}
+                          >
+                            {s.label}
+                          </Pill>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-            {/* 7. Goal */}
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.goal", locale)}</p>
-              <div className="flex gap-2 flex-wrap">
-                {FREE_GOALS.map((g) => (
-                  <Pill key={g.value} selected={goal === g.value} onClick={() => setGoal(g.value)}>
-                    {g.label}
-                  </Pill>
-                ))}
-                {PRO_GOALS.map((g) => (
-                  <Pill
-                    key={g.value}
-                    selected={goal === g.value}
-                    locked={!isProMode}
-                    onClick={() => {
-                      if (isProMode) setGoal(g.value);
-                    }}
-                  >
-                    {g.label}
-                  </Pill>
-                ))}
-              </div>
-            </div>
+                  {/* Content Type */}
+                  {(isProMode || !selectedPreset) && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.content", locale)}</p>
+                      <div className="flex gap-2 flex-wrap">
+                        {FREE_CONTENT_TYPES.map((ct) => (
+                          <Pill key={ct.value} selected={contentType === ct.value} onClick={() => setContentType(ct.value)}>
+                            {ct.label}
+                          </Pill>
+                        ))}
+                        {PRO_CONTENT_TYPES.map((ct) => (
+                          <Pill
+                            key={ct.value}
+                            selected={contentType === ct.value}
+                            locked={!isProMode}
+                            onClick={() => { if (isProMode) setContentType(ct.value); }}
+                          >
+                            {ct.label}
+                          </Pill>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-            {/* 8. Hook Intensity — simplified Low/High toggle */}
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
-                <Flame className="h-3 w-3" />{t("selector.hookIntensity", locale)}
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setHookIntensity(0)}
-                  className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                    hookIntensity === 0
-                      ? "bg-primary/10 text-primary border border-primary/30"
-                      : "bg-muted/60 text-muted-foreground border border-transparent"
-                  }`}
-                >
-                  {t("hook.low", locale)}
-                </button>
-                <button
-                  onClick={() => {
-                    if (isProMode) setHookIntensity(2);
-                    else setHookIntensity(2);
-                  }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                    hookIntensity === 2
-                      ? "bg-primary/10 text-primary border border-primary/30"
-                      : "bg-muted/60 text-muted-foreground border border-transparent"
-                  }`}
-                >
-                  {t("hook.high", locale)}
-                </button>
-              </div>
-            </div>
+                  {/* Goal */}
+                  <div className="space-y-2">
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.goal", locale)}</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {FREE_GOALS.map((g) => (
+                        <Pill key={g.value} selected={goal === g.value} onClick={() => setGoal(g.value)}>
+                          {g.label}
+                        </Pill>
+                      ))}
+                      {PRO_GOALS.map((g) => (
+                        <Pill
+                          key={g.value}
+                          selected={goal === g.value}
+                          locked={!isProMode}
+                          onClick={() => { if (isProMode) setGoal(g.value); }}
+                        >
+                          {g.label}
+                        </Pill>
+                      ))}
+                    </div>
+                  </div>
 
-            {/* 9. Image Prompts */}
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
-                <Image className="h-3 w-3" />{t("selector.imagePrompts", locale)}
-                {!isProMode && <span className="text-muted-foreground/60 ml-1">{t("selector.imagePrompts.fixed", locale)}</span>}
-              </p>
-              {isProMode ? (
-                <div className="space-y-1.5">
-                  <Slider
-                    value={[imagePromptCount]}
-                    onValueChange={(v) => setImagePromptCount(v[0])}
-                    min={1}
-                    max={10}
-                    step={1}
-                    className="w-full"
-                  />
-                  <p className="text-xs text-muted-foreground text-center">{imagePromptCount} prompt{imagePromptCount !== 1 ? "s" : ""}</p>
-                </div>
-              ) : (
-                <div className="w-full py-2 rounded-xl bg-muted/30 border border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5">
-                  <Lock className="h-3 w-3" />
-                  {t("selector.imagePrompts.slider", locale)}
+                  {/* Hook Intensity */}
+                  <div className="space-y-2">
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
+                      <Flame className="h-3 w-3" />{t("selector.hookIntensity", locale)}
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setHookIntensity(0)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+                          hookIntensity === 0
+                            ? "bg-primary/10 text-primary border border-primary/30"
+                            : "bg-muted/60 text-muted-foreground border border-transparent"
+                        }`}
+                      >
+                        {t("hook.low", locale)}
+                      </button>
+                      <button
+                        onClick={() => setHookIntensity(2)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+                          hookIntensity === 2
+                            ? "bg-primary/10 text-primary border border-primary/30"
+                            : "bg-muted/60 text-muted-foreground border border-transparent"
+                        }`}
+                      >
+                        {t("hook.high", locale)}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Image Prompts */}
+                  <div className="space-y-2">
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
+                      <Image className="h-3 w-3" />{t("selector.imagePrompts", locale)}
+                      {!isProMode && <span className="text-muted-foreground/60 ml-1">{t("selector.imagePrompts.fixed", locale)}</span>}
+                    </p>
+                    {isProMode ? (
+                      <div className="space-y-1.5">
+                        <Slider
+                          value={[imagePromptCount]}
+                          onValueChange={(v) => setImagePromptCount(v[0])}
+                          min={1}
+                          max={10}
+                          step={1}
+                          className="w-full"
+                        />
+                        <p className="text-xs text-muted-foreground text-center">{imagePromptCount} prompt{imagePromptCount !== 1 ? "s" : ""}</p>
+                      </div>
+                    ) : (
+                      <div className="w-full py-2 rounded-xl bg-muted/30 border border-border/50 text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5">
+                        <Lock className="h-3 w-3" />
+                        {t("selector.imagePrompts.slider", locale)}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Custom description (Pro mode only) */}
+                  {isProMode && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                        {t("selector.customDesc", locale)} <span className="text-muted-foreground/60">{t("selector.customDesc.optional", locale)}</span>
+                      </p>
+                      <textarea
+                        value={customDescription}
+                        onChange={(e) => setCustomDescription(e.target.value)}
+                        placeholder={t("selector.customDesc.placeholder", locale)}
+                        rows={3}
+                        className="w-full rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-
-            {/* 10. Custom description (Pro mode only) */}
-            {isProMode && (
-              <div className="space-y-2">
-                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-                  {t("selector.customDesc", locale)} <span className="text-muted-foreground/60">{t("selector.customDesc.optional", locale)}</span>
-                </p>
-                <textarea
-                  value={customDescription}
-                  onChange={(e) => setCustomDescription(e.target.value)}
-                  placeholder={t("selector.customDesc.placeholder", locale)}
-                  rows={3}
-                  className="w-full rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
-                />
-              </div>
-            )}
-
             {/* Generate */}
             <div>
               <Button

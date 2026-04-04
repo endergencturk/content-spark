@@ -1,14 +1,20 @@
 import React, { memo, useState } from "react";
-import { Settings, Sparkles } from "lucide-react";
+import { Settings, Sparkles, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { useSettings } from "@/contexts/SettingsContext";
 import { t } from "@/lib/i18n";
+import { loadChannelProfile } from "@/components/ChannelProfile";
 
-export const Navbar = memo(function Navbar() {
+interface NavbarProps {
+  onEditProfile?: () => void;
+}
+
+export const Navbar = memo(function Navbar({ onEditProfile }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const { settings } = useSettings();
   const locale = settings.language;
+  const profile = loadChannelProfile();
 
   return (
     <>
@@ -21,15 +27,38 @@ export const Navbar = memo(function Navbar() {
             <span className="text-sm font-bold tracking-tight text-foreground">
               {t("app.badge", locale)}
             </span>
+            {profile?.channelName && (
+              <span className="hidden sm:flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-1 rounded-lg">
+                📺 {profile.channelName}
+                {onEditProfile && (
+                  <button onClick={onEditProfile} className="ml-1 hover:text-primary/80 transition-colors">
+                    <Pencil className="h-2.5 w-2.5" />
+                  </button>
+                )}
+              </span>
+            )}
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground"
-            onClick={() => setOpen(true)}
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            {profile?.channelName && onEditProfile && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 rounded-lg text-[10px] font-medium text-muted-foreground hover:text-foreground sm:hidden"
+                onClick={onEditProfile}
+              >
+                <Pencil className="h-3 w-3 mr-1" />
+                {locale === "tr" ? "Profil" : "Profile"}
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground"
+              onClick={() => setOpen(true)}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </nav>
       <SettingsDialog open={open} onOpenChange={setOpen} />
