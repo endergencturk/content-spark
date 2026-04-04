@@ -1236,7 +1236,7 @@ Viral Score: ${viralScore}/10
           )}
 
           {!loading && !isProMode && generalResult && !showOriginal && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
           )}
           {!loading && isProMode && proResult && !showOriginal && (
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
