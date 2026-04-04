@@ -85,14 +85,21 @@ export const GeneralResults = memo(function GeneralResults({
       {/* Hooks */}
       <section className="space-y-2.5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.hooks", locale)}</h3>
-        {result.hooks.map((hook, i) => (
-          <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
-            <p className="text-sm text-foreground leading-relaxed">
-              <span className="text-primary font-bold mr-1.5">#{i + 1}</span>{hook}
-            </p>
-            <CopyBtn text={hook} label={`hook-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
-          </div>
-        ))}
+        {result.hooks.map((hook, i) => {
+          const isTyped = typeof hook === "object" && hook !== null;
+          const hookText = isTyped ? (hook as TypedHook).hook : (hook as string);
+          const hookType = isTyped ? (hook as TypedHook).type : undefined;
+          return (
+            <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
+              <p className="text-sm text-foreground leading-relaxed">
+                <span className="text-primary font-bold mr-1.5">#{i + 1}</span>
+                {hookType && <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mr-1.5">[{hookType}]</span>}
+                {hookText}
+              </p>
+              <CopyBtn text={hookText} label={`hook-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+            </div>
+          );
+        })}
         <UpsellBanner message={t("upsell.hooks", locale)} onUpgrade={() => {}} locale={locale} />
       </section>
 
