@@ -961,7 +961,7 @@ If output feels robotic, too generic, or has a tone mismatch with the topic → 
 
 QUALITY GATE CHECKLIST (check ALL before returning):
 ✔ Best hook starts with situation word, not pronoun
-✔ Script word count is WITHIN the hard limit range (15s=30-40, 30s=65-75, 60s=130-150 words) — if outside range, trim from MIDDLE only (keep first 3 and last 3 lines), then re-check. NEVER return script above limit.
+✔ Script word count is WITHIN the hard limit range (15s=35-42, 30s=60-68, 60s=110-130 words) — if outside range, trim from MIDDLE only (keep first 3 and last 3 lines), then re-check. NEVER return script above limit.
 ✔ Script contains NO asterisks (*word*), NO stage directions, NO bracketed cues — pure voiceover only
 ✔ Script has NO "LOOP:" prefix on any line — last line must be plain text
 ✔ Subject revealed mid-script, not at line 1
