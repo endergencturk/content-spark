@@ -582,15 +582,33 @@ VOICE SCRIPT (CRITICAL):
 
 ${lineCountGuidance}`;
 
+  const platformHookRules = `
+=== PLATFORM HOOK RULES (CRITICAL) ===
+
+TIKTOK HOOKS:
+- First WORD must be a situation word: "Vanished." / "Dead." / "Gone." / "Missing." / "Trapped." / "Erased." / "Found." / "Watched."
+- First sentence: max 4 words
+- NEVER start with: He / She / They / A man / A woman / In [year] / This is
+- Start with SITUATION, not person
+- Format: SITUATION → IMPOSSIBLE DETAIL → OPEN QUESTION
+
+YOUTUBE SHORTS HOOKS:
+- Curiosity-first, not shock-first
+- First sentence: 6–8 words
+- Use: "last seen" / "never found" / "vanished" / "on camera" / "no trace"
+- Format: NORMAL → DISRUPTION → QUESTION
+
+MULTI-PLATFORM: Generate TikTok hooks first, then adapt for YouTube.
+If any hook feels weak or narrative → rewrite internally before returning.`;
+
   const scrollStopperRule = `
-SCROLL STOPPER RULE (CRITICAL):
-- The FIRST LINE of the script must:
-  - Feel unusual, dangerous, or confusing
-  - Stop scrolling instantly
-  - Create an immediate "wait, what?" reaction
-- If the first line is generic or explanatory → REWRITE internally
-- Bad: "London, 1888." / "Did you know that..." / "Today I want to talk about..."
-- Good: "He was never caught." / "Nobody talks about this." / "This changes everything."`;
+SCROLL STOPPER / OPENING WORD RULE (CRITICAL):
+- The FIRST SPOKEN WORD of the script must match TikTok hook rule
+- First word must be a situation word (Vanished / Dead / Gone / Missing / Trapped / Found / etc.)
+- If the script opens with He / She / They / A man → REWRITE
+- The first line must stop scrolling instantly
+- Bad: "London, 1888." / "This is Lars Mittank" / "Did you know..."
+- Good: "Vanished." / "Gone." / "Dead. No body." / "Missing. No trace."`;
 
   const patternInterruptRule = `
 PATTERN INTERRUPT RULE:
