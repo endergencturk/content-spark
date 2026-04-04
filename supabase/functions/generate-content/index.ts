@@ -582,6 +582,8 @@ function buildPrompt(input: PromptInput) {
   const goalInstructions = getGoalInstructions(input.goal);
   const hookIntensityInstructions = getHookIntensityInstructions(input.hookIntensity);
   const contentTypeInstructions = getContentTypeInstructions(input.contentType);
+  const targetAudienceInstructions = getTargetAudienceInstructions(input.targetAudience);
+  const hookStyleInstructions = getHookStyleInstructions(input.hookStyle);
 
   const globalRules = `
 GLOBAL RULES:
