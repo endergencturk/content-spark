@@ -616,6 +616,56 @@ export default function Index() {
     toast.success(t("toast.downloaded", locale));
   }, [isProMode, generalResult, proResult, topic, buildFullPackText, locale]);
 
+  const autoFix = useCallback(async () => {
+    if (!topic.trim()) return;
+    setLoading(true);
+    setAutoFixImproved(false);
+    try {
+      const prevResult = isProMode ? proResult : generalResult;
+      const prevScore = prevResult?.viralAnalysis?.score || 0;
+
+      const body = isProMode
+        ? {
+            mode: "pro", topic, platforms, contentType, style, scriptLength, goal,
+            hookIntensity: 2, imageFormat: "9:16", imagePromptCount,
+            customDescription: customDescription.trim() || undefined,
+            language: locale, targetAudience, hookStyle: "aggressive",
+            autoFixForced: true,
+          }
+        : {
+            mode: "general", topic, platform, contentType, style, scriptLength, goal,
+            hookIntensity: 2, imageFormat: "9:16", outputStyle: settings.outputStyle,
+            language: locale, targetAudience, hookStyle: "aggressive",
+            autoFixForced: true,
+          };
+
+      const { data, error } = await supabase.functions.invoke("generate-content", { body });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const newScore = data?.viralAnalysis?.score || 0;
+
+      if (isProMode) {
+        setProResult(data as ProResult);
+        setGeneralResult(null);
+      } else {
+        setGeneralResult(data as GeneralResult);
+        setProResult(null);
+      }
+
+      if (newScore > prevScore) {
+        setAutoFixImproved(true);
+      }
+
+      toast.success(t("toast.autoFixDone", locale));
+    } catch (error: any) {
+      console.error("Auto-fix failed:", error);
+      toast.error(error?.message || t("toast.error.generic", locale));
+    } finally {
+      setLoading(false);
+    }
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult]);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
