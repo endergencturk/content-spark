@@ -1066,6 +1066,12 @@ ${loopEndingRule}
 
 ${angleVariationRule}
 
+${factSafetyRule}
+
+${autoFixRule}
+
+${microRetentionRule}
+
 ${scriptFormatRules}
 
 ${scrollStopperRule}
