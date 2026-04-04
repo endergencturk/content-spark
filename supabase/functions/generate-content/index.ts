@@ -202,14 +202,16 @@ Return exactly 5 ideas as JSON.`;
   }
 });
 
-// ── Fetch with retry ────────────────────────────────────────────────
+// ── Fetch with retry + Lovable AI fallback ──────────────────────────
 
 async function fetchWithRetry(url: string, apiKey: string, body: any): Promise<Response | null> {
   let response: Response | null = null;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  const delays = [2000, 4000, 8000, 12000]; // 4 attempts with longer backoff
+
+  for (let attempt = 0; attempt < delays.length; attempt++) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 25000);
+      const timeout = setTimeout(() => controller.abort(), 30000);
       response = await fetch(url, {
         method: "POST",
         headers: {
@@ -221,13 +223,13 @@ async function fetchWithRetry(url: string, apiKey: string, body: any): Promise<R
       });
       clearTimeout(timeout);
 
-      if (response.ok) break;
+      if (response.ok) return response;
 
       const errBody = await response.text();
-      if (/high demand|overloaded|unavailable|503|429/i.test(errBody)) {
+      if (/high demand|overloaded|unavailable|503|429|RESOURCE_EXHAUSTED/i.test(errBody) || response.status === 429 || response.status === 503) {
         console.warn(`Gemini attempt ${attempt + 1} failed (transient): ${response.status}`);
         response = null;
-        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        await new Promise((r) => setTimeout(r, delays[attempt]));
         continue;
       }
 
@@ -235,12 +237,55 @@ async function fetchWithRetry(url: string, apiKey: string, body: any): Promise<R
       throw new Error(errBody || "Gemini request failed");
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
-        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        console.warn(`Gemini attempt ${attempt + 1} timed out`);
+        response = null;
+        await new Promise((r) => setTimeout(r, delays[attempt]));
         continue;
       }
       throw e;
     }
   }
+
+  // ── Fallback to Lovable AI Gateway ──────────────────────────────
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (LOVABLE_API_KEY) {
+    console.log("Gemini exhausted retries, falling back to Lovable AI gateway");
+    try {
+      const prompt = body.contents?.[0]?.parts?.[0]?.text || "";
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 55000);
+      const fallbackResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: "You are a viral content generation engine. Always respond with valid JSON matching the requested schema exactly. No markdown, no extra text." },
+            { role: "user", content: prompt + "\n\nIMPORTANT: Respond ONLY with valid JSON matching the schema described in the prompt. No markdown fences, no explanation." },
+          ],
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      if (fallbackResp.ok) {
+        const fallbackData = await fallbackResp.json();
+        const content = fallbackData.choices?.[0]?.message?.content || "";
+        // Wrap in a Gemini-compatible response shape
+        const wrappedBody = JSON.stringify({
+          candidates: [{ content: { parts: [{ text: content.replace(/^```json\s*|```\s*$/g, "").trim() }] } }],
+        });
+        return new Response(wrappedBody, { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      console.warn("Lovable AI fallback also failed:", fallbackResp.status);
+    } catch (e2) {
+      console.warn("Lovable AI fallback error:", e2);
+    }
+  }
+
   return response;
 }
 
