@@ -1085,14 +1085,8 @@ Viral Score: ${viralScore}/10
                 className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
                 onKeyDown={(e) => e.key === "Enter" && generateContent()}
               />
-              <button
-                onClick={discoverIdeas}
-                disabled={loading}
-                className="w-full py-2.5 rounded-2xl text-sm font-medium text-muted-foreground hover:text-foreground bg-muted/30 hover:bg-muted/50 border border-border/40 transition-colors flex items-center justify-center gap-2"
-              >
-                <Lightbulb className="h-4 w-4" />
-                {loading && !topic.trim() ? t("btn.discovering", locale) : "💡 Need ideas? Discover trending topics"}
-              </button>
+
+
             </div>
 
             {/* 4. Length */}
