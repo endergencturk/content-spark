@@ -1024,6 +1024,10 @@ BEST HOOK:
 
 ${hookVariationRule}
 
+${loopEndingRule}
+
+${angleVariationRule}
+
 ${scriptFormatRules}
 
 ${scrollStopperRule}
