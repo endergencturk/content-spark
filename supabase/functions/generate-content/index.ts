@@ -769,13 +769,17 @@ VOICE SCRIPT (CRITICAL — STRICT RULES):
   - Use "..." for pauses and "—" for dramatic breaks
   - Add empty lines between sections for breathing space
 
-- WORD COUNT ENFORCEMENT (HARD LIMITS — DO NOT EXCEED):
-  - 15s duration = 35–42 words
-  - 30s duration = 60–68 words
-  - 60s duration = 110–130 words
-  - Before returning the script, COUNT EVERY WORD
-  - If the word count exceeds the max → remove lines from MIDDLE only (keep first 3 and last 3 lines), then re-count
-  - If the word count is below the min → ADD one tension line before ending
+- MANDATORY WORD COUNT RULES - YOU MUST FOLLOW:
+  - 15 seconds = write EXACTLY 30-38 words. Count them.
+  - 30 seconds = write EXACTLY 60-70 words. Count them.
+  - 60 seconds = write EXACTLY 125-140 words. Count them.
+  - After writing the script:
+    1. Count every word
+    2. If under minimum → add tension lines before ending
+    3. If over maximum → remove lines from middle only
+    4. Count again
+    5. Only return script when word count is correct
+  - This rule overrides everything else.
   - This is NON-NEGOTIABLE. Outside the range = INVALID output.
 
 - STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
