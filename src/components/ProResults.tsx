@@ -57,8 +57,8 @@ const CopyBtn = memo(function CopyBtn({
 });
 
 export const ProResults = memo(function ProResults({
-  result, platforms, copied, onCopy, locale = "en",
-}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale }) {
+  result, platforms, copied, onCopy, locale = "en", targetAudience = "global",
+}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string }) {
   const [showPack, setShowPack] = useState(false);
 
   return (
