@@ -1058,6 +1058,12 @@ Create a content package:
 - Duration: ${input.scriptLength} seconds
 - Goal: ${input.goal}
 - Hook intensity: ${hookLevel}
+- Target audience: ${input.targetAudience}
+- Hook style: ${input.hookStyle}
+
+${targetAudienceInstructions}
+
+${hookStyleInstructions}
 
 STYLE BEHAVIOR:
 ${styleInstructions}
