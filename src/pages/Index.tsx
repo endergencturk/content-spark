@@ -454,6 +454,12 @@ export default function Index() {
     }
     setLoading(true);
     setDiscoveryResult(null);
+    setAutoFixUsed(false);
+    setAutoFixImproved(false);
+    setAutoFixScoreDiff(0);
+    setOriginalGeneralResult(null);
+    setOriginalProResult(null);
+    setShowOriginal(false);
     try {
       const body = isProMode
         ? {
