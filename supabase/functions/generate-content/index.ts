@@ -696,9 +696,10 @@ MICRO-RETENTION TRIGGERS (FOR EDITING PLAN ONLY):
 VOICE SCRIPT (CRITICAL — STRICT RULES):
 - Generate a voiceover script optimized for ElevenLabs TTS at speed 1.0.
 - OUTPUT FORMAT (MANDATORY):
-  - Pure voiceover text ONLY (plus [pause]/[cut]/[zoom]/[whisper] editing cues every 3-4 lines — see MICRO-RETENTION TRIGGERS)
+  - Pure voiceover text ONLY
+  - NO bracketed cues like [pause], [cut], [zoom], [whisper] — these go ONLY in editingPlan
   - NO asterisks (*word*) — ElevenLabs reads them literally
-  - NO stage directions other than the micro-retention cues
+  - NO stage directions of any kind
   - NO action notes or labels (Beat 1, Hook:, CTA:)
   - NO parenthetical instructions
   - Each line = one breath = max 6 words
@@ -708,10 +709,10 @@ VOICE SCRIPT (CRITICAL — STRICT RULES):
   - Add empty lines between sections for breathing space
 
 - WORD COUNT ENFORCEMENT (HARD LIMITS — DO NOT EXCEED):
-  - 15s duration = 30–40 words (editing cues like [pause] do NOT count as words)
-  - 30s duration = 65–75 words (editing cues do NOT count)
-  - 60s duration = 130–150 words (editing cues do NOT count)
-  - Before returning the script, COUNT EVERY WORD (excluding bracketed cues)
+  - 15s duration = 30–40 words
+  - 30s duration = 65–75 words
+  - 60s duration = 130–150 words
+  - Before returning the script, COUNT EVERY WORD
   - If the word count exceeds the max → CUT or COMPRESS lines until within range
   - If the word count is below the min → ADD one tension line before ending
   - This is NON-NEGOTIABLE. Outside the range = INVALID output.
