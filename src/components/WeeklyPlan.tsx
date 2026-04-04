@@ -1,0 +1,224 @@
+import React, { memo, useState, useCallback } from "react";
+import { Calendar, Loader2, Download, RefreshCw, Sparkles, Lock, ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { loadChannelProfile } from "@/components/ChannelProfile";
+import { BlurredPreview } from "@/components/BlurredPreview";
+import type { Locale } from "@/lib/i18n";
+
+interface DayPlan {
+  day: string;
+  topic: string;
+  hookWord: string;
+  platform: string;
+  postingTime: string;
+  viralScore: number;
+}
+
+interface WeeklyPlanProps {
+  isPro: boolean;
+  locale: Locale;
+  onSelectTopic: (topic: string) => void;
+}
+
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+const POSTING_TIMES: Record<string, string[]> = {
+  usa: ["21:00", "20:00", "21:00", "19:00", "21:00", "11:00", "10:00"],
+  europe: ["19:00", "18:00", "19:00", "20:00", "19:00", "10:00", "11:00"],
+  latam: ["22:00", "21:00", "22:00", "20:00", "22:00", "12:00", "11:00"],
+  global: ["21:00", "20:00", "21:00", "19:00", "21:00", "11:00", "10:00"],
+  turkey: ["20:00", "19:00", "20:00", "21:00", "20:00", "11:00", "10:00"],
+};
+
+export const WeeklyPlan = memo(function WeeklyPlan({ isPro, locale, onSelectTopic }: WeeklyPlanProps) {
+  const [expanded, setExpanded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [plan, setPlan] = useState<DayPlan[] | null>(null);
+  const profile = loadChannelProfile();
+
+  const generatePlan = useCallback(async () => {
+    if (!profile?.channelName) {
+      toast.error(locale === "tr" ? "Önce kanal profilinizi oluşturun" : "Set up your channel profile first");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-content", {
+        body: {
+          mode: "weekly-plan",
+          niche: profile.niche || "mystery",
+          audience: profile.audience || "global",
+          language: locale,
+          channelName: profile.channelName,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const times = POSTING_TIMES[profile.audience || "global"];
+      const ideas: DayPlan[] = (data?.ideas || []).slice(0, 7).map((idea: any, i: number) => ({
+        day: DAYS[i],
+        topic: idea.topic || idea.title || `Topic ${i + 1}`,
+        hookWord: idea.hookWord || idea.hook || "Vanished.",
+        platform: idea.platform || (i % 2 === 0 ? "TikTok" : "YouTube"),
+        postingTime: times[i] || "20:00",
+        viralScore: idea.viralScore || Math.floor(Math.random() * 3) + 7,
+      }));
+      setPlan(ideas);
+    } catch (err: any) {
+      console.error("Weekly plan failed:", err);
+      toast.error(err?.message || "Failed to generate weekly plan");
+    } finally {
+      setLoading(false);
+    }
+  }, [profile, locale]);
+
+  const downloadPlan = useCallback(() => {
+    if (!plan) return;
+    const lines = [
+      "=== WEEKLY CONTENT PLAN ===",
+      `Channel: ${profile?.channelName || "N/A"}`,
+      `Week of: ${new Date().toLocaleDateString()}`,
+      "",
+      ...plan.map((d) =>
+        `${d.day} | ${d.topic}\n  Hook: "${d.hookWord}" | Platform: ${d.platform} | Post at: ${d.postingTime} | Viral Score: ${d.viralScore}/10`
+      ),
+    ];
+    const blob = new Blob([lines.join("\n\n")], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "weekly-content-plan.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(locale === "tr" ? "Plan indirildi" : "Plan downloaded");
+  }, [plan, profile, locale]);
+
+  if (!expanded) {
+    return (
+      <button
+        onClick={() => setExpanded(true)}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+      >
+        <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <Calendar className="h-4 w-4 text-primary" />
+          📅 {locale === "tr" ? "Haftalık Plan" : "Weekly Plan"}
+        </span>
+        <span className="flex items-center gap-1 text-xs text-primary font-medium">
+          {isPro ? (locale === "tr" ? "Aç" : "Open") : "Pro"}
+          {!isPro && <Lock className="h-3 w-3" />}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-primary/20 bg-card overflow-hidden">
+      <button
+        onClick={() => setExpanded(false)}
+        className="w-full flex items-center justify-between px-4 py-3 border-b border-border/40"
+      >
+        <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <Calendar className="h-4 w-4 text-primary" />
+          📅 {locale === "tr" ? "Haftalık İçerik Planı" : "Weekly Content Plan"}
+        </span>
+        <span className="text-xs text-muted-foreground">{locale === "tr" ? "Kapat" : "Close"}</span>
+      </button>
+
+      <div className="p-4 space-y-4">
+        {!isPro ? (
+          <div className="relative">
+            <div className="grid grid-cols-7 gap-1.5 blur-[6px] select-none pointer-events-none">
+              {DAYS.map((d) => (
+                <div key={d} className="bg-muted/40 rounded-xl p-3 space-y-1.5 text-center">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase">{d}</p>
+                  <p className="text-xs text-foreground font-medium">Mystery topic...</p>
+                  <p className="text-[10px] text-primary font-bold">"Vanished."</p>
+                </div>
+              ))}
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center bg-background/60 rounded-2xl">
+              <div className="text-center space-y-2">
+                <Lock className="h-5 w-5 text-primary mx-auto" />
+                <p className="text-sm font-semibold text-foreground">Pro only</p>
+                <p className="text-xs text-muted-foreground">
+                  {locale === "tr" ? "Haftalık plan oluşturmak için Pro'ya geçin" : "Switch to Pro to generate weekly plans"}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : !profile?.channelName ? (
+          <div className="text-center py-6 space-y-2">
+            <p className="text-sm text-muted-foreground">
+              {locale === "tr" ? "Önce kanal profilinizi oluşturun" : "Set up your channel profile first"}
+            </p>
+          </div>
+        ) : plan ? (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+              {plan.map((d, i) => (
+                <div
+                  key={i}
+                  className="bg-muted/40 rounded-xl p-3 space-y-1.5 border border-border/30 hover:border-primary/30 transition-colors"
+                >
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{d.day}</p>
+                  <p className="text-xs font-semibold text-foreground leading-snug line-clamp-2">{d.topic}</p>
+                  <p className="text-[10px] text-primary font-bold">"{d.hookWord}"</p>
+                  <div className="flex items-center justify-between text-[9px] text-muted-foreground">
+                    <span>{d.platform}</span>
+                    <span>{d.postingTime}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] text-muted-foreground">Score: {d.viralScore}/10</span>
+                  </div>
+                  <button
+                    onClick={() => onSelectTopic(d.topic)}
+                    className="w-full mt-1 text-[10px] font-semibold text-primary hover:text-primary/80 flex items-center justify-center gap-1 transition-colors"
+                  >
+                    <Sparkles className="h-2.5 w-2.5" />
+                    {locale === "tr" ? "Oluştur" : "Generate This"}
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={downloadPlan}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-muted/60 border border-border/50 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+              >
+                <Download className="h-3.5 w-3.5" />
+                {locale === "tr" ? "Planı İndir" : "Download Plan"}
+              </button>
+              <button
+                onClick={generatePlan}
+                disabled={loading}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-sm font-medium text-primary hover:bg-primary/15 transition-colors"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+                {locale === "tr" ? "Yeniden Oluştur" : "Regenerate Week"}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-6">
+            <button
+              onClick={generatePlan}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
+            >
+              {loading ? (
+                <><Loader2 className="h-4 w-4 animate-spin" />{locale === "tr" ? "Oluşturuluyor..." : "Generating..."}</>
+              ) : (
+                <><Sparkles className="h-4 w-4" />{locale === "tr" ? "7 Günlük Plan Oluştur" : "Generate 7-Day Plan"}</>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
