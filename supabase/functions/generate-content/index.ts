@@ -411,28 +411,29 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
 function getLineCountGuidance(scriptLength: string): string {
   switch (scriptLength) {
-    case "15": return `TIMING CONTROL (15s):
-- Target: 15–18 lines, ~40–50 words max
-- Each line: 3–6 words ideal
-- Optimized for ElevenLabs speed 1.0
-- Focus on immediate impact and curiosity
-- Use only 1–2 ideas maximum`;
-    case "30": return `TIMING CONTROL (30s):
-- Target: 25–35 lines, 75–90 words max
-- Each line: 3–6 words ideal
-- Optimized for ElevenLabs speed 1.0
-- Use 2–3 key ideas
-- Keep buildup minimal but present`;
-    case "60": return `TIMING CONTROL (60s):
-- Target: 50–70 lines, 140–180 words max
-- Each line: 3–6 words ideal
-- Optimized for ElevenLabs speed 1.0
-- Develop 3–5 ideas with proper narrative flow
-- Allow room for tension building and payoff`;
-    default: return `TIMING CONTROL (30s):
-- Target: 25–35 lines, 75–90 words max
-- Each line: 3–6 words ideal
-- Optimized for ElevenLabs speed 1.0`;
+    case "15": return `STRICT TIMING CONTROL (15s):
+- HARD LIMIT: maximum 40 words total. Do NOT exceed 40 words.
+- Each line: 1 breath, max 6 words per line
+- Pure voiceover text only — no asterisks, no stage directions, no action notes
+- Count every word before finalizing. If over 40 → cut lines until under limit.
+- Focus on immediate impact, 1–2 ideas max`;
+    case "30": return `STRICT TIMING CONTROL (30s):
+- HARD LIMIT: maximum 80 words total. Do NOT exceed 80 words.
+- Each line: 1 breath, max 6 words per line
+- Pure voiceover text only — no asterisks, no stage directions, no action notes
+- Count every word before finalizing. If over 80 → compress until under limit.
+- Use 2–3 key ideas, minimal buildup`;
+    case "60": return `STRICT TIMING CONTROL (60s):
+- HARD LIMIT: maximum 160 words total. Do NOT exceed 160 words.
+- Each line: 1 breath, max 6 words per line
+- Pure voiceover text only — no asterisks, no stage directions, no action notes
+- Count every word before finalizing. If over 160 → compress until under limit.
+- Develop 3–5 ideas with narrative flow`;
+    default: return `STRICT TIMING CONTROL (30s):
+- HARD LIMIT: maximum 80 words total. Do NOT exceed 80 words.
+- Each line: 1 breath, max 6 words per line
+- Pure voiceover text only — no asterisks, no stage directions, no action notes
+- Count every word before finalizing. If over 80 → compress until under limit.`;
   }
 }
 
