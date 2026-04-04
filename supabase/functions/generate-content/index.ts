@@ -948,25 +948,29 @@ If output feels robotic, too generic, or has a tone mismatch with the topic → 
 
 QUALITY GATE CHECKLIST (check ALL before returning):
 ✔ Best hook starts with situation word, not pronoun
-✔ Script word count is UNDER the hard limit (15s=40, 30s=80, 60s=160 words) — if over, compress NOW
-✔ Script contains NO asterisks (*word*), NO stage directions, NO action notes — pure voiceover only
+✔ Script word count is WITHIN the hard limit range (15s=30-40, 30s=65-75, 60s=130-150 words) — if outside range, fix NOW
+✔ Script contains NO asterisks (*word*), NO stage directions (except micro-retention cues like [pause], [cut], [zoom], [whisper]) — pure voiceover only
+✔ Micro-retention cues appear every 3-4 lines (not on every line)
 ✔ Subject revealed mid-script, not at line 1
 ✔ Script ends with tension/teaser, not summary
 ✔ At least 1 unsettling image prompt included
 ✔ Music suggestions included and match content type
 ✔ Each hook uses a different emotional trigger
 ✔ Editing plan syncs with script beats
+✔ No fabricated quotes or unverified details (see FACT SAFETY)
+✔ Viral score ≥ 8 after auto-fix (see AUTO-FIX RULE)
 
 The script MUST:
 - Start with a situation word (see OPENING WORD RULE)
 - Delay subject reveal (see INFORMATION DELAY)
 - Maintain engagement every 2–3 lines (see PATTERN INTERRUPT RULE)
+- Include micro-retention editing cues every 3-4 lines (see MICRO-RETENTION TRIGGERS)
 - Include at least one rewatch-worthy moment (see REWATCH LOOP)
 - End with a forward-looking teaser (see RETENTION HOOK)
 - End with a comment trigger (see COMMENT TRIGGER)
 - Match the tone to the topic category (NOT always dark/horror)
 - Sound human and natural, not AI-generated
-- Be immediately usable for voice recording
+- Be immediately usable for voice recording (after removing bracketed cues)
 - Must feel like a PERFORMANCE, not narration
 
 PACING MUST FEEL LIKE A PERFORMANCE:
@@ -984,7 +988,9 @@ FORBIDDEN:
 - Generic phrasing that could apply to any topic
 - Safe, predictable endings
 - Opening with pronouns (He/She/They)
-- Revealing the subject in line 1`;
+- Revealing the subject in line 1
+- Fabricating specific quotes or dialogue
+- Returning viral score below 8 without attempting auto-fix`;
 
   const outputRules = `
 IMPORTANT:
