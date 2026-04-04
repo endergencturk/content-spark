@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useSettings } from "@/contexts/SettingsContext";
+import { useSettings, VOICE_SPEED_CONFIG, type VoiceSpeed } from "@/contexts/SettingsContext";
 import { t } from "@/lib/i18n";
 
 function SettingsRow({ label, children }: { label: string; children: React.ReactNode }) {
@@ -108,6 +108,20 @@ export const SettingsDialog = memo(function SettingsDialog({
                 <SelectItem value="safe">{t("settings.hookStyle.safe", locale)}</SelectItem>
                 <SelectItem value="balanced">{t("settings.hookStyle.balanced", locale)}</SelectItem>
                 <SelectItem value="aggressive">{t("settings.hookStyle.aggressive", locale)}</SelectItem>
+              </SelectContent>
+            </Select>
+          </SettingsRow>
+
+          {/* Voice Speed */}
+          <SettingsRow label="Voice Speed">
+            <Select value={settings.voiceSpeed} onValueChange={(v) => updateSettings({ voiceSpeed: v as VoiceSpeed })}>
+              <SelectTrigger className="w-32 h-8 text-xs rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(VOICE_SPEED_CONFIG) as VoiceSpeed[]).map((speed) => (
+                  <SelectItem key={speed} value={speed}>{VOICE_SPEED_CONFIG[speed].label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </SettingsRow>
