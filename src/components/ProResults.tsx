@@ -212,7 +212,56 @@ export const ProResults = memo(function ProResults({
               </AccordionItem>
             )}
 
-            {result.editingPlan?.length > 0 && (
+            {/* Typed Hooks (5 psychological angles) */}
+            {result.hooks && result.hooks.length > 0 && (
+              <AccordionItem value="typed-hooks" className="border border-border/50 rounded-2xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
+                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />{t("result.hooks", locale)} ({result.hooks.length})</span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <div className="space-y-2">
+                    {result.hooks.map((hook, i) => {
+                      const isTyped = typeof hook === "object" && hook !== null;
+                      const hookText = isTyped ? (hook as TypedHook).hook : (hook as string);
+                      const hookType = isTyped ? (hook as TypedHook).type : undefined;
+                      return (
+                        <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-xl p-3">
+                          <p className="text-sm text-foreground leading-relaxed">
+                            <span className="text-xs font-bold text-primary mr-1.5">#{i + 1}</span>
+                            {hookType && <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mr-1.5">[{hookType}]</span>}
+                            {hookText}
+                          </p>
+                          <CopyBtn text={hookText} label={`typed-hook-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {/* Angle Variations */}
+            {result.angleVariations && result.angleVariations.length > 0 && (
+              <AccordionItem value="angles" className="border border-border/50 rounded-2xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
+                  <span className="flex items-center gap-2"><Shuffle className="h-4 w-4 text-primary" />{t("result.angleVariations", locale)} ({result.angleVariations.length})</span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <div className="space-y-2">
+                    {result.angleVariations.map((angle, i) => (
+                      <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-xl p-3">
+                        <p className="text-sm text-foreground leading-relaxed">
+                          <span className="text-[10px] uppercase tracking-widest font-bold text-primary mr-1.5">[{angle.type}]</span>
+                          {angle.hook}
+                        </p>
+                        <CopyBtn text={angle.hook} label={`angle-pro-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
               <AccordionItem value="editing" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
                   <span className="flex items-center gap-2"><Film className="h-4 w-4 text-primary" />{t("result.editingPlan", locale)}</span>
