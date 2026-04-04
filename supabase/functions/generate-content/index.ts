@@ -155,6 +155,8 @@ Return exactly 5 ideas as JSON.`;
       hookCount,
       customDescription,
       language: lang,
+      targetAudience: targetAudience || "global",
+      hookStyle: hookStyle || "aggressive",
     });
 
     const schema = mode === "pro"
