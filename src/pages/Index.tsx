@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import {
-  Copy, Loader2, Sparkles, RefreshCw,
+  Copy, Loader2, Sparkles, RefreshCw, Download,
   Image, Clock, Flame, Crown, Hash, Youtube, Mic,
   Lock, TrendingUp, Shuffle, Lightbulb, Zap, Instagram,
   Search, Dumbbell, DollarSign, Brain, Skull, BookOpen,
