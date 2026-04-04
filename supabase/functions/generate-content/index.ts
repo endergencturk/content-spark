@@ -686,16 +686,11 @@ AUTO-FIX RULE (CRITICAL — VIRAL SCORE THRESHOLD = 8):
 - If after improvement the score is still below 8, push harder on hook and ending.`;
 
   const microRetentionRule = `
-MICRO-RETENTION TRIGGERS (EDITING CUES):
-- Every 3–4 lines in the script, insert ONE pacing note in square brackets
-- Format examples: [pause], [cut], [zoom], [whisper]
-- These are editing cues for the video editor, NOT voiceover text
-- Rules:
-  - Do NOT add to every line — only every 3–4 lines
-  - Do NOT overuse — max 3–4 cues per script
-  - Place them on their own line between script lines
-  - They must feel natural to the pacing
-  - The user will remove these before pasting to ElevenLabs`;
+MICRO-RETENTION TRIGGERS (FOR EDITING PLAN ONLY):
+- In the EDITING PLAN (not the script), include pacing notes like [pause], [cut], [zoom], [whisper] in the mood or visual fields
+- The SCRIPT must be 100% clean voiceover text — NO bracketed cues whatsoever
+- Never put [pause], [cut], [zoom], [whisper] or any bracketed text in the script field
+- These editing cues belong ONLY in the editingPlan scenes`;
 
   const scriptFormatRules = `
 VOICE SCRIPT (CRITICAL — STRICT RULES):
