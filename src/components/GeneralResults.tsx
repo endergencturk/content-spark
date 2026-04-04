@@ -180,6 +180,29 @@ export const GeneralResults = memo(function GeneralResults({
         ))}
       </section>
 
+      {/* Thumbnail Ideas */}
+      {result.thumbnails && result.thumbnails.length > 0 && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <Layout className="h-3.5 w-3.5 text-primary" />{t("result.thumbnails", locale)}
+          </h3>
+          {result.thumbnails.map((thumb, i) => (
+            <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-2">
+              <p className="text-xs font-bold text-primary">THUMBNAIL {i + 1}</p>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.thumbnail.image", locale)}</p>
+                <p className="text-sm text-foreground leading-relaxed">{thumb.image}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.thumbnail.text", locale)}</p>
+                <p className="text-sm font-bold text-foreground">{thumb.text}</p>
+              </div>
+              <CopyBtn text={`Image: ${thumb.image}\nText: ${thumb.text}`} label={`thumb-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+            </div>
+          ))}
+        </section>
+      )}
+
       {/* Music Suggestions */}
       {result.music && result.music.length > 0 && (
         <section className="space-y-2.5">
