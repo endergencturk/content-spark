@@ -580,9 +580,39 @@ export default function Index() {
             hookStyle,
           };
 
-      const { data, error } = await supabase.functions.invoke("generate-content", { body });
+      // Character count target ranges
+      const CHAR_TARGETS: Record<string, { min: number; max: number }> = {
+        "15": { min: 160, max: 190 },
+        "30": { min: 330, max: 380 },
+        "60": { min: 660, max: 760 },
+      };
+
+      let { data, error } = await supabase.functions.invoke("generate-content", { body });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
+
+      // Script length verification & retry
+      const target = CHAR_TARGETS[scriptLength] || CHAR_TARGETS["30"];
+      const scriptLen = (data?.script || "").length;
+      if (scriptLen < target.min) {
+        toast.info("Expanding script...", { duration: 3000 });
+        const retryBody = {
+          ...body,
+          customDescription: `${(body as any).customDescription || ""}\n\nPrevious script was ${scriptLen} chars, too short. Write at least ${target.min} characters. Expand every section with more detail and tension lines.`.trim(),
+        };
+        const retry = await supabase.functions.invoke("generate-content", { body: retryBody });
+        if (!retry.error && retry.data && !retry.data.error) {
+          data = retry.data;
+        }
+      }
+
+      // Add warning badges if still out of range
+      const finalLen = (data?.script || "").length;
+      if (finalLen < target.min) {
+        toast.warning("⚠️ Script shorter than target — consider expanding", { duration: 5000 });
+      } else if (finalLen > target.max) {
+        toast.warning("⚠️ Script longer than target — consider trimming", { duration: 5000 });
+      }
 
       if (isProMode) {
         setProResult(normalizeResult(data) as ProResult);
@@ -1016,6 +1046,14 @@ Viral Score: ${viralScore}/10
                 className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
                 onKeyDown={(e) => e.key === "Enter" && generateContent()}
               />
+              <button
+                onClick={discoverIdeas}
+                disabled={loading}
+                className="w-full py-2.5 rounded-2xl text-sm font-medium text-muted-foreground hover:text-foreground bg-muted/30 hover:bg-muted/50 border border-border/40 transition-colors flex items-center justify-center gap-2"
+              >
+                <Lightbulb className="h-4 w-4" />
+                {loading && !topic.trim() ? t("btn.discovering", locale) : "💡 Need ideas? Discover trending topics"}
+              </button>
             </div>
 
             {/* 4. Length */}
@@ -1190,11 +1228,11 @@ Viral Score: ${viralScore}/10
               </div>
             )}
 
-            {/* Generate + Discover */}
-            <div className="flex gap-2">
+            {/* Generate */}
+            <div>
               <Button
                 id="generate-btn"
-                className="flex-1 h-13 text-base rounded-2xl font-bold w-full"
+                className="h-13 text-base rounded-2xl font-bold w-full"
                 disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
                 onClick={() => generateContent()}
               >
@@ -1204,18 +1242,6 @@ Viral Score: ${viralScore}/10
                   <><Lock className="h-5 w-5" />{t("btn.noCredits", locale)}</>
                 ) : (
                   <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                className="h-13 px-4 rounded-2xl font-bold text-sm"
-                disabled={loading}
-                onClick={discoverIdeas}
-              >
-                {loading && !topic.trim() ? (
-                  <><Loader2 className="h-4 w-4 animate-spin" /><span className="hidden sm:inline">{t("btn.discovering", locale)}</span></>
-                ) : (
-                  <><Lightbulb className="h-4 w-4" /><span className="hidden sm:inline">{t("btn.discover", locale)}</span></>
                 )}
               </Button>
             </div>

@@ -755,7 +755,7 @@ MICRO-RETENTION TRIGGERS (FOR EDITING PLAN ONLY):
 
   const scriptFormatRules = `
 VOICE SCRIPT (CRITICAL — STRICT RULES):
-- Generate a voiceover script optimized for ElevenLabs TTS at speed 1.0.
+- Generate a voiceover script optimized for ElevenLabs TTS at speed 0.90.
 - OUTPUT FORMAT (MANDATORY):
   - Pure voiceover text ONLY
   - NO bracketed cues like [pause], [cut], [zoom], [whisper] — these go ONLY in editingPlan
@@ -769,25 +769,46 @@ VOICE SCRIPT (CRITICAL — STRICT RULES):
   - Use "..." for pauses and "—" for dramatic breaks
   - Add empty lines between sections for breathing space
 
-- MANDATORY CHARACTER COUNT RULES - YOU MUST FOLLOW:
-  - Count characters in script (letters + spaces + punctuation).
-  - 15 seconds = write exactly 160-190 characters. Count them.
-  - 30 seconds = write exactly 330-380 characters. Count them.
-  - 60 seconds = write exactly 660-760 characters. Count them.
-  - After writing the script:
-    1. Count every character (including spaces and punctuation)
-    2. If under minimum → add tension lines before ending
-    3. If over maximum → remove lines from middle only
-    4. Count again
-    5. Only return script when character count is correct
-  - This rule overrides everything else.
-  - This is NON-NEGOTIABLE. Outside the range = INVALID output.
-  - Never return script outside these ranges.
+SCRIPT WRITING RULES - READ CAREFULLY:
+
+STEP 1 - DETERMINE TARGET:
+- If duration = 15s → write 160-190 characters
+- If duration = 30s → write 330-380 characters
+- If duration = 60s → write 660-760 characters
+
+STEP 2 - WRITE THE SCRIPT:
+Structure:
+- Opening (shocking word): 1 line, 1-3 words
+- Setup (context): 3-4 lines, 3-5 words each
+- Escalation (tension builds): 4-5 lines, 3-6 words each
+- Pattern interrupt: 1 line, 1-3 words (shocking fact)
+- Peak (most intense): 3-4 lines, 2-4 words each
+- Loop ending: 1-2 lines, connects back to opening
+
+STEP 3 - COUNT CHARACTERS:
+Count every character including spaces and punctuation.
+Example: 'Vanished.' = 9 characters
+'Running from unseen.' = 20 characters
+
+STEP 4 - VERIFY:
+If character count is below minimum:
+→ Expand setup section with more detail
+→ Expand escalation with more tension lines
+→ Add one more pattern interrupt
+→ Recount
+
+If character count is above maximum:
+→ Remove 1-2 lines from escalation section only
+→ Never remove opening or ending
+→ Recount
+
+STEP 5 - ONLY RETURN when character count is correct.
+This rule cannot be skipped.
+This is NON-NEGOTIABLE. Outside the range = INVALID output.
 
 - STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
 - First line MUST stop scrolling
 - Ending MUST create curiosity or impact (open loop or strong closer)
-- If script is too short for the duration, expand with examples or transitions — but NEVER exceed the word limit
 
 ${lineCountGuidance}`;
 
