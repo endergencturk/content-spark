@@ -208,6 +208,32 @@ const translations: Record<Locale, Record<string, string>> = {
     // Niche presets
     "preset.title": "Quick Start",
 
+    // Target Audience
+    "selector.targetAudience": "Target Audience",
+    "audience.global": "Global",
+    "audience.usa": "USA",
+    "audience.europe": "Europe",
+    "audience.latam": "Latin America",
+    "audience.turkey": "Turkey",
+
+    // Hook Style
+    "selector.hookStyle": "Hook Style",
+    "hookStyle.aggressive": "Aggressive",
+    "hookStyle.curiosity": "Curiosity",
+    "hookStyle.emotional": "Emotional",
+    "hookStyle.dark": "Dark",
+
+    // Thumbnail output
+    "result.thumbnails": "Thumbnail Ideas",
+    "result.thumbnail.image": "Image",
+    "result.thumbnail.text": "Text",
+
+    // Posting time output
+    "result.postingTime": "Best Posting Time",
+    "result.postingTime.primary": "Primary Time",
+    "result.postingTime.backup": "Backup Time",
+    "result.postingTime.reason": "Reason",
+
     // Viral categories
     "viral.hookStrength": "Hook Strength",
     "viral.curiosityGap": "Curiosity Gap",
