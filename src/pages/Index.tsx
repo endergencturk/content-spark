@@ -545,7 +545,7 @@ export default function Index() {
     } else {
       setMode("general");
       setPlatform(item.platforms?.[0] || "tiktok");
-      setGeneralResult(item.output_json as GeneralResult);
+      setGeneralResult(normalizeResult(item.output_json) as GeneralResult);
       setProResult(null);
     }
     setStyle(item.style || "viral");
