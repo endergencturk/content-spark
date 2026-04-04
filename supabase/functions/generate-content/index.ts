@@ -1254,6 +1254,12 @@ ${contentTypeInstructions}
 
 ${platformHookRules}
 
+HOOK LENGTH RULES:
+- First sentence of every hook = maximum 4 words
+- Never start hook with: He, She, They, A man, A woman
+- Always start with situation word: Vanished. / Dead. / Gone. / Missing. / Trapped. / Found. / Erased. / Poisoned.
+- If hook violates these rules → rewrite before returning
+
 HOOK GENERATION:
 - Generate exactly 5 hooks with different psychological angles (see HOOK ENGINE)
 - Each hook = { type, hook } object
