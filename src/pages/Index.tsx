@@ -1050,7 +1050,17 @@ export default function Index() {
                 <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                   <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
                 </button>
+                <button onClick={autoFix} disabled={loading} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                  <Zap className="h-3 w-3" />{t("btn.autoFix", locale)}
+                </button>
               </div>
+              {autoFixImproved && (
+                <div className="flex justify-center">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-full">
+                    ✓ {t("badge.improved", locale)}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
