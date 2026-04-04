@@ -540,7 +540,7 @@ export default function Index() {
     if (item.plan_type === "pro") {
       setMode("pro");
       setPlatforms(item.platforms || ["tiktok"]);
-      setProResult(item.output_json as ProResult);
+      setProResult(normalizeResult(item.output_json) as ProResult);
       setGeneralResult(null);
     } else {
       setMode("general");
