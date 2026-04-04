@@ -120,7 +120,7 @@ export const GeneralResults = memo(function GeneralResults({
           {result.editingPlan.map((scene, i) => (
             <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-1">
               <p className="text-xs font-bold text-primary">Scene {scene.scene ?? i + 1}</p>
-              <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{scene.visual}</p>
+              <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{String(scene.visual || '').replace(/^Scene\s*\d*[:\-–—]?\s*/i, '')}</p>
               {scene.onScreenText && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Text:</span>{scene.onScreenText}</p>}
               {scene.mood && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Mood:</span>{scene.mood}</p>}
             </div>
