@@ -531,6 +531,7 @@ interface PromptInput {
   language: string;
   targetAudience: string;
   hookStyle: string;
+  autoFixForced?: boolean;
 }
 
 function getTargetAudienceInstructions(audience: string): string {
