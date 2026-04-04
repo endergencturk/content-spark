@@ -725,11 +725,11 @@ VOICE SCRIPT (CRITICAL — STRICT RULES):
   - Add empty lines between sections for breathing space
 
 - WORD COUNT ENFORCEMENT (HARD LIMITS — DO NOT EXCEED):
-  - 15s duration = 30–40 words
-  - 30s duration = 65–75 words
-  - 60s duration = 130–150 words
+  - 15s duration = 35–42 words
+  - 30s duration = 60–68 words
+  - 60s duration = 110–130 words
   - Before returning the script, COUNT EVERY WORD
-  - If the word count exceeds the max → CUT or COMPRESS lines until within range
+  - If the word count exceeds the max → remove lines from MIDDLE only (keep first 3 and last 3 lines), then re-count
   - If the word count is below the min → ADD one tension line before ending
   - This is NON-NEGOTIABLE. Outside the range = INVALID output.
 
