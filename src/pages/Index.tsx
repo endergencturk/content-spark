@@ -278,12 +278,29 @@ type Mode = "general" | "pro";
 interface DiscoveryIdea {
   title: string;
   why: string;
+  category?: string;
+  region?: string;
 }
 
 interface DiscoveryResult {
   discoveryMode: true;
   ideas: DiscoveryIdea[];
 }
+
+interface DuplicateWarning {
+  topic: string;
+  date: string;
+  id: string;
+  output_json: any;
+  plan_type: string;
+  platforms: string[];
+  style: string;
+  content_type: string;
+  duration: string;
+  goal: string;
+}
+
+const DISCOVERY_CATEGORIES = ["All", "Mystery", "Horror", "True Crime", "Educational", "Finance", "Entertainment"];
 
 // ── Micro components ────────────────────────────────────────────────
 
@@ -401,6 +418,8 @@ export default function Index() {
   }, [isProMode, contentType, style]);
 
   const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+  const [discoveryFilter, setDiscoveryFilter] = useState("All");
+  const [duplicateWarning, setDuplicateWarning] = useState<DuplicateWarning | null>(null);
 
   const handlePresetClick = useCallback((preset: NichePreset) => {
     setSelectedPreset(preset.id);
@@ -483,12 +502,58 @@ export default function Index() {
     }
   }, [isProMode, platform, platforms, contentType, style, selectedPreset, locale]);
 
-  const generateContent = useCallback(async () => {
+  const checkDuplicate = useCallback(async (): Promise<DuplicateWarning | null> => {
+    try {
+      const { data } = await supabase
+        .from("generations")
+        .select("id, topic, created_at, output_json, plan_type, platforms, style, content_type, duration, goal")
+        .eq("device_id", deviceId)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (!data || data.length === 0) return null;
+      const needle = topic.trim().toLowerCase();
+      const match = data.find((item: any) => {
+        const prev = (item.topic || "").toLowerCase();
+        // Check if topics are similar (contains or Levenshtein-like)
+        return prev === needle || prev.includes(needle) || needle.includes(prev);
+      });
+      if (match) {
+        return {
+          topic: match.topic,
+          date: new Date(match.created_at).toLocaleDateString(),
+          id: match.id,
+          output_json: match.output_json,
+          plan_type: match.plan_type,
+          platforms: match.platforms,
+          style: match.style,
+          content_type: match.content_type,
+          duration: match.duration,
+          goal: match.goal,
+        };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }, [deviceId, topic]);
+
+  const generateContent = useCallback(async (skipDuplicateCheck = false) => {
     if (!topic.trim()) return;
     if (!isProMode && isAtLimit) {
       toast.error(t("usage.noCredits", locale));
       return;
     }
+
+    // Duplicate check
+    if (!skipDuplicateCheck) {
+      const dup = await checkDuplicate();
+      if (dup) {
+        setDuplicateWarning(dup);
+        return;
+      }
+    }
+    setDuplicateWarning(null);
+
     setLoading(true);
     setDiscoveryResult(null);
     setAutoFixUsed(false);
@@ -556,7 +621,7 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId, targetAudience, hookStyle]);
+  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId, targetAudience, hookStyle, checkDuplicate]);
 
   const handleHistoryReopen = useCallback((item: any) => {
     setTopic(item.topic);
@@ -1131,7 +1196,7 @@ Viral Score: ${viralScore}/10
                 id="generate-btn"
                 className="flex-1 h-13 text-base rounded-2xl font-bold w-full"
                 disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
-                onClick={generateContent}
+                onClick={() => generateContent()}
               >
                 {loading && topic.trim() ? (
                   <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
@@ -1163,7 +1228,51 @@ Viral Score: ${viralScore}/10
             )}
           </div>
 
-          {/* ACTION BAR */}
+          {/* Duplicate Warning Banner */}
+          {duplicateWarning && (
+            <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">
+                ⚠️ You generated content about this topic before.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {duplicateWarning.date} — "{duplicateWarning.topic}"
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setDuplicateWarning(null);
+                    generateContent(true);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"
+                >
+                  Yes, Continue
+                </button>
+                <button
+                  onClick={() => {
+                    setDuplicateWarning(null);
+                    handleHistoryReopen({
+                      id: duplicateWarning.id,
+                      topic: duplicateWarning.topic,
+                      output_json: duplicateWarning.output_json,
+                      plan_type: duplicateWarning.plan_type,
+                      platforms: duplicateWarning.platforms,
+                      style: duplicateWarning.style,
+                      content_type: duplicateWarning.content_type,
+                      duration: duplicateWarning.duration,
+                      goal: duplicateWarning.goal,
+                      language: locale,
+                      created_at: "",
+                      is_favorite: false,
+                    });
+                  }}
+                  className="px-4 py-2 rounded-xl bg-muted text-foreground text-xs font-semibold border border-border/50"
+                >
+                  View Previous
+                </button>
+              </div>
+            </div>
+          )}
+
           {hasResults && !loading && (
             <div className="space-y-3">
               <div className="flex gap-2">
@@ -1183,7 +1292,7 @@ Viral Score: ${viralScore}/10
                 </button>
               </div>
               <div className="flex justify-center gap-3">
-                <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={() => generateContent()} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                   <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
                 </button>
                 <button onClick={autoFix} disabled={loading} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
@@ -1269,22 +1378,45 @@ Viral Score: ${viralScore}/10
 
           {/* Discovery Results */}
           {!loading && discoveryResult && discoveryResult.ideas?.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
                 <Lightbulb className="h-3.5 w-3.5 text-primary" />{t("result.discovery", locale)}
               </h3>
-              {discoveryResult.ideas.map((idea, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setTopic(idea.title); setDiscoveryResult(null); }}
-                  className="w-full text-left bg-muted/40 hover:bg-muted/60 rounded-2xl p-4 space-y-1 transition-colors"
-                >
-                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <span className="text-primary font-bold">#{i + 1}</span>{idea.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{idea.why}</p>
-                </button>
-              ))}
+              {/* Category Filter */}
+              <div className="flex flex-wrap gap-1.5 px-1">
+                {DISCOVERY_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setDiscoveryFilter(cat)}
+                    className={`px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${
+                      discoveryFilter === cat
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/60 text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              {/* Card Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {discoveryResult.ideas
+                  .filter((idea) => discoveryFilter === "All" || (idea.category || "").toLowerCase() === discoveryFilter.toLowerCase())
+                  .map((idea, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setTopic(idea.title); setDiscoveryResult(null); setDiscoveryFilter("All"); }}
+                    className="text-left bg-muted/40 hover:bg-muted/60 rounded-2xl p-4 space-y-1.5 transition-colors border border-border/30"
+                  >
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {idea.region && <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg">{idea.region}</span>}
+                      {idea.category && <span className="text-[10px] font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-lg">{idea.category}</span>}
+                    </div>
+                    <p className="text-sm font-semibold text-foreground leading-snug">{idea.title}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{idea.why}</p>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
