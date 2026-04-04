@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import {
-  Copy, Loader2, Sparkles, RefreshCw,
+  Copy, Loader2, Sparkles, RefreshCw, Download,
   Image, Clock, Flame, Crown, Hash, Youtube, Mic,
   Lock, TrendingUp, Shuffle, Lightbulb, Zap, Instagram,
   Search, Dumbbell, DollarSign, Brain, Skull, BookOpen,
@@ -551,34 +551,70 @@ export default function Index() {
 
   const hasResults = isProMode ? proResult !== null : generalResult !== null;
 
+  const buildFullPackText = useCallback((result: GeneralResult | ProResult, isPro: boolean): string => {
+    const formatHook = (h: any, i: number) => {
+      if (typeof h === "object" && h !== null && h.type) return `Hook ${i + 1} [${h.type}]: ${h.hook}`;
+      return `Hook ${i + 1}: ${h}`;
+    };
+
+    const hooks = isPro
+      ? (result as ProResult).hooks || []
+      : (result as GeneralResult).hooks;
+
+    const postingTimes: Record<string, { primary: string; backup: string; reason: string }> = {
+      usa: { primary: "21:00", backup: "00:30", reason: "Best overlap for USA peak scrolling hours." },
+      europe: { primary: "19:00", backup: "21:00", reason: "Peak evening hours across European time zones." },
+      latam: { primary: "22:00", backup: "00:00", reason: "Latin America evening peak overlapping with USA." },
+      global: { primary: "21:00", backup: "23:00", reason: "Optimal overlap across major global audiences." },
+      turkey: { primary: "20:00", backup: "22:00", reason: "Turkey evening prime time for social media." },
+    };
+    const pt = postingTimes[targetAudience] || postingTimes.global;
+
+    const sections = [
+      `⭐ BEST HOOK:\n${result.bestHook}`,
+      `🎯 ALL HOOKS:\n${hooks.map((h: any, i: number) => formatHook(h, i)).join("\n")}`,
+      `📝 SCRIPT:\n${result.script}`,
+      result.editingPlan?.length ? `🎬 EDITING PLAN:\n${result.editingPlan.map((s: any) => `Scene ${s.scene}: ${s.visual}${s.onScreenText ? ` | Text: ${s.onScreenText}` : ""}${s.mood ? ` | Mood: ${s.mood}` : ""}`).join("\n")}` : "",
+      `🖼️ IMAGE PROMPTS:\n${result.imagePrompts.map((p: string, i: number) => `${i + 1}. ${p}`).join("\n")}`,
+      result.thumbnails?.length ? `📸 THUMBNAIL IDEAS:\n${result.thumbnails.map((th: any, i: number) => `Thumbnail ${i + 1}:\nImage: ${th.image}\nText: ${th.text}`).join("\n\n")}` : "",
+      `📺 YOUTUBE:\nTitle: ${result.youtube.title}\nDescription: ${result.youtube.description}\nTags: ${result.youtube.tags.join(", ")}`,
+      `📱 TIKTOK:\nCaption: ${result.tiktok.caption}\nHashtags: ${result.tiktok.hashtags.join(" ")}`,
+      isPro && (result as ProResult).instagramCaption ? `📷 INSTAGRAM:\n${(result as ProResult).instagramCaption}` : "",
+      result.music?.length ? `🎵 MUSIC SUGGESTIONS:\n${result.music.map((m: any) => typeof m === "string" ? m : `${m.type} — ${m.source} (${m.why})`).join("\n")}` : "",
+      `⏰ BEST POSTING TIME:\nPrimary: ${pt.primary}\nBackup: ${pt.backup}\nReason: ${pt.reason}`,
+      result.angleVariations?.length ? `🔄 ANGLE VARIATIONS:\n${result.angleVariations.map((a: any) => `[${a.type}] ${a.hook}`).join("\n")}` : "",
+      isPro && (result as ProResult).hookVariations?.length ? `🎯 HOOK VARIATIONS:\n${(result as ProResult).hookVariations.map((v: string, i: number) => `V${i + 1}: ${v}`).join("\n")}` : "",
+      isPro && (result as ProResult).voiceStyle ? `🎙️ VOICE STYLE: ${(result as ProResult).voiceStyle}` : "",
+      result.seriesPotential ? `📈 SERIES POTENTIAL: ${result.seriesPotential}` : "",
+      result.viralAnalysis ? `📊 VIRAL SCORE: ${result.viralAnalysis.score}/10\n${(result.viralAnalysis.strengths || []).map((r: string) => `✓ ${r}`).join("\n")}\n${(result.viralAnalysis.weaknesses || []).map((r: string) => `△ ${r}`).join("\n")}` : "",
+    ];
+
+    return sections.filter(Boolean).join("\n\n");
+  }, [targetAudience]);
+
   const copyAll = useCallback(() => {
-    let all = "";
-    if (!isProMode && generalResult) {
-      all = [
-        `⭐ BEST HOOK:\n${generalResult.bestHook}`,
-        generalResult.hooks.map((h, i) => `Hook ${i + 1}: ${h}`).join("\n"),
-        `Script:\n${generalResult.script}`,
-        `YouTube:\n${generalResult.youtube.title}\n${generalResult.youtube.description}\nTags: ${generalResult.youtube.tags.join(", ")}`,
-        `TikTok:\n${generalResult.tiktok.caption}\n${generalResult.tiktok.hashtags.join(" ")}`,
-        `Image Prompts:\n${generalResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
-        generalResult.viralAnalysis ? `📊 VIRAL SCORE: ${generalResult.viralAnalysis.score}/10\n${(generalResult.viralAnalysis.strengths || []).map(r => `✓ ${r}`).join("\n")}\n${(generalResult.viralAnalysis.weaknesses || []).map(r => `△ ${r}`).join("\n")}` : "",
-      ].filter(Boolean).join("\n\n");
-    } else if (isProMode && proResult) {
-      all = [
-        `⭐ BEST HOOK:\n${proResult.bestHook}`,
-        `📝 SCRIPT:\n${proResult.script}`,
-        `YouTube:\n${proResult.youtube.title}\n${proResult.youtube.description}\nTags: ${proResult.youtube.tags.join(", ")}`,
-        `TikTok:\n${proResult.tiktok.caption}\n${proResult.tiktok.hashtags.join(" ")}`,
-        proResult.instagramCaption ? `Instagram: ${proResult.instagramCaption}` : "",
-        proResult.hookVariations?.length ? `🎯 VARIATIONS:\n${proResult.hookVariations.map((v, i) => `V${i + 1}: ${v}`).join("\n")}` : "",
-        proResult.voiceStyle ? `🎙️ Voice: ${proResult.voiceStyle}` : "",
-        proResult.postingStrategy ? `📅 Post: ${proResult.postingStrategy.bestTime} — ${proResult.postingStrategy.platformTip}` : "",
-        `🖼️ Images:\n${proResult.imagePrompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`,
-        proResult.viralAnalysis ? `📊 VIRAL SCORE: ${proResult.viralAnalysis.score}/10\n${(proResult.viralAnalysis.strengths || []).map(r => `✓ ${r}`).join("\n")}\n${(proResult.viralAnalysis.weaknesses || []).map(r => `△ ${r}`).join("\n")}` : "",
-      ].filter(Boolean).join("\n\n");
-    }
+    const result = isProMode ? proResult : generalResult;
+    if (!result) return;
+    const all = buildFullPackText(result, isProMode);
     copyToClipboard("all", all);
-  }, [isProMode, generalResult, proResult, copyToClipboard]);
+  }, [isProMode, generalResult, proResult, copyToClipboard, buildFullPackText]);
+
+  const downloadTxt = useCallback(() => {
+    const result = isProMode ? proResult : generalResult;
+    if (!result) return;
+    const all = buildFullPackText(result, isProMode);
+    const slug = topic.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40) || "content";
+    const blob = new Blob([all], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${slug}-content-pack.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(t("toast.downloaded", locale));
+  }, [isProMode, generalResult, proResult, topic, buildFullPackText, locale]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -994,13 +1030,22 @@ export default function Index() {
           {/* ACTION BAR */}
           {hasResults && !loading && (
             <div className="space-y-3">
-              <button
-                onClick={copyAll}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
-              >
-                <Copy className="h-4 w-4" />
-                {copied === "all" ? t("btn.copied", locale) : t("btn.copyFullPack", locale)}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={copyAll}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
+                >
+                  <Copy className="h-4 w-4" />
+                  {copied === "all" ? t("btn.copied", locale) : t("btn.copyFullPack", locale)}
+                </button>
+                <button
+                  onClick={downloadTxt}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-muted/60 border border-border/50 text-foreground text-sm font-semibold hover:bg-muted transition-colors"
+                >
+                  <Download className="h-4 w-4" />
+                  {t("btn.downloadTxt", locale)}
+                </button>
+              </div>
               <div className="flex justify-center gap-3">
                 <button onClick={generateContent} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                   <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}

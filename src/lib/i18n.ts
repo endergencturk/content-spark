@@ -234,6 +234,21 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.postingTime.backup": "Backup Time",
     "result.postingTime.reason": "Reason",
 
+    // Hook types
+    "hookType.fear": "Fear",
+    "hookType.curiosity": "Curiosity",
+    "hookType.wtf": "WTF",
+    "hookType.conspiracy": "Conspiracy",
+    "hookType.emotional": "Emotional",
+    "hookType.mystery": "Mystery",
+
+    // Angle variations
+    "result.angleVariations": "Angle Variations",
+
+    // Download
+    "btn.downloadTxt": "Download TXT",
+    "toast.downloaded": "Downloaded — content pack saved 📁",
+
     // Viral categories
     "viral.hookStrength": "Hook Strength",
     "viral.curiosityGap": "Curiosity Gap",
@@ -477,6 +492,21 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.postingTime.primary": "Birincil Zaman",
     "result.postingTime.backup": "Yedek Zaman",
     "result.postingTime.reason": "Sebep",
+
+    // Hook types
+    "hookType.fear": "Korku",
+    "hookType.curiosity": "Merak",
+    "hookType.wtf": "WTF",
+    "hookType.conspiracy": "Komplo",
+    "hookType.emotional": "Duygusal",
+    "hookType.mystery": "Gizem",
+
+    // Angle variations
+    "result.angleVariations": "Açı Varyasyonları",
+
+    // Download
+    "btn.downloadTxt": "TXT İndir",
+    "toast.downloaded": "İndirildi — içerik paketi kaydedildi 📁",
 
     // Viral categories
     "viral.hookStrength": "Hook Gücü",

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Copy, Trophy, Crown, Youtube, Hash, Image, Music, TrendingUp, Clock, Layout } from "lucide-react";
+import { Copy, Trophy, Crown, Youtube, Hash, Image, Music, TrendingUp, Clock, Layout, Shuffle } from "lucide-react";
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
@@ -23,8 +23,18 @@ export interface ThumbnailIdea {
   text: string;
 }
 
+export interface TypedHook {
+  type: string;
+  hook: string;
+}
+
+export interface AngleVariation {
+  type: string;
+  hook: string;
+}
+
 export interface GeneralResult {
-  hooks: string[];
+  hooks: TypedHook[] | string[];
   bestHook: string;
   script: string;
   editingPlan: EditingScene[];
@@ -35,6 +45,7 @@ export interface GeneralResult {
   seriesPotential?: string;
   viralAnalysis: ViralAnalysis;
   thumbnails?: ThumbnailIdea[];
+  angleVariations?: AngleVariation[];
 }
 
 const CopyBtn = memo(function CopyBtn({
@@ -74,14 +85,21 @@ export const GeneralResults = memo(function GeneralResults({
       {/* Hooks */}
       <section className="space-y-2.5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.hooks", locale)}</h3>
-        {result.hooks.map((hook, i) => (
-          <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
-            <p className="text-sm text-foreground leading-relaxed">
-              <span className="text-primary font-bold mr-1.5">#{i + 1}</span>{hook}
-            </p>
-            <CopyBtn text={hook} label={`hook-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
-          </div>
-        ))}
+        {result.hooks.map((hook, i) => {
+          const isTyped = typeof hook === "object" && hook !== null;
+          const hookText = isTyped ? (hook as TypedHook).hook : (hook as string);
+          const hookType = isTyped ? (hook as TypedHook).type : undefined;
+          return (
+            <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
+              <p className="text-sm text-foreground leading-relaxed">
+                <span className="text-primary font-bold mr-1.5">#{i + 1}</span>
+                {hookType && <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mr-1.5">[{hookType}]</span>}
+                {hookText}
+              </p>
+              <CopyBtn text={hookText} label={`hook-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+            </div>
+          );
+        })}
         <UpsellBanner message={t("upsell.hooks", locale)} onUpgrade={() => {}} locale={locale} />
       </section>
 
@@ -240,6 +258,24 @@ export const GeneralResults = memo(function GeneralResults({
         <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
       )}
 
+      {/* Angle Variations */}
+      {result.angleVariations && result.angleVariations.length > 0 && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <Shuffle className="h-3.5 w-3.5 text-primary" />{t("result.angleVariations", locale)}
+          </h3>
+          {result.angleVariations.map((angle, i) => (
+            <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
+              <p className="text-sm text-foreground leading-relaxed">
+                <span className="text-[10px] uppercase tracking-widest font-bold text-primary mr-1.5">[{angle.type}]</span>
+                {angle.hook}
+              </p>
+              <CopyBtn text={angle.hook} label={`angle-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+            </div>
+          ))}
+        </section>
+      )}
+
       {/* Best Posting Time */}
       {(() => {
         const times: Record<string, { primary: string; backup: string; reason: string; reasonTr: string }> = {
@@ -282,7 +318,7 @@ export const GeneralResults = memo(function GeneralResults({
         <BlurredPreview
           title={t("blurred.hookVariations", locale)}
           previewLines={[
-            "V1: " + (result.hooks[0]?.slice(0, 50) || "What if everything you knew was wrong?") + "…",
+            "V1: " + (typeof result.hooks[0] === "object" ? (result.hooks[0] as TypedHook).hook?.slice(0, 50) : (result.hooks[0] as string)?.slice(0, 50) || "What if everything you knew was wrong?") + "…",
             "V2: A completely different angle that hooks in 0.5 seconds",
             "V3: The emotional rewrite that keeps viewers watching",
           ]}

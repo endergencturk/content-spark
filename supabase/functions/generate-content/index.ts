@@ -278,12 +278,31 @@ const musicSuggestionSchema = {
 
 // ── Schema builders ─────────────────────────────────────────────────
 
+const hookWithLabelSchema = {
+  type: "OBJECT",
+  properties: {
+    type: { type: "STRING" },
+    hook: { type: "STRING" },
+  },
+  required: ["type", "hook"],
+};
+
+const angleVariationSchema = {
+  type: "OBJECT",
+  properties: {
+    type: { type: "STRING" },
+    hook: { type: "STRING" },
+  },
+  required: ["type", "hook"],
+};
+
 function buildFreeSchema() {
   return {
     type: "OBJECT",
     properties: {
-      hooks: { type: "ARRAY", items: { type: "STRING" } },
+      hooks: { type: "ARRAY", items: hookWithLabelSchema },
       bestHook: { type: "STRING" },
+      angleVariations: { type: "ARRAY", items: angleVariationSchema },
       script: { type: "STRING" },
       editingPlan: {
         type: "ARRAY",
@@ -331,7 +350,7 @@ function buildFreeSchema() {
         },
       },
     },
-    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails"],
+    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails", "angleVariations"],
   };
 }
 
@@ -349,7 +368,9 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
   const props: Record<string, any> = {
     bestHook: { type: "STRING" },
+    hooks: { type: "ARRAY", items: hookWithLabelSchema },
     hookVariations: { type: "ARRAY", items: { type: "STRING" } },
+    angleVariations: { type: "ARRAY", items: angleVariationSchema },
     script: { type: "STRING" },
     editingPlan: { type: "ARRAY", items: editingScene },
     voiceStyle: { type: "STRING" },
@@ -396,7 +417,7 @@ function buildProSchema(platforms: string[], _hookCount: number) {
   };
 
   const required = [
-    "bestHook", "hookVariations", "script", "editingPlan",
+    "bestHook", "hooks", "hookVariations", "angleVariations", "script", "editingPlan",
     "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails",
   ];
 
@@ -733,14 +754,36 @@ REWATCH LOOP RULE (CRITICAL):
 - If no rewatch moment exists → REWRITE the script until it does`;
 
   const hookVariationRule = `
-HOOK VARIATION RULE:
-- Each hook MUST use a DIFFERENT emotional trigger:
-  * fear
-  * curiosity
-  * urgency
-  * impossibility
+HOOK ENGINE (5 PSYCHOLOGICAL ANGLES):
+- Generate exactly 5 hooks, each with a DIFFERENT psychological angle:
+  Hook 1 - Fear: immediate danger or threat
+  Hook 2 - Curiosity: open loop, unanswered question
+  Hook 3 - WTF: impossible or bizarre situation
+  Hook 4 - Conspiracy: hidden truth, cover-up angle
+  Hook 5 - Emotional: human loss, family, personal impact
+- Each hook MUST be returned as an object: { type: "Fear" | "Curiosity" | "WTF" | "Conspiracy" | "Emotional", hook: "the hook text" }
+- The bestHook must be the single strongest one from these 5
 - Avoid repeating the same tone across hooks
 - If two hooks feel similar → rewrite one`;
+
+  const loopEndingRule = `
+LOOP ENDING RULE (CRITICAL):
+- The LAST line of the script MUST connect back to the opening
+- It must reference the first word or situation from the hook
+- Example: if hook starts "Vanished." → ending references vanishing
+- Add the prefix "LOOP: " before the final line in the script output
+- This creates a circular narrative that rewards rewatching
+- The loop ending must still feel natural and not forced`;
+
+  const angleVariationRule = `
+ANGLE VARIATION (REQUIRED):
+- After generating the main script, generate 3 alternative angles for the same topic
+- Each angle is a SINGLE hook line (not a full script), returned as { type, hook }:
+  ANGLE 1 - Fear: reframe as personal danger to viewer
+  ANGLE 2 - Mystery: focus on unanswered questions only
+  ANGLE 3 - Conspiracy: suggest cover-up or hidden party
+- Return these in the "angleVariations" array
+- Each must be a completely different perspective from the main hook`;
 
   const editSyncRule = `
 EDIT SYNC RULE:
@@ -969,17 +1012,21 @@ ${contentTypeInstructions}
 ${platformHookRules}
 
 HOOK GENERATION:
-- Generate 5–8 hooks
+- Generate exactly 5 hooks with different psychological angles (see HOOK ENGINE)
+- Each hook = { type, hook } object
 - Create immediate curiosity gap
 - Max 6 words per hook
 - Avoid safe or explanatory language
-- First hook must be the strongest
 - Adapt hook tone to match topic (not always dark/shocking)
 
 BEST HOOK:
 - Select the single most viral hook and return it as bestHook
 
 ${hookVariationRule}
+
+${loopEndingRule}
+
+${angleVariationRule}
 
 ${scriptFormatRules}
 
@@ -1031,18 +1078,20 @@ ${qualityEnforcement}
 
 GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
-2. hookVariations: ${input.hookCount} rewrites (different angles, styles, emotional triggers)
-3. script: Plain voiceover text, one sentence per line, with empty lines for pacing. NO labels, NO structure markers.
-4. editingPlan: scenes with visual, onScreenText, mood
-5. voiceStyle: recommended voice style
-6. postingStrategy: bestTime and platformTip
-7. imagePrompts: exactly 5 cinematic prompts
-8. youtube: title, description, tags
-9. tiktok: caption, hashtags
-10. music: exactly 3 music suggestions, each with type, source, why
-11. seriesPotential: how this can become a series
-12. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
-${input.platforms.includes("instagram-reels") ? "13. instagramCaption: Instagram caption with hashtags\n14. viralAnalysis: score (1-10) and reasons array" : "13. viralAnalysis: score (1-10) and reasons array"}
+2. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
+3. hookVariations: ${input.hookCount} rewrites (different angles, styles, emotional triggers)
+4. script: Plain voiceover text, one sentence per line, with empty lines for pacing. NO labels, NO structure markers. Last line prefixed with "LOOP: " and connects back to opening.
+5. editingPlan: scenes with visual, onScreenText, mood
+6. voiceStyle: recommended voice style
+7. postingStrategy: bestTime and platformTip
+8. imagePrompts: exactly 5 cinematic prompts
+9. youtube: title, description, tags
+10. tiktok: caption, hashtags
+11. music: exactly 3 music suggestions, each with type, source, why
+12. seriesPotential: how this can become a series
+13. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
+14. angleVariations: exactly 3 alternative angle hooks as {type, hook} objects (Fear, Mystery, Conspiracy)
+${input.platforms.includes("instagram-reels") ? "15. instagramCaption: Instagram caption with hashtags\n16. viralAnalysis: score (1-10) and reasons array" : "15. viralAnalysis: score (1-10) and reasons array"}
 
 - ${input.depth === "concise" ? "Keep everything minimal and tight" : input.depth === "detailed" ? "Add extra detail and depth" : "Balance detail and brevity"}
 ${outputRules}`;
@@ -1087,17 +1136,21 @@ ${contentTypeInstructions}
 ${platformHookRules}
 
 HOOK GENERATION:
-- Generate exactly 3 hooks
+- Generate exactly 5 hooks with different psychological angles (see HOOK ENGINE)
+- Each hook = { type, hook } object
 - Create immediate curiosity gap
 - Max 6 words per hook
 - Avoid safe or explanatory language
-- First hook must be the strongest
 - Adapt hook tone to match topic
 
 BEST HOOK:
 - Select the single most viral hook and return it as bestHook
 
 ${hookVariationRule}
+
+${loopEndingRule}
+
+${angleVariationRule}
 
 ${scriptFormatRules}
 
@@ -1144,9 +1197,9 @@ ${viralAnalysisRules}
 ${qualityEnforcement}
 
 GENERATE:
-1. hooks: exactly 3 hooks
+1. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
 2. bestHook: the single strongest hook (marked with ⭐ in output)
-3. script: voiceover text, one line per sentence
+3. script: voiceover text, one line per sentence. Last line prefixed with "LOOP: " connecting back to opening.
 4. editingPlan: scenes
 5. imagePrompts: 5 prompts
 6. youtube: title, description, tags
@@ -1154,7 +1207,8 @@ GENERATE:
 8. music: exactly 3 music suggestions, each with type, source, why
 9. seriesPotential: how this can become a series
 10. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
-11. viralAnalysis: score (1-10) and reasons array
+11. angleVariations: exactly 3 alternative angle hooks as {type, hook} objects (Fear, Mystery, Conspiracy)
+12. viralAnalysis: score (1-10) and reasons array
 
 ${outputRules}`;
 }
