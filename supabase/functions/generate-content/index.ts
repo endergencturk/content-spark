@@ -445,7 +445,8 @@ function getLineCountGuidance(scriptLength: string): string {
 - HARD LIMIT: 65–75 words total. Target 70 words. NEVER exceed 75. NEVER go below 65.
 - Each line: 1 breath, max 6 words per line
 - Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 75 → compress sentences, remove filler. If still over → shorten middle. If under 65 → add one tension line.
+- Count every word before finalizing. If over 75 → remove lines from MIDDLE section only (always keep first 3 lines and last 3 lines). Then re-count. If still over → compress remaining middle lines. NEVER return script above 75 words.
+- If under 65 → add one tension line before ending.
 - Use 2–3 key ideas, minimal buildup`;
     case "60": return `STRICT TIMING CONTROL (60s):
 - HARD LIMIT: 130–150 words total. Target 140 words. NEVER exceed 150. NEVER go below 130.
@@ -670,26 +671,35 @@ If topic is selling / product / business:
 AI MUST match the topic category. Mismatched tone = INVALID output.`;
 
   const factSafetyRule = `
-FACT SAFETY RULE (CRITICAL):
-- Never invent specific quotes, dialogue, or unverified details.
+FACT SAFETY RULE (TOP PRIORITY — APPLY TO ALL OUTPUT):
+- Do not write invented dialogue or invented emotional states.
+- Do not fabricate specific actions or quotes.
+- Avoid phrases like "he whispered strange warnings" or any invented speech.
+- Only describe generally unless facts are certain.
 - If uncertain about a fact → describe the situation generally, do not fabricate.
 - This is especially critical for true crime topics.
 - Do not put words in real people's mouths.
-- If a detail cannot be verified, use phrases like "reportedly", "according to sources", "it's believed that"`;
+- If a detail cannot be verified, use phrases like "reportedly", "according to sources", "it's believed that"
+- This rule applies to: Script, Hooks, SEO text, and all other output sections.`;
 
   const autoFixRule = `
 AUTO-FIX RULE (CRITICAL — VIRAL SCORE THRESHOLD = 8):
-${autoFixForced ? '- AUTO-FIX MODE IS FORCED. You MUST generate the strongest possible version on the first pass.' : ''}
+${autoFixForced ? `- AUTO-FIX MODE IS FORCED. Previous output was not strong enough.
+- Rewrite the hook with a stronger, more shocking opening word.
+- Rewrite the middle with shorter lines (max 4 words per line).
+- Increase pattern interrupts significantly.
+- Make ending more open and tense.
+- Keep total word count strictly under the duration limit.
+- The viral score MUST be at least 8.5. Push to 9+ if possible.` : ''}
 - After generating ALL content, evaluate the viral analysis score
-- If the estimated viral score is BELOW 8${autoFixForced ? ' (or always when auto-fix is forced)' : ''}:
+- If the estimated viral score is BELOW 8:
   1. Rewrite the bestHook with a stronger, more shocking opening word
   2. Add MORE pattern interrupts throughout the script (at least 2 extra)
   3. Strengthen the loop ending to be more emotionally impactful
   4. Push hook intensity to maximum
 - Do NOT return low-quality output. Only return the IMPROVED version.
 - Do NOT skip this step. Every output must meet the threshold.
-- If after improvement the score is still below 8, push harder on hook and ending.
-${autoFixForced ? '- The viral score MUST be at least 8.5 when auto-fix is forced. Push to 9+ if possible.' : ''}`;
+- If after improvement the score is still below 8, push harder on hook and ending.`;
 
   const microRetentionRule = `
 MICRO-RETENTION TRIGGERS (FOR EDITING PLAN ONLY):
@@ -806,7 +816,7 @@ LOOP ENDING RULE (CRITICAL):
 - The LAST line of the script MUST connect back to the opening
 - It must reference the first word or situation from the hook
 - Example: if hook starts "Vanished." → ending references vanishing
-- Add the prefix "LOOP: " before the final line in the script output
+- Do NOT add any "LOOP:" prefix or label in the script output — the final line must be plain text only
 - This creates a circular narrative that rewards rewatching
 - The loop ending must still feel natural and not forced`;
 
@@ -951,9 +961,9 @@ If output feels robotic, too generic, or has a tone mismatch with the topic → 
 
 QUALITY GATE CHECKLIST (check ALL before returning):
 ✔ Best hook starts with situation word, not pronoun
-✔ Script word count is WITHIN the hard limit range (15s=30-40, 30s=65-75, 60s=130-150 words) — if outside range, fix NOW
-✔ Script contains NO asterisks (*word*), NO stage directions (except micro-retention cues like [pause], [cut], [zoom], [whisper]) — pure voiceover only
-✔ Micro-retention cues appear every 3-4 lines (not on every line)
+✔ Script word count is WITHIN the hard limit range (15s=30-40, 30s=65-75, 60s=130-150 words) — if outside range, trim from MIDDLE only (keep first 3 and last 3 lines), then re-check. NEVER return script above limit.
+✔ Script contains NO asterisks (*word*), NO stage directions, NO bracketed cues — pure voiceover only
+✔ Script has NO "LOOP:" prefix on any line — last line must be plain text
 ✔ Subject revealed mid-script, not at line 1
 ✔ Script ends with tension/teaser, not summary
 ✔ At least 1 unsettling image prompt included
@@ -1016,6 +1026,8 @@ IMPORTANT:
     return `You are an advanced AI short-form content engine designed to generate viral-ready, high-retention content for TikTok, Instagram Reels, and YouTube Shorts.
 Your goal is to create content that is immediately usable, emotionally engaging, and optimized for maximum watch time and interaction.
 You MUST adapt tone, structure, and style based on the topic, language, and user selections.
+${factSafetyRule}
+
 ${globalRules}
 
 ${languageBehavior}
@@ -1069,7 +1081,6 @@ ${loopEndingRule}
 
 ${angleVariationRule}
 
-${factSafetyRule}
 
 ${autoFixRule}
 
@@ -1127,7 +1138,7 @@ GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
 2. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
 3. hookVariations: ${input.hookCount} rewrites (different angles, styles, emotional triggers)
-4. script: Plain voiceover text, one sentence per line, with empty lines for pacing. NO labels, NO structure markers. Last line prefixed with "LOOP: " and connects back to opening.
+4. script: Plain voiceover text, one sentence per line, with empty lines for pacing. NO labels, NO structure markers, NO "LOOP:" prefix. Last line connects back to opening naturally.
 5. editingPlan: scenes with visual, onScreenText, mood
 6. voiceStyle: recommended voice style
 7. postingStrategy: bestTime and platformTip
@@ -1147,6 +1158,8 @@ ${outputRules}`;
   return `You are an advanced AI short-form content engine designed to generate viral-ready, high-retention content for TikTok, Instagram Reels, and YouTube Shorts.
 Your goal is to create content that is immediately usable, emotionally engaging, and optimized for maximum watch time and interaction.
 You MUST adapt tone, structure, and style based on the topic, language, and user selections.
+${factSafetyRule}
+
 ${globalRules}
 
 ${languageBehavior}
@@ -1199,7 +1212,6 @@ ${loopEndingRule}
 
 ${angleVariationRule}
 
-${factSafetyRule}
 
 ${autoFixRule}
 
@@ -1252,7 +1264,7 @@ ${qualityEnforcement}
 GENERATE:
 1. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
 2. bestHook: the single strongest hook (marked with ⭐ in output)
-3. script: voiceover text, one line per sentence. Last line prefixed with "LOOP: " connecting back to opening.
+3. script: voiceover text, one line per sentence. Last line connects back to opening (no LOOP: prefix).
 4. editingPlan: scenes
 5. imagePrompts: 5 prompts
 6. youtube: title, description, tags
