@@ -385,27 +385,28 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
 function getLineCountGuidance(scriptLength: string): string {
   switch (scriptLength) {
-    case "15": return `LINE COUNT CONTROL (15s):
-- Target: 15–18 lines
-- Each line ≈ 0.8–1.2 seconds when spoken
+    case "15": return `TIMING CONTROL (15s):
+- Target: 15–18 lines, ~40–50 words max
+- Each line: 3–6 words ideal
+- Optimized for ElevenLabs speed 1.0
 - Focus on immediate impact and curiosity
-- Use only 1–2 ideas maximum
-- If script is too short, expand with micro-details or transitions`;
-    case "30": return `LINE COUNT CONTROL (30s):
-- Target: 25–35 lines
-- Each line ≈ 0.8–1.2 seconds when spoken
+- Use only 1–2 ideas maximum`;
+    case "30": return `TIMING CONTROL (30s):
+- Target: 25–35 lines, 75–90 words max
+- Each line: 3–6 words ideal
+- Optimized for ElevenLabs speed 1.0
 - Use 2–3 key ideas
-- Keep buildup minimal but present
-- If too short, add examples or micro-explanations`;
-    case "60": return `LINE COUNT CONTROL (60s):
-- Target: 50–70 lines
-- Each line ≈ 0.8–1.2 seconds when spoken
+- Keep buildup minimal but present`;
+    case "60": return `TIMING CONTROL (60s):
+- Target: 50–70 lines, 140–180 words max
+- Each line: 3–6 words ideal
+- Optimized for ElevenLabs speed 1.0
 - Develop 3–5 ideas with proper narrative flow
-- Allow room for tension building and payoff
-- If too short, expand with context, examples, and transitions`;
-    default: return `LINE COUNT CONTROL (30s):
-- Target: 25–35 lines
-- Each line ≈ 0.8–1.2 seconds when spoken`;
+- Allow room for tension building and payoff`;
+    default: return `TIMING CONTROL (30s):
+- Target: 25–35 lines, 75–90 words max
+- Each line: 3–6 words ideal
+- Optimized for ElevenLabs speed 1.0`;
   }
 }
 
@@ -581,15 +582,33 @@ VOICE SCRIPT (CRITICAL):
 
 ${lineCountGuidance}`;
 
+  const platformHookRules = `
+=== PLATFORM HOOK RULES (CRITICAL) ===
+
+TIKTOK HOOKS:
+- First WORD must be a situation word: "Vanished." / "Dead." / "Gone." / "Missing." / "Trapped." / "Erased." / "Found." / "Watched."
+- First sentence: max 4 words
+- NEVER start with: He / She / They / A man / A woman / In [year] / This is
+- Start with SITUATION, not person
+- Format: SITUATION → IMPOSSIBLE DETAIL → OPEN QUESTION
+
+YOUTUBE SHORTS HOOKS:
+- Curiosity-first, not shock-first
+- First sentence: 6–8 words
+- Use: "last seen" / "never found" / "vanished" / "on camera" / "no trace"
+- Format: NORMAL → DISRUPTION → QUESTION
+
+MULTI-PLATFORM: Generate TikTok hooks first, then adapt for YouTube.
+If any hook feels weak or narrative → rewrite internally before returning.`;
+
   const scrollStopperRule = `
-SCROLL STOPPER RULE (CRITICAL):
-- The FIRST LINE of the script must:
-  - Feel unusual, dangerous, or confusing
-  - Stop scrolling instantly
-  - Create an immediate "wait, what?" reaction
-- If the first line is generic or explanatory → REWRITE internally
-- Bad: "London, 1888." / "Did you know that..." / "Today I want to talk about..."
-- Good: "He was never caught." / "Nobody talks about this." / "This changes everything."`;
+SCROLL STOPPER / OPENING WORD RULE (CRITICAL):
+- The FIRST SPOKEN WORD of the script must match TikTok hook rule
+- First word must be a situation word (Vanished / Dead / Gone / Missing / Trapped / Found / etc.)
+- If the script opens with He / She / They / A man → REWRITE
+- The first line must stop scrolling instantly
+- Bad: "London, 1888." / "This is Lars Mittank" / "Did you know..."
+- Good: "Vanished." / "Gone." / "Dead. No body." / "Missing. No trace."`;
 
   const patternInterruptRule = `
 PATTERN INTERRUPT RULE:
@@ -600,15 +619,57 @@ PATTERN INTERRUPT RULE:
   - Add a micro-cliffhanger
 - Examples: "Wait.", "Think again.", "But here's the thing…", "Wrong."`;
 
+  const informationDelayRule = `
+INFORMATION DELAY RULE (CRITICAL):
+- First 5–8 lines: build mystery WITHOUT naming the subject
+- Name/reveal = mid-script payoff
+- BAD: "This is Lars Mittank" at line 1
+- GOOD: tension → reveal → escalation
+- The viewer must be hooked BEFORE they know what the video is about`;
+
   const rewatchFactorRule = `
-REWATCH MOMENT RULE (CRITICAL):
+REWATCH LOOP RULE (CRITICAL):
 - You MUST include exactly one line in the script that:
   - Feels confusing or ambiguous on first watch
   - Reveals a completely new meaning when viewed a second time
   - Makes the viewer go "wait... I need to watch that again"
 - This line should be subtle — not obvious
 - Mark it internally during generation (do not label it in output)
-- If no such moment exists → REWRITE the script until it does`;
+- The ending must connect subtly to the beginning
+- Viewer should feel: something was missed, something is hidden
+- Never fully resolve the story
+- If no rewatch moment exists → REWRITE the script until it does`;
+
+  const hookVariationRule = `
+HOOK VARIATION RULE:
+- Each hook MUST use a DIFFERENT emotional trigger:
+  * fear
+  * curiosity
+  * urgency
+  * impossibility
+- Avoid repeating the same tone across hooks
+- If two hooks feel similar → rewrite one`;
+
+  const editSyncRule = `
+EDIT SYNC RULE:
+- Each major script beat must match a visual change in the editing plan
+- New idea → new scene
+- Tension spike → visual shift
+- Reveal → strongest visual moment
+- The editing plan must mirror script pacing exactly`;
+
+  const platformBehaviorRule = `
+PLATFORM BEHAVIOR RULE:
+TikTok:
+- Faster pacing
+- Shorter lines
+- More tension spikes
+- Aggressive hooks
+
+YouTube Shorts:
+- Slightly clearer storytelling
+- Smoother transitions
+- Curiosity over shock`;
 
   const retentionHookRule = `
 RETENTION HOOK RULE (CRITICAL):
@@ -632,19 +693,21 @@ HOOK QUALITY GATE (MANDATORY):
 - NEVER return a weak, generic hook`;
 
   const commentTriggerRule = `
-COMMENT TRIGGER:
-- The ending MUST do at least one of:
-  - Ask a provocative question
-  - Suggest a theory viewers will debate
-  - Leave a mystery open
-  - Challenge the viewer's belief
-- Goal: maximize comments and engagement`;
+COMMENT TRIGGER RULE:
+- The ending MUST provoke engagement using:
+  - Uncertainty
+  - Disagreement potential
+  - Hidden clue implication
+  - A provocative question
+  - A theory viewers will debate
+- Goal: maximize comments and interaction`;
 
   const imagePromptRules = `
 IMAGE PROMPTS:
 - Generate exactly 5 prompts.
 - Each must include: scene description, lighting details, atmosphere, camera feel.
-- Format: [scene], [lighting], [atmosphere], cinematic, photorealistic, vertical 9:16, no text, no faces`;
+- Format: [scene], [lighting], [mood], cinematic, photorealistic, vertical 9:16, no text, no faces
+- CRITICAL: At least 1 prompt MUST be unsettling, surreal, or visually impossible`;
 
   const seoRules = `
 SEO PACK:
@@ -704,14 +767,35 @@ CRITICAL: Do NOT inflate scores. Be honest and critical. A generic topic with a 
   const qualityEnforcement = `
 QUALITY ENFORCEMENT (CRITICAL):
 If output feels robotic, too generic, or has a tone mismatch with the topic → REWRITE internally before returning.
+
+QUALITY GATE CHECKLIST (check ALL before returning):
+✔ Best hook starts with situation word, not pronoun
+✔ Script word count fits target duration (30s=75-90 words, 60s=140-180 words)
+✔ Subject revealed mid-script, not at line 1
+✔ Script ends with tension/teaser, not summary
+✔ At least 1 unsettling image prompt included
+✔ Music suggestions included and match content type
+✔ Each hook uses a different emotional trigger
+✔ Editing plan syncs with script beats
+
 The script MUST:
-- Start with a strong, attention-grabbing first line (see SCROLL STOPPER RULE)
+- Start with a situation word (see OPENING WORD RULE)
+- Delay subject reveal (see INFORMATION DELAY)
 - Maintain engagement every 2–3 lines (see PATTERN INTERRUPT RULE)
-- Include at least one rewatch-worthy moment (see REWATCH FACTOR)
-- End with a comment-triggering closer (see COMMENT TRIGGER)
+- Include at least one rewatch-worthy moment (see REWATCH LOOP)
+- End with a forward-looking teaser (see RETENTION HOOK)
+- End with a comment trigger (see COMMENT TRIGGER)
 - Match the tone to the topic category (NOT always dark/horror)
 - Sound human and natural, not AI-generated
 - Be immediately usable for voice recording
+- Must feel like a PERFORMANCE, not narration
+
+PACING MUST FEEL LIKE A PERFORMANCE:
+- Opening: 1–3 word punch
+- Middle: tension build, 3–6 words
+- Peak: short fast cuts
+- End: slow down → tension
+- Never repeat same-length sentences consecutively
 
 FORBIDDEN:
 - Flat narration
@@ -719,7 +803,9 @@ FORBIDDEN:
 - Over-explaining
 - Robotic or translated-sounding language
 - Generic phrasing that could apply to any topic
-- Safe, predictable endings`;
+- Safe, predictable endings
+- Opening with pronouns (He/She/They)
+- Revealing the subject in line 1`;
 
   const outputRules = `
 IMPORTANT:
@@ -770,6 +856,8 @@ ${hookIntensityInstructions}
 CONTENT TYPE:
 ${contentTypeInstructions}
 
+${platformHookRules}
+
 HOOK GENERATION:
 - Generate 5–8 hooks
 - Create immediate curiosity gap
@@ -781,9 +869,13 @@ HOOK GENERATION:
 BEST HOOK:
 - Select the single most viral hook and return it as bestHook
 
+${hookVariationRule}
+
 ${scriptFormatRules}
 
 ${scrollStopperRule}
+
+${informationDelayRule}
 
 ${patternInterruptRule}
 
@@ -794,6 +886,10 @@ ${retentionHookRule}
 ${hookQualityGate}
 
 ${commentTriggerRule}
+
+${editSyncRule}
+
+${platformBehaviorRule}
 
 EDITING PLAN:
 - Provide scenes: Scene 1, Scene 2, etc.
@@ -869,6 +965,8 @@ ${hookIntensityInstructions}
 CONTENT TYPE:
 ${contentTypeInstructions}
 
+${platformHookRules}
+
 HOOK GENERATION:
 - Generate exactly 3 hooks
 - Create immediate curiosity gap
@@ -880,9 +978,13 @@ HOOK GENERATION:
 BEST HOOK:
 - Select the single most viral hook and return it as bestHook
 
+${hookVariationRule}
+
 ${scriptFormatRules}
 
 ${scrollStopperRule}
+
+${informationDelayRule}
 
 ${patternInterruptRule}
 
@@ -893,6 +995,10 @@ ${retentionHookRule}
 ${hookQualityGate}
 
 ${commentTriggerRule}
+
+${editSyncRule}
+
+${platformBehaviorRule}
 
 EDITING PLAN:
 - Provide scenes with visual description
