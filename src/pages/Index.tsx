@@ -864,9 +864,25 @@ Viral Score: ${viralScore}/10
     }
   }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult, autoFixUsed]);
 
+  const handleProfileSave = useCallback((profile: ChannelProfileData) => {
+    if (profile.audience) setTargetAudience(profile.audience);
+    if (profile.niche) {
+      const presetMatch = NICHE_PRESETS.find(p => p.id === profile.niche);
+      if (presetMatch) handlePresetClick(presetMatch);
+    }
+  }, [handlePresetClick]);
+
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar onEditProfile={() => setProfileForceOpen(true)} />
+
+      {/* Trending Panel */}
+      <TrendingPanel
+        niche={selectedPreset}
+        audience={targetAudience}
+        locale={locale}
+        onSelectTopic={(t) => setTopic(t)}
+      />
 
       <div className="py-8 px-4">
         <div className="mx-auto max-w-lg space-y-7">
