@@ -64,7 +64,7 @@ serve(async (req) => {
 
       const discoveryPrompt = `You are a viral content strategist for ${platformList}.
 
-Generate 5 viral content ideas optimized for short-form video.
+Generate 8 viral content ideas optimized for short-form video.
 
 Language: ${lang}
 ${lang === "Turkish" ? "Write in natural, fluent Turkish. Do NOT translate from English." : ""}
@@ -82,8 +82,10 @@ ${niche ? `- Every idea must be directly related to the "${niche}" niche` : ""}
 For each idea provide:
 - title: A specific, attention-grabbing content idea (max 10 words)
 - why: One sentence explaining why it can go viral
+- category: One of: Mystery, Horror, True Crime, Educational, Finance, Entertainment
+- region: Trending region label (e.g. "🇺🇸 USA Trending", "🌍 Global", "🇹🇷 Turkey", "🇪🇺 Europe")
 
-Return exactly 5 ideas as JSON.`;
+Return exactly 8 ideas as JSON.`;
 
       const discoverySchema = {
         type: "OBJECT",
@@ -95,8 +97,10 @@ Return exactly 5 ideas as JSON.`;
               properties: {
                 title: { type: "STRING" },
                 why: { type: "STRING" },
+                category: { type: "STRING" },
+                region: { type: "STRING" },
               },
-              required: ["title", "why"],
+              required: ["title", "why", "category", "region"],
             },
           },
         },
