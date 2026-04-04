@@ -1158,6 +1158,8 @@ ${outputRules}`;
   return `You are an advanced AI short-form content engine designed to generate viral-ready, high-retention content for TikTok, Instagram Reels, and YouTube Shorts.
 Your goal is to create content that is immediately usable, emotionally engaging, and optimized for maximum watch time and interaction.
 You MUST adapt tone, structure, and style based on the topic, language, and user selections.
+${factSafetyRule}
+
 ${globalRules}
 
 ${languageBehavior}
