@@ -619,15 +619,57 @@ PATTERN INTERRUPT RULE:
   - Add a micro-cliffhanger
 - Examples: "Wait.", "Think again.", "But here's the thing…", "Wrong."`;
 
+  const informationDelayRule = `
+INFORMATION DELAY RULE (CRITICAL):
+- First 5–8 lines: build mystery WITHOUT naming the subject
+- Name/reveal = mid-script payoff
+- BAD: "This is Lars Mittank" at line 1
+- GOOD: tension → reveal → escalation
+- The viewer must be hooked BEFORE they know what the video is about`;
+
   const rewatchFactorRule = `
-REWATCH MOMENT RULE (CRITICAL):
+REWATCH LOOP RULE (CRITICAL):
 - You MUST include exactly one line in the script that:
   - Feels confusing or ambiguous on first watch
   - Reveals a completely new meaning when viewed a second time
   - Makes the viewer go "wait... I need to watch that again"
 - This line should be subtle — not obvious
 - Mark it internally during generation (do not label it in output)
-- If no such moment exists → REWRITE the script until it does`;
+- The ending must connect subtly to the beginning
+- Viewer should feel: something was missed, something is hidden
+- Never fully resolve the story
+- If no rewatch moment exists → REWRITE the script until it does`;
+
+  const hookVariationRule = `
+HOOK VARIATION RULE:
+- Each hook MUST use a DIFFERENT emotional trigger:
+  * fear
+  * curiosity
+  * urgency
+  * impossibility
+- Avoid repeating the same tone across hooks
+- If two hooks feel similar → rewrite one`;
+
+  const editSyncRule = `
+EDIT SYNC RULE:
+- Each major script beat must match a visual change in the editing plan
+- New idea → new scene
+- Tension spike → visual shift
+- Reveal → strongest visual moment
+- The editing plan must mirror script pacing exactly`;
+
+  const platformBehaviorRule = `
+PLATFORM BEHAVIOR RULE:
+TikTok:
+- Faster pacing
+- Shorter lines
+- More tension spikes
+- Aggressive hooks
+
+YouTube Shorts:
+- Slightly clearer storytelling
+- Smoother transitions
+- Curiosity over shock`;
 
   const retentionHookRule = `
 RETENTION HOOK RULE (CRITICAL):
