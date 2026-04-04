@@ -683,17 +683,22 @@ FACT SAFETY RULE (TOP PRIORITY — APPLY TO ALL OUTPUT):
 
   const autoFixRule = `
 AUTO-FIX RULE (CRITICAL — VIRAL SCORE THRESHOLD = 8):
-${autoFixForced ? '- AUTO-FIX MODE IS FORCED. You MUST generate the strongest possible version on the first pass.' : ''}
+${autoFixForced ? `- AUTO-FIX MODE IS FORCED. Previous output was not strong enough.
+- Rewrite the hook with a stronger, more shocking opening word.
+- Rewrite the middle with shorter lines (max 4 words per line).
+- Increase pattern interrupts significantly.
+- Make ending more open and tense.
+- Keep total word count strictly under the duration limit.
+- The viral score MUST be at least 8.5. Push to 9+ if possible.` : ''}
 - After generating ALL content, evaluate the viral analysis score
-- If the estimated viral score is BELOW 8${autoFixForced ? ' (or always when auto-fix is forced)' : ''}:
+- If the estimated viral score is BELOW 8:
   1. Rewrite the bestHook with a stronger, more shocking opening word
   2. Add MORE pattern interrupts throughout the script (at least 2 extra)
   3. Strengthen the loop ending to be more emotionally impactful
   4. Push hook intensity to maximum
 - Do NOT return low-quality output. Only return the IMPROVED version.
 - Do NOT skip this step. Every output must meet the threshold.
-- If after improvement the score is still below 8, push harder on hook and ending.
-${autoFixForced ? '- The viral score MUST be at least 8.5 when auto-fix is forced. Push to 9+ if possible.' : ''}`;
+- If after improvement the score is still below 8, push harder on hook and ending.`;
 
   const microRetentionRule = `
 MICRO-RETENTION TRIGGERS (FOR EDITING PLAN ONLY):
