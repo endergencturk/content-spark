@@ -18,6 +18,20 @@ import { useUsageLimit } from "@/hooks/useUsageLimit";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
+
+// Normalize API responses where bestHook/hookVariations may be objects {type, hook}
+function normalizeResult(data: any): any {
+  const out = { ...data };
+  if (out.bestHook && typeof out.bestHook === "object" && out.bestHook.hook) {
+    out.bestHook = out.bestHook.hook;
+  }
+  if (Array.isArray(out.hookVariations)) {
+    out.hookVariations = out.hookVariations.map((v: any) =>
+      typeof v === "object" && v !== null && v.hook ? v.hook : v
+    );
+  }
+  return out;
+}
 import { ProResults, type ProResult } from "@/components/ProResults";
 import { LoadingState } from "@/components/LoadingState";
 
@@ -483,10 +497,10 @@ export default function Index() {
       if (data?.error) throw new Error(data.error);
 
       if (isProMode) {
-        setProResult(data as ProResult);
+        setProResult(normalizeResult(data) as ProResult);
         setGeneralResult(null);
       } else {
-        setGeneralResult(data as GeneralResult);
+        setGeneralResult(normalizeResult(data) as GeneralResult);
         setProResult(null);
         increment();
       }
@@ -526,12 +540,12 @@ export default function Index() {
     if (item.plan_type === "pro") {
       setMode("pro");
       setPlatforms(item.platforms || ["tiktok"]);
-      setProResult(item.output_json as ProResult);
+      setProResult(normalizeResult(item.output_json) as ProResult);
       setGeneralResult(null);
     } else {
       setMode("general");
       setPlatform(item.platforms?.[0] || "tiktok");
-      setGeneralResult(item.output_json as GeneralResult);
+      setGeneralResult(normalizeResult(item.output_json) as GeneralResult);
       setProResult(null);
     }
     setStyle(item.style || "viral");
@@ -691,10 +705,10 @@ Viral Score: ${viralScore}/10
       const newScore = data?.viralAnalysis?.score || 0;
 
       if (isProMode) {
-        setProResult(data as ProResult);
+        setProResult(normalizeResult(data) as ProResult);
         setGeneralResult(null);
       } else {
-        setGeneralResult(data as GeneralResult);
+        setGeneralResult(normalizeResult(data) as GeneralResult);
         setProResult(null);
       }
 
