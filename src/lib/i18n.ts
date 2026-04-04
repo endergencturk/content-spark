@@ -423,6 +423,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "topics.surprise": "Beni Şaşırt",
     "topics.more": "Pro ile daha fazla öneri",
 
+    // Niche presets
+    "preset.title": "Hızlı Başlangıç",
+
     // Viral categories
     "viral.hookStrength": "Hook Gücü",
     "viral.curiosityGap": "Merak Boşluğu",
