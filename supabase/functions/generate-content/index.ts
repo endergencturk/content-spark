@@ -434,28 +434,28 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 function getLineCountGuidance(scriptLength: string): string {
   switch (scriptLength) {
     case "15": return `STRICT TIMING CONTROL (15s):
-- HARD LIMIT: maximum 40 words total. Do NOT exceed 40 words.
+- HARD LIMIT: 30–40 words total. Target 35 words. NEVER exceed 40. NEVER go below 30.
 - Each line: 1 breath, max 6 words per line
-- Pure voiceover text only — no asterisks, no stage directions, no action notes
-- Count every word before finalizing. If over 40 → cut lines until under limit.
+- Editing cues like [pause] do NOT count as words
+- Count every word before finalizing. If over 40 → compress sentences, remove filler. If still over → shorten middle. If under 30 → add one tension line.
 - Focus on immediate impact, 1–2 ideas max`;
     case "30": return `STRICT TIMING CONTROL (30s):
-- HARD LIMIT: maximum 80 words total. Do NOT exceed 80 words.
+- HARD LIMIT: 65–75 words total. Target 70 words. NEVER exceed 75. NEVER go below 65.
 - Each line: 1 breath, max 6 words per line
-- Pure voiceover text only — no asterisks, no stage directions, no action notes
-- Count every word before finalizing. If over 80 → compress until under limit.
+- Editing cues like [pause] do NOT count as words
+- Count every word before finalizing. If over 75 → compress sentences, remove filler. If still over → shorten middle. If under 65 → add one tension line.
 - Use 2–3 key ideas, minimal buildup`;
     case "60": return `STRICT TIMING CONTROL (60s):
-- HARD LIMIT: maximum 160 words total. Do NOT exceed 160 words.
+- HARD LIMIT: 130–150 words total. Target 140 words. NEVER exceed 150. NEVER go below 130.
 - Each line: 1 breath, max 6 words per line
-- Pure voiceover text only — no asterisks, no stage directions, no action notes
-- Count every word before finalizing. If over 160 → compress until under limit.
+- Editing cues like [pause] do NOT count as words
+- Count every word before finalizing. If over 150 → compress sentences, remove filler. If still over → shorten middle. If under 130 → add one tension line.
 - Develop 3–5 ideas with narrative flow`;
     default: return `STRICT TIMING CONTROL (30s):
-- HARD LIMIT: maximum 80 words total. Do NOT exceed 80 words.
+- HARD LIMIT: 65–75 words total. Target 70 words. NEVER exceed 75. NEVER go below 65.
 - Each line: 1 breath, max 6 words per line
-- Pure voiceover text only — no asterisks, no stage directions, no action notes
-- Count every word before finalizing. If over 80 → compress until under limit.`;
+- Editing cues like [pause] do NOT count as words
+- Count every word before finalizing. If over 75 → compress. If under 65 → add tension line.`;
   }
 }
 
@@ -665,13 +665,44 @@ If topic is selling / product / business:
 
 AI MUST match the topic category. Mismatched tone = INVALID output.`;
 
+  const factSafetyRule = `
+FACT SAFETY RULE (CRITICAL):
+- Never invent specific quotes, dialogue, or unverified details.
+- If uncertain about a fact → describe the situation generally, do not fabricate.
+- This is especially critical for true crime topics.
+- Do not put words in real people's mouths.
+- If a detail cannot be verified, use phrases like "reportedly", "according to sources", "it's believed that"`;
+
+  const autoFixRule = `
+AUTO-FIX RULE (CRITICAL — VIRAL SCORE THRESHOLD = 8):
+- After generating ALL content, evaluate the viral analysis score
+- If the estimated viral score is BELOW 8:
+  1. Rewrite the bestHook with a stronger, more shocking opening word
+  2. Add one pattern interrupt to the middle of the script (a short tension line like "Wait." or "Think again.")
+  3. Strengthen the loop ending to be more emotionally impactful
+- Do NOT return low-quality output. Only return the IMPROVED version.
+- Do NOT skip this step. Every output must meet the threshold.
+- If after improvement the score is still below 8, push harder on hook and ending.`;
+
+  const microRetentionRule = `
+MICRO-RETENTION TRIGGERS (EDITING CUES):
+- Every 3–4 lines in the script, insert ONE pacing note in square brackets
+- Format examples: [pause], [cut], [zoom], [whisper]
+- These are editing cues for the video editor, NOT voiceover text
+- Rules:
+  - Do NOT add to every line — only every 3–4 lines
+  - Do NOT overuse — max 3–4 cues per script
+  - Place them on their own line between script lines
+  - They must feel natural to the pacing
+  - The user will remove these before pasting to ElevenLabs`;
+
   const scriptFormatRules = `
 VOICE SCRIPT (CRITICAL — STRICT RULES):
 - Generate a voiceover script optimized for ElevenLabs TTS at speed 1.0.
 - OUTPUT FORMAT (MANDATORY):
-  - Pure voiceover text ONLY
+  - Pure voiceover text ONLY (plus [pause]/[cut]/[zoom]/[whisper] editing cues every 3-4 lines — see MICRO-RETENTION TRIGGERS)
   - NO asterisks (*word*) — ElevenLabs reads them literally
-  - NO stage directions (e.g., [pause], [whisper], *leans in*)
+  - NO stage directions other than the micro-retention cues
   - NO action notes or labels (Beat 1, Hook:, CTA:)
   - NO parenthetical instructions
   - Each line = one breath = max 6 words
@@ -681,12 +712,13 @@ VOICE SCRIPT (CRITICAL — STRICT RULES):
   - Add empty lines between sections for breathing space
 
 - WORD COUNT ENFORCEMENT (HARD LIMITS — DO NOT EXCEED):
-  - 15s duration = maximum 40 words
-  - 30s duration = maximum 80 words
-  - 60s duration = maximum 160 words
-  - Before returning the script, COUNT EVERY WORD
-  - If the word count exceeds the limit for the selected duration → CUT or COMPRESS lines until under the limit
-  - This is NON-NEGOTIABLE. Exceeding the word limit = INVALID output.
+  - 15s duration = 30–40 words (editing cues like [pause] do NOT count as words)
+  - 30s duration = 65–75 words (editing cues do NOT count)
+  - 60s duration = 130–150 words (editing cues do NOT count)
+  - Before returning the script, COUNT EVERY WORD (excluding bracketed cues)
+  - If the word count exceeds the max → CUT or COMPRESS lines until within range
+  - If the word count is below the min → ADD one tension line before ending
+  - This is NON-NEGOTIABLE. Outside the range = INVALID output.
 
 - STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
 - First line MUST stop scrolling
@@ -916,25 +948,29 @@ If output feels robotic, too generic, or has a tone mismatch with the topic → 
 
 QUALITY GATE CHECKLIST (check ALL before returning):
 ✔ Best hook starts with situation word, not pronoun
-✔ Script word count is UNDER the hard limit (15s=40, 30s=80, 60s=160 words) — if over, compress NOW
-✔ Script contains NO asterisks (*word*), NO stage directions, NO action notes — pure voiceover only
+✔ Script word count is WITHIN the hard limit range (15s=30-40, 30s=65-75, 60s=130-150 words) — if outside range, fix NOW
+✔ Script contains NO asterisks (*word*), NO stage directions (except micro-retention cues like [pause], [cut], [zoom], [whisper]) — pure voiceover only
+✔ Micro-retention cues appear every 3-4 lines (not on every line)
 ✔ Subject revealed mid-script, not at line 1
 ✔ Script ends with tension/teaser, not summary
 ✔ At least 1 unsettling image prompt included
 ✔ Music suggestions included and match content type
 ✔ Each hook uses a different emotional trigger
 ✔ Editing plan syncs with script beats
+✔ No fabricated quotes or unverified details (see FACT SAFETY)
+✔ Viral score ≥ 8 after auto-fix (see AUTO-FIX RULE)
 
 The script MUST:
 - Start with a situation word (see OPENING WORD RULE)
 - Delay subject reveal (see INFORMATION DELAY)
 - Maintain engagement every 2–3 lines (see PATTERN INTERRUPT RULE)
+- Include micro-retention editing cues every 3-4 lines (see MICRO-RETENTION TRIGGERS)
 - Include at least one rewatch-worthy moment (see REWATCH LOOP)
 - End with a forward-looking teaser (see RETENTION HOOK)
 - End with a comment trigger (see COMMENT TRIGGER)
 - Match the tone to the topic category (NOT always dark/horror)
 - Sound human and natural, not AI-generated
-- Be immediately usable for voice recording
+- Be immediately usable for voice recording (after removing bracketed cues)
 - Must feel like a PERFORMANCE, not narration
 
 PACING MUST FEEL LIKE A PERFORMANCE:
@@ -952,7 +988,9 @@ FORBIDDEN:
 - Generic phrasing that could apply to any topic
 - Safe, predictable endings
 - Opening with pronouns (He/She/They)
-- Revealing the subject in line 1`;
+- Revealing the subject in line 1
+- Fabricating specific quotes or dialogue
+- Returning viral score below 8 without attempting auto-fix`;
 
   const outputRules = `
 IMPORTANT:
@@ -1027,6 +1065,12 @@ ${hookVariationRule}
 ${loopEndingRule}
 
 ${angleVariationRule}
+
+${factSafetyRule}
+
+${autoFixRule}
+
+${microRetentionRule}
 
 ${scriptFormatRules}
 
@@ -1151,6 +1195,12 @@ ${hookVariationRule}
 ${loopEndingRule}
 
 ${angleVariationRule}
+
+${factSafetyRule}
+
+${autoFixRule}
+
+${microRetentionRule}
 
 ${scriptFormatRules}
 

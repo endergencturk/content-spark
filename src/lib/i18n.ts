@@ -233,6 +233,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.postingTime.primary": "Primary Time",
     "result.postingTime.backup": "Backup Time",
     "result.postingTime.reason": "Reason",
+    "result.microRetentionNote": "Remove bracketed cues like [pause], [cut], [zoom] before pasting to ElevenLabs.",
 
     // Hook types
     "hookType.fear": "Fear",
@@ -492,6 +493,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.postingTime.primary": "Birincil Zaman",
     "result.postingTime.backup": "Yedek Zaman",
     "result.postingTime.reason": "Sebep",
+    "result.microRetentionNote": "ElevenLabs'a yapıştırmadan önce [pause], [cut], [zoom] gibi köşeli parantezli işaretleri kaldırın.",
 
     // Hook types
     "hookType.fear": "Korku",
