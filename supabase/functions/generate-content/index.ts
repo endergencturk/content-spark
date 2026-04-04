@@ -1123,6 +1123,8 @@ VISUAL SYNC:
 
 ${imagePromptRules}
 
+${thumbnailRules}
+
 ${seoRules}
 
 ${musicRules}
@@ -1143,7 +1145,8 @@ GENERATE:
 7. tiktok: caption, hashtags
 8. music: exactly 3 music suggestions, each with type, source, why
 9. seriesPotential: how this can become a series
-10. viralAnalysis: score (1-10) and reasons array
+10. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
+11. viralAnalysis: score (1-10) and reasons array
 
 ${outputRules}`;
 }
