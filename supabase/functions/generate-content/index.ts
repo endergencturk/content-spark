@@ -350,7 +350,7 @@ function buildFreeSchema() {
         },
       },
     },
-    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails"],
+    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails", "angleVariations"],
   };
 }
 
