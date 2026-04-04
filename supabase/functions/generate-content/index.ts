@@ -168,6 +168,7 @@ Return exactly 5 ideas as JSON.`;
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: mode === "pro" ? 0.8 : 0.7,
+        maxOutputTokens: 8192,
         responseMimeType: "application/json",
         responseSchema: schema,
       },
@@ -411,28 +412,29 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
 function getLineCountGuidance(scriptLength: string): string {
   switch (scriptLength) {
-    case "15": return `TIMING CONTROL (15s):
-- Target: 15–18 lines, ~40–50 words max
-- Each line: 3–6 words ideal
-- Optimized for ElevenLabs speed 1.0
-- Focus on immediate impact and curiosity
-- Use only 1–2 ideas maximum`;
-    case "30": return `TIMING CONTROL (30s):
-- Target: 25–35 lines, 75–90 words max
-- Each line: 3–6 words ideal
-- Optimized for ElevenLabs speed 1.0
-- Use 2–3 key ideas
-- Keep buildup minimal but present`;
-    case "60": return `TIMING CONTROL (60s):
-- Target: 50–70 lines, 140–180 words max
-- Each line: 3–6 words ideal
-- Optimized for ElevenLabs speed 1.0
-- Develop 3–5 ideas with proper narrative flow
-- Allow room for tension building and payoff`;
-    default: return `TIMING CONTROL (30s):
-- Target: 25–35 lines, 75–90 words max
-- Each line: 3–6 words ideal
-- Optimized for ElevenLabs speed 1.0`;
+    case "15": return `STRICT TIMING CONTROL (15s):
+- HARD LIMIT: maximum 40 words total. Do NOT exceed 40 words.
+- Each line: 1 breath, max 6 words per line
+- Pure voiceover text only — no asterisks, no stage directions, no action notes
+- Count every word before finalizing. If over 40 → cut lines until under limit.
+- Focus on immediate impact, 1–2 ideas max`;
+    case "30": return `STRICT TIMING CONTROL (30s):
+- HARD LIMIT: maximum 80 words total. Do NOT exceed 80 words.
+- Each line: 1 breath, max 6 words per line
+- Pure voiceover text only — no asterisks, no stage directions, no action notes
+- Count every word before finalizing. If over 80 → compress until under limit.
+- Use 2–3 key ideas, minimal buildup`;
+    case "60": return `STRICT TIMING CONTROL (60s):
+- HARD LIMIT: maximum 160 words total. Do NOT exceed 160 words.
+- Each line: 1 breath, max 6 words per line
+- Pure voiceover text only — no asterisks, no stage directions, no action notes
+- Count every word before finalizing. If over 160 → compress until under limit.
+- Develop 3–5 ideas with narrative flow`;
+    default: return `STRICT TIMING CONTROL (30s):
+- HARD LIMIT: maximum 80 words total. Do NOT exceed 80 words.
+- Each line: 1 breath, max 6 words per line
+- Pure voiceover text only — no asterisks, no stage directions, no action notes
+- Count every word before finalizing. If over 80 → compress until under limit.`;
   }
 }
 
@@ -643,27 +645,32 @@ If topic is selling / product / business:
 AI MUST match the topic category. Mismatched tone = INVALID output.`;
 
   const scriptFormatRules = `
-VOICE SCRIPT (CRITICAL):
-- Generate a voiceover script optimized for speaking/recording.
-- FORMAT (STRICT):
-  - Each line = 2–8 words
-  - Natural speaking rhythm
+VOICE SCRIPT (CRITICAL — STRICT RULES):
+- Generate a voiceover script optimized for ElevenLabs TTS at speed 1.0.
+- OUTPUT FORMAT (MANDATORY):
+  - Pure voiceover text ONLY
+  - NO asterisks (*word*) — ElevenLabs reads them literally
+  - NO stage directions (e.g., [pause], [whisper], *leans in*)
+  - NO action notes or labels (Beat 1, Hook:, CTA:)
+  - NO parenthetical instructions
+  - Each line = one breath = max 6 words
   - One idea per line
-  - Use many short lines
-  - Break sentences often
-  - NEVER use paragraphs
-  - NEVER combine sentences
+  - NEVER write paragraphs — if the script is a paragraph, the output is INVALID
+  - Use "..." for pauses and "—" for dramatic breaks
   - Add empty lines between sections for breathing space
-  - Use pauses: "..." and "—" for dramatic effect (when tone calls for it)
-  - Use single-word lines when impactful
+
+- WORD COUNT ENFORCEMENT (HARD LIMITS — DO NOT EXCEED):
+  - 15s duration = maximum 40 words
+  - 30s duration = maximum 80 words
+  - 60s duration = maximum 160 words
+  - Before returning the script, COUNT EVERY WORD
+  - If the word count exceeds the limit for the selected duration → CUT or COMPRESS lines until under the limit
+  - This is NON-NEGOTIABLE. Exceeding the word limit = INVALID output.
+
 - STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
-- CRITICAL:
-  - First line MUST stop scrolling
-  - Ending MUST create curiosity or impact (open loop or strong closer)
-  - DO NOT use labels like "Beat 1", "Beat 2", "Hook:", "CTA:"
-  - DO NOT write paragraphs — if the script is a paragraph, the output is INVALID
-  - Create breathing space for voice recording
-  - If script is too short for the duration, expand with examples, micro-explanations, or transitions
+- First line MUST stop scrolling
+- Ending MUST create curiosity or impact (open loop or strong closer)
+- If script is too short for the duration, expand with examples or transitions — but NEVER exceed the word limit
 
 ${lineCountGuidance}`;
 
@@ -866,7 +873,8 @@ If output feels robotic, too generic, or has a tone mismatch with the topic → 
 
 QUALITY GATE CHECKLIST (check ALL before returning):
 ✔ Best hook starts with situation word, not pronoun
-✔ Script word count fits target duration (30s=75-90 words, 60s=140-180 words)
+✔ Script word count is UNDER the hard limit (15s=40, 30s=80, 60s=160 words) — if over, compress NOW
+✔ Script contains NO asterisks (*word*), NO stage directions, NO action notes — pure voiceover only
 ✔ Subject revealed mid-script, not at line 1
 ✔ Script ends with tension/teaser, not summary
 ✔ At least 1 unsettling image prompt included
