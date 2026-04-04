@@ -1269,11 +1269,11 @@ Viral Score: ${viralScore}/10
                 </div>
               )}
             </div>
-            {/* Generate */}
-            <div>
+            {/* Generate + Bulk Pack buttons */}
+            <div className="flex gap-2">
               <Button
                 id="generate-btn"
-                className="h-13 text-base rounded-2xl font-bold w-full"
+                className="h-13 text-base rounded-2xl font-bold flex-1"
                 disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
                 onClick={() => generateContent()}
               >
@@ -1285,6 +1285,19 @@ Viral Score: ${viralScore}/10
                   <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
                 )}
               </Button>
+              <BulkPackDialog
+                isPro={isProMode}
+                locale={locale}
+                style={style}
+                contentType={contentType}
+                scriptLength={scriptLength}
+                goal={goal}
+                hookStyle={hookStyle}
+                targetAudience={targetAudience}
+                platform={platform}
+                platforms={platforms}
+                isProMode={isProMode}
+              />
             </div>
 
             {!isProMode && !isAtLimit && (
