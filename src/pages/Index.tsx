@@ -21,6 +21,9 @@ import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
 import { ChannelProfile, loadChannelProfile, type ChannelProfileData } from "@/components/ChannelProfile";
 import { TrendingPanel } from "@/components/TrendingPanel";
+import { WeeklyPlan } from "@/components/WeeklyPlan";
+import { ABHookTester } from "@/components/ABHookTester";
+import { BulkPackDialog } from "@/components/BulkPackDialog";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
@@ -930,6 +933,9 @@ Viral Score: ${viralScore}/10
           {/* Channel Profile Onboarding */}
           <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />
 
+          {/* Weekly Content Plan */}
+          <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />
+
           {/* USAGE BANNER (Free mode only) */}
           {!isProMode && (
             <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} locale={locale} />
@@ -1082,14 +1088,8 @@ Viral Score: ${viralScore}/10
                 className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
                 onKeyDown={(e) => e.key === "Enter" && generateContent()}
               />
-              <button
-                onClick={discoverIdeas}
-                disabled={loading}
-                className="w-full py-2.5 rounded-2xl text-sm font-medium text-muted-foreground hover:text-foreground bg-muted/30 hover:bg-muted/50 border border-border/40 transition-colors flex items-center justify-center gap-2"
-              >
-                <Lightbulb className="h-4 w-4" />
-                {loading && !topic.trim() ? t("btn.discovering", locale) : "💡 Need ideas? Discover trending topics"}
-              </button>
+
+
             </div>
 
             {/* 4. Length */}
@@ -1269,11 +1269,11 @@ Viral Score: ${viralScore}/10
                 </div>
               )}
             </div>
-            {/* Generate */}
-            <div>
+            {/* Generate + Bulk Pack buttons */}
+            <div className="flex gap-2">
               <Button
                 id="generate-btn"
-                className="h-13 text-base rounded-2xl font-bold w-full"
+                className="h-13 text-base rounded-2xl font-bold flex-1"
                 disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
                 onClick={() => generateContent()}
               >
@@ -1285,6 +1285,19 @@ Viral Score: ${viralScore}/10
                   <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
                 )}
               </Button>
+              <BulkPackDialog
+                isPro={isProMode}
+                locale={locale}
+                style={style}
+                contentType={contentType}
+                scriptLength={scriptLength}
+                goal={goal}
+                hookStyle={hookStyle}
+                targetAudience={targetAudience}
+                platform={platform}
+                platforms={platforms}
+                isProMode={isProMode}
+              />
             </div>
 
             {!isProMode && !isAtLimit && (
@@ -1426,7 +1439,24 @@ Viral Score: ${viralScore}/10
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
           )}
 
-          {/* Original Version (collapsed by default, shown when toggled) */}
+          {/* A/B Hook Tester — shown after results */}
+          {!loading && hasResults && (
+            <ABHookTester
+              topic={topic}
+              isPro={isProMode}
+              locale={locale}
+              style={style}
+              scriptLength={scriptLength}
+              onSelectHook={(hook) => {
+                if (isProMode && proResult) {
+                  setProResult({ ...proResult, bestHook: hook });
+                } else if (generalResult) {
+                  setGeneralResult({ ...generalResult, bestHook: hook });
+                }
+              }}
+            />
+          )}
+
           {!loading && autoFixUsed && showOriginal && (
             <>
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.originalVersion", locale)}

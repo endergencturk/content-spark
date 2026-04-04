@@ -135,6 +135,147 @@ Return exactly 8 ideas as JSON.`;
       });
     }
 
+    // ── WEEKLY PLAN MODE ────────────────────────────────────────────
+    if (mode === "weekly-plan") {
+      const weekNiche = body.niche || "mystery";
+      const weekAudience = body.audience || "global";
+      const channelName = body.channelName || "";
+
+      const weekPrompt = `You are a viral content strategist.
+
+Generate 7 unique viral content ideas for a weekly posting schedule.
+Channel: ${channelName}
+Niche: ${weekNiche}
+Target Audience: ${weekAudience}
+Language: ${lang}
+${lang === "Turkish" ? "Write in natural, fluent Turkish." : ""}
+
+For each idea provide:
+- topic: A specific attention-grabbing topic (max 12 words)
+- hookWord: A single shocking opening word (e.g. "Vanished.", "Dead.", "Gone.")
+- platform: Either "TikTok" or "YouTube" (alternate)
+- viralScore: Estimated viral potential 1-10
+
+Rules:
+- All 7 topics must be different angles within the "${weekNiche}" niche
+- Each topic should feel like "I NEED to make this video"
+- Hook words must be 1-3 words maximum, ending with period
+- Viral scores should be realistic (7-10 range for good ideas)
+
+Return exactly 7 ideas as JSON array in "ideas" key.`;
+
+      const weekSchema = {
+        type: "OBJECT",
+        properties: {
+          ideas: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                topic: { type: "STRING" },
+                hookWord: { type: "STRING" },
+                platform: { type: "STRING" },
+                viralScore: { type: "NUMBER" },
+              },
+              required: ["topic", "hookWord", "platform", "viralScore"],
+            },
+          },
+        },
+        required: ["ideas"],
+      };
+
+      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+      const geminiBody = {
+        contents: [{ parts: [{ text: weekPrompt }] }],
+        generationConfig: {
+          temperature: 0.9,
+          responseMimeType: "application/json",
+          responseSchema: weekSchema,
+        },
+      };
+
+      const response = await fetchWithRetry(geminiUrl, GEMINI_API_KEY, geminiBody);
+      if (!response || !response.ok) {
+        return new Response(
+          JSON.stringify({ error: "Model temporarily busy. Please try again in a moment." }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const result = await response.json();
+      const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error("Gemini returned empty response");
+      const parsed = JSON.parse(text);
+      return new Response(JSON.stringify(parsed), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ── A/B HOOKS MODE ──────────────────────────────────────────────
+    if (mode === "ab-hooks") {
+      const abPrompt = `You are a viral hook specialist.
+
+Topic: "${topic}"
+Style: ${style || "viral"}
+Language: ${lang}
+${lang === "Turkish" ? "Write in natural, fluent Turkish." : ""}
+
+Generate 2 completely different hooks for the same topic:
+
+Hook A (Fear-based, aggressive):
+- Use fear, urgency, shock psychology
+- Start with a shocking 1-3 word opener
+- Make viewers feel they MUST watch NOW
+
+Hook B (Curiosity-based, open loop):
+- Use curiosity gap, unanswered question
+- Create an irresistible open loop
+- Make viewers feel they NEED to know the answer
+
+Rules:
+- Each hook must be 1-2 sentences max
+- Hooks must be completely different approaches
+- First word of each hook must be maximum 3 words
+- Never start with: He, She, They, A man, A woman
+
+Return as JSON with "hookA" and "hookB" string fields.`;
+
+      const abSchema = {
+        type: "OBJECT",
+        properties: {
+          hookA: { type: "STRING" },
+          hookB: { type: "STRING" },
+        },
+        required: ["hookA", "hookB"],
+      };
+
+      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+      const geminiBody = {
+        contents: [{ parts: [{ text: abPrompt }] }],
+        generationConfig: {
+          temperature: 0.95,
+          responseMimeType: "application/json",
+          responseSchema: abSchema,
+        },
+      };
+
+      const response = await fetchWithRetry(geminiUrl, GEMINI_API_KEY, geminiBody);
+      if (!response || !response.ok) {
+        return new Response(
+          JSON.stringify({ error: "Model temporarily busy. Please try again in a moment." }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const result = await response.json();
+      const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error("Gemini returned empty response");
+      const parsed = JSON.parse(text);
+      return new Response(JSON.stringify(parsed), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // ── GENERATION MODE ─────────────────────────────────────────────
     const selectedPlatforms: string[] =
       platforms && Array.isArray(platforms) && platforms.length > 0
