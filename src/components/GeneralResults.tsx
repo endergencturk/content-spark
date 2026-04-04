@@ -18,6 +18,11 @@ interface MusicSuggestion {
   why: string;
 }
 
+export interface ThumbnailIdea {
+  image: string;
+  text: string;
+}
+
 export interface GeneralResult {
   hooks: string[];
   bestHook: string;
@@ -29,6 +34,7 @@ export interface GeneralResult {
   music?: MusicSuggestion[];
   seriesPotential?: string;
   viralAnalysis: ViralAnalysis;
+  thumbnails?: ThumbnailIdea[];
 }
 
 const CopyBtn = memo(function CopyBtn({
