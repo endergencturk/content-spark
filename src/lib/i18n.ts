@@ -205,6 +205,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "topics.surprise": "Surprise Me",
     "topics.more": "More suggestions available with Pro",
 
+    // Niche presets
+    "preset.title": "Quick Start",
+
     // Viral categories
     "viral.hookStrength": "Hook Strength",
     "viral.curiosityGap": "Curiosity Gap",
