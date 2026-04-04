@@ -1152,12 +1152,48 @@ Viral Score: ${viralScore}/10
                 <button onClick={autoFix} disabled={loading} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
                   <Zap className="h-3 w-3" />{t("btn.autoFix", locale)}
                 </button>
+                {autoFixUsed && (originalGeneralResult || originalProResult) && (
+                  <button
+                    onClick={() => {
+                      if (showOriginal) {
+                        setShowOriginal(false);
+                      } else {
+                        setShowOriginal(true);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showOriginal ? t("result.autoFixedVersion", locale) : t("result.originalVersion", locale)}
+                  </button>
+                )}
               </div>
               {autoFixImproved && (
-                <div className="flex justify-center">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-full">
-                    ✓ {t("badge.improved", locale)}
+                <div className="flex justify-center gap-2">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                    ✓ {autoFixScoreDiff > 0 ? t("badge.improvedBy", locale).replace("{x}", String(autoFixScoreDiff)) : t("badge.improved", locale)}
                   </span>
+                </div>
+              )}
+              {autoFixUsed && (originalGeneralResult || originalProResult) && !showOriginal && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      if (isProMode && originalProResult) {
+                        setProResult(originalProResult);
+                        setOriginalProResult(null);
+                      } else if (!isProMode && originalGeneralResult) {
+                        setGeneralResult(originalGeneralResult);
+                        setOriginalGeneralResult(null);
+                      }
+                      setAutoFixUsed(false);
+                      setAutoFixImproved(false);
+                      setAutoFixScoreDiff(0);
+                      setShowOriginal(false);
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {t("btn.revertOriginal", locale)}
+                  </button>
                 </div>
               )}
             </div>
@@ -1165,11 +1201,33 @@ Viral Score: ${viralScore}/10
 
           {loading && <LoadingState mode={mode} locale={locale} />}
 
-          {!loading && !isProMode && generalResult && (
+          {/* Auto-Fixed Version label */}
+          {!loading && autoFixUsed && !showOriginal && hasResults && (
+            <p className="text-xs font-bold uppercase tracking-widest text-primary px-1">{t("result.autoFixedVersion", locale)}</p>
+          )}
+
+          {!loading && !isProMode && generalResult && !showOriginal && (
             <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
           )}
-          {!loading && isProMode && proResult && (
+          {!loading && isProMode && proResult && !showOriginal && (
             <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+          )}
+
+          {/* Original Version (collapsed by default, shown when toggled) */}
+          {!loading && autoFixUsed && showOriginal && (
+            <>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.originalVersion", locale)}
+                {originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score
+                  ? ` (Score: ${(originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score)}/10)`
+                  : ""}
+              </p>
+              {!isProMode && originalGeneralResult && (
+                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+              )}
+              {isProMode && originalProResult && (
+                <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+              )}
+            </>
           )}
 
           {/* Discovery Results */}
