@@ -833,6 +833,8 @@ ${hookIntensityInstructions}
 CONTENT TYPE:
 ${contentTypeInstructions}
 
+${platformHookRules}
+
 HOOK GENERATION:
 - Generate 5–8 hooks
 - Create immediate curiosity gap
@@ -844,9 +846,13 @@ HOOK GENERATION:
 BEST HOOK:
 - Select the single most viral hook and return it as bestHook
 
+${hookVariationRule}
+
 ${scriptFormatRules}
 
 ${scrollStopperRule}
+
+${informationDelayRule}
 
 ${patternInterruptRule}
 
@@ -857,6 +863,10 @@ ${retentionHookRule}
 ${hookQualityGate}
 
 ${commentTriggerRule}
+
+${editSyncRule}
+
+${platformBehaviorRule}
 
 EDITING PLAN:
 - Provide scenes: Scene 1, Scene 2, etc.
