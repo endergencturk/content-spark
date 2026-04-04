@@ -278,12 +278,31 @@ const musicSuggestionSchema = {
 
 // ── Schema builders ─────────────────────────────────────────────────
 
+const hookWithLabelSchema = {
+  type: "OBJECT",
+  properties: {
+    type: { type: "STRING" },
+    hook: { type: "STRING" },
+  },
+  required: ["type", "hook"],
+};
+
+const angleVariationSchema = {
+  type: "OBJECT",
+  properties: {
+    type: { type: "STRING" },
+    hook: { type: "STRING" },
+  },
+  required: ["type", "hook"],
+};
+
 function buildFreeSchema() {
   return {
     type: "OBJECT",
     properties: {
-      hooks: { type: "ARRAY", items: { type: "STRING" } },
+      hooks: { type: "ARRAY", items: hookWithLabelSchema },
       bestHook: { type: "STRING" },
+      angleVariations: { type: "ARRAY", items: angleVariationSchema },
       script: { type: "STRING" },
       editingPlan: {
         type: "ARRAY",
