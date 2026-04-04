@@ -10,9 +10,9 @@ export const VOICE_SPEED_CONFIG: Record<VoiceSpeed, { charPerSec: number; label:
 };
 
 export const CHAR_TARGETS_BY_SPEED: Record<VoiceSpeed, Record<string, { min: number; max: number }>> = {
-  "0.8": { "15": { min: 140, max: 170 }, "30": { min: 290, max: 320 }, "60": { min: 580, max: 650 } },
-  "0.9": { "15": { min: 160, max: 190 }, "30": { min: 330, max: 380 }, "60": { min: 660, max: 760 } },
-  "1.0": { "15": { min: 185, max: 215 }, "30": { min: 380, max: 420 }, "60": { min: 760, max: 860 } },
+  "0.8": { "15": { min: 140, max: 170 }, "30": { min: 260, max: 300 }, "60": { min: 580, max: 650 } },
+  "0.9": { "15": { min: 160, max: 190 }, "30": { min: 290, max: 340 }, "60": { min: 660, max: 760 } },
+  "1.0": { "15": { min: 185, max: 215 }, "30": { min: 330, max: 380 }, "60": { min: 760, max: 860 } },
 };
 
 export interface Settings {
