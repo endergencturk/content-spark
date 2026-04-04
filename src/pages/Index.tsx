@@ -497,10 +497,10 @@ export default function Index() {
       if (data?.error) throw new Error(data.error);
 
       if (isProMode) {
-        setProResult(data as ProResult);
+        setProResult(normalizeResult(data) as ProResult);
         setGeneralResult(null);
       } else {
-        setGeneralResult(data as GeneralResult);
+        setGeneralResult(normalizeResult(data) as GeneralResult);
         setProResult(null);
         increment();
       }
