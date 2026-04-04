@@ -670,12 +670,16 @@ If topic is selling / product / business:
 AI MUST match the topic category. Mismatched tone = INVALID output.`;
 
   const factSafetyRule = `
-FACT SAFETY RULE (CRITICAL):
-- Never invent specific quotes, dialogue, or unverified details.
+FACT SAFETY RULE (TOP PRIORITY — APPLY TO ALL OUTPUT):
+- Do not write invented dialogue or invented emotional states.
+- Do not fabricate specific actions or quotes.
+- Avoid phrases like "he whispered strange warnings" or any invented speech.
+- Only describe generally unless facts are certain.
 - If uncertain about a fact → describe the situation generally, do not fabricate.
 - This is especially critical for true crime topics.
 - Do not put words in real people's mouths.
-- If a detail cannot be verified, use phrases like "reportedly", "according to sources", "it's believed that"`;
+- If a detail cannot be verified, use phrases like "reportedly", "according to sources", "it's believed that"
+- This rule applies to: Script, Hooks, SEO text, and all other output sections.`;
 
   const autoFixRule = `
 AUTO-FIX RULE (CRITICAL — VIRAL SCORE THRESHOLD = 8):
