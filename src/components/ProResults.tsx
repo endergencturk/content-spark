@@ -150,10 +150,10 @@ export const ProResults = memo(function ProResults({
           <p className="text-sm text-foreground leading-relaxed">{result.tiktok.caption}</p>
           <div className="flex items-center justify-between mb-0.5">
             <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Hashtags</span>
-            <CopyBtn text={result.tiktok.hashtags.map(h => h.startsWith("#") ? h : `#${h}`).join(" ")} label="tt-hashtags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyHashtags", locale)} />
+            <CopyBtn text={safeArray(result.tiktok.hashtags).map(h => h.startsWith("#") ? h : `#${h}`).join(" ")} label="tt-hashtags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyHashtags", locale)} />
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {result.tiktok.hashtags.map((ht, i) => (
+            {safeArray(result.tiktok.hashtags).map((ht, i) => (
               <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{ht}</span>
             ))}
           </div>
