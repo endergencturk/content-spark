@@ -20,6 +20,11 @@ interface MusicSuggestion {
   why: string;
 }
 
+interface ThumbnailIdea {
+  image: string;
+  text: string;
+}
+
 export interface ProResult {
   bestHook: string;
   hookVariations: string[];
@@ -34,6 +39,7 @@ export interface ProResult {
   music?: MusicSuggestion[];
   seriesPotential?: string;
   viralAnalysis: ViralAnalysis;
+  thumbnails?: ThumbnailIdea[];
 }
 
 const CopyBtn = memo(function CopyBtn({
