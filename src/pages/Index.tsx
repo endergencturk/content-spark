@@ -45,6 +45,13 @@ function normalizeResult(data: any): any {
   if (out.tiktok?.hashtags && !Array.isArray(out.tiktok.hashtags)) {
     out.tiktok = { ...out.tiktok, hashtags: String(out.tiktok.hashtags).split(",").map((s: string) => s.trim()) };
   }
+  // Fix editing plan scene numbering
+  if (Array.isArray(out.editingPlan)) {
+    out.editingPlan = out.editingPlan.map((scene: any, i: number) => ({
+      ...scene,
+      scene: scene.scene ?? i + 1,
+    }));
+  }
   return out;
 }
 import { ProResults, type ProResult } from "@/components/ProResults";
