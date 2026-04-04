@@ -38,9 +38,9 @@ const PLATFORM_ICONS: Record<string, React.ElementType> = {
 
 function getFirstHook(output: any): string {
   if (!output) return "";
-  if (output.bestHook) return output.bestHook;
-  if (output.hooks?.length) return output.hooks[0];
-  if (output.hookVariations?.length) return output.hookVariations[0];
+  if (output.bestHook) return typeof output.bestHook === "object" ? output.bestHook.hook || "" : String(output.bestHook);
+  if (output.hooks?.length) { const h = output.hooks[0]; return typeof h === "object" ? h.hook || "" : String(h); }
+  if (output.hookVariations?.length) { const v = output.hookVariations[0]; return typeof v === "object" ? v.hook || "" : String(v); }
   return "";
 }
 

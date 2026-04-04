@@ -19,15 +19,24 @@ import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
 
-// Normalize API responses where bestHook/hookVariations may be objects {type, hook}
+// Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
   const out = { ...data };
-  if (out.bestHook && typeof out.bestHook === "object" && out.bestHook.hook) {
-    out.bestHook = out.bestHook.hook;
+  const extractHook = (v: any) =>
+    typeof v === "object" && v !== null && v.hook ? String(v.hook) : typeof v === "string" ? v : String(v);
+  if (out.bestHook && typeof out.bestHook === "object") {
+    out.bestHook = extractHook(out.bestHook);
   }
   if (Array.isArray(out.hookVariations)) {
-    out.hookVariations = out.hookVariations.map((v: any) =>
-      typeof v === "object" && v !== null && v.hook ? v.hook : v
+    out.hookVariations = out.hookVariations.map(extractHook);
+  }
+  if (Array.isArray(out.hooks)) {
+    // hooks can be TypedHook[] — that's fine for GeneralResults which handles it,
+    // but ensure no raw objects slip through as plain strings where expected
+  }
+  if (Array.isArray(out.angleVariations)) {
+    out.angleVariations = out.angleVariations.map((a: any) =>
+      typeof a === "object" && a !== null ? { type: a.type || "", hook: typeof a.hook === "string" ? a.hook : String(a.hook || "") } : { type: "", hook: String(a) }
     );
   }
   return out;
