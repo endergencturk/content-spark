@@ -33,6 +33,7 @@ serve(async (req) => {
       language,
       targetAudience,
       hookStyle,
+      autoFixForced,
     } = body;
 
     const lang = language === "tr" ? "Turkish" : "English";
