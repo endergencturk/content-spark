@@ -18,6 +18,20 @@ import { useUsageLimit } from "@/hooks/useUsageLimit";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
+
+// Normalize API responses where bestHook/hookVariations may be objects {type, hook}
+function normalizeResult<T extends Record<string, any>>(data: T): T {
+  const out = { ...data };
+  if (out.bestHook && typeof out.bestHook === "object" && out.bestHook.hook) {
+    out.bestHook = out.bestHook.hook;
+  }
+  if (Array.isArray(out.hookVariations)) {
+    out.hookVariations = out.hookVariations.map((v: any) =>
+      typeof v === "object" && v !== null && v.hook ? v.hook : v
+    );
+  }
+  return out;
+}
 import { ProResults, type ProResult } from "@/components/ProResults";
 import { LoadingState } from "@/components/LoadingState";
 
