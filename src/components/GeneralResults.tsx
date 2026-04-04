@@ -258,6 +258,24 @@ export const GeneralResults = memo(function GeneralResults({
         <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
       )}
 
+      {/* Angle Variations */}
+      {result.angleVariations && result.angleVariations.length > 0 && (
+        <section className="space-y-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+            <Shuffle className="h-3.5 w-3.5 text-primary" />{t("result.angleVariations", locale)}
+          </h3>
+          {result.angleVariations.map((angle, i) => (
+            <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
+              <p className="text-sm text-foreground leading-relaxed">
+                <span className="text-[10px] uppercase tracking-widest font-bold text-primary mr-1.5">[{angle.type}]</span>
+                {angle.hook}
+              </p>
+              <CopyBtn text={angle.hook} label={`angle-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+            </div>
+          ))}
+        </section>
+      )}
+
       {/* Best Posting Time */}
       {(() => {
         const times: Record<string, { primary: string; backup: string; reason: string; reasonTr: string }> = {
