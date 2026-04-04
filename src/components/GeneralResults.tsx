@@ -341,15 +341,6 @@ export const GeneralResults = memo(function GeneralResults({
           onUpgrade={() => {}}
           locale={locale}
         />
-        <BlurredPreview
-          title={t("blurred.postingStrategy", locale)}
-          previewLines={[
-            "Best time: Tuesday 7-9 PM EST",
-            "Platform tip: Use trending sounds within first 2 hours",
-          ]}
-          onUpgrade={() => {}}
-          locale={locale}
-        />
       </div>
 
       {/* Bottom CTA */}
