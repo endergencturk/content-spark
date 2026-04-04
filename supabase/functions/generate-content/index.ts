@@ -206,7 +206,7 @@ Return exactly 5 ideas as JSON.`;
 
 async function fetchWithRetry(url: string, apiKey: string, body: any): Promise<Response | null> {
   let response: Response | null = null;
-  const delays = [2000, 4000, 8000, 12000]; // 4 attempts with longer backoff
+  const delays = [1500, 3000, 5000]; // 3 attempts, then fallback quickly
 
   for (let attempt = 0; attempt < delays.length; attempt++) {
     try {
