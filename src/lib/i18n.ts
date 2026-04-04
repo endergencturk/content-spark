@@ -233,6 +233,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.postingTime.primary": "Primary Time",
     "result.postingTime.backup": "Backup Time",
     "result.postingTime.reason": "Reason",
+    "result.microRetentionNote": "Remove bracketed cues like [pause], [cut], [zoom] before pasting to ElevenLabs.",
 
     // Hook types
     "hookType.fear": "Fear",
