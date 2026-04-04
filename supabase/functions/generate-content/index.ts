@@ -318,8 +318,19 @@ function buildFreeSchema() {
       music: { type: "ARRAY", items: musicSuggestionSchema },
       seriesPotential: { type: "STRING" },
       viralAnalysis: viralAnalysisSchema,
+      thumbnails: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            image: { type: "STRING" },
+            text: { type: "STRING" },
+          },
+          required: ["image", "text"],
+        },
+      },
     },
-    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis"],
+    required: ["hooks", "bestHook", "script", "editingPlan", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails"],
   };
 }
 
