@@ -1078,18 +1078,20 @@ ${qualityEnforcement}
 
 GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
-2. hookVariations: ${input.hookCount} rewrites (different angles, styles, emotional triggers)
-3. script: Plain voiceover text, one sentence per line, with empty lines for pacing. NO labels, NO structure markers.
-4. editingPlan: scenes with visual, onScreenText, mood
-5. voiceStyle: recommended voice style
-6. postingStrategy: bestTime and platformTip
-7. imagePrompts: exactly 5 cinematic prompts
-8. youtube: title, description, tags
-9. tiktok: caption, hashtags
-10. music: exactly 3 music suggestions, each with type, source, why
-11. seriesPotential: how this can become a series
-12. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
-${input.platforms.includes("instagram-reels") ? "13. instagramCaption: Instagram caption with hashtags\n14. viralAnalysis: score (1-10) and reasons array" : "13. viralAnalysis: score (1-10) and reasons array"}
+2. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
+3. hookVariations: ${input.hookCount} rewrites (different angles, styles, emotional triggers)
+4. script: Plain voiceover text, one sentence per line, with empty lines for pacing. NO labels, NO structure markers. Last line prefixed with "LOOP: " and connects back to opening.
+5. editingPlan: scenes with visual, onScreenText, mood
+6. voiceStyle: recommended voice style
+7. postingStrategy: bestTime and platformTip
+8. imagePrompts: exactly 5 cinematic prompts
+9. youtube: title, description, tags
+10. tiktok: caption, hashtags
+11. music: exactly 3 music suggestions, each with type, source, why
+12. seriesPotential: how this can become a series
+13. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
+14. angleVariations: exactly 3 alternative angle hooks as {type, hook} objects (Fear, Mystery, Conspiracy)
+${input.platforms.includes("instagram-reels") ? "15. instagramCaption: Instagram caption with hashtags\n16. viralAnalysis: score (1-10) and reasons array" : "15. viralAnalysis: score (1-10) and reasons array"}
 
 - ${input.depth === "concise" ? "Keep everything minimal and tight" : input.depth === "detailed" ? "Add extra detail and depth" : "Balance detail and brevity"}
 ${outputRules}`;
