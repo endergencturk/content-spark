@@ -1033,7 +1033,8 @@ GENERATE:
 9. tiktok: caption, hashtags
 10. music: exactly 3 music suggestions, each with type, source, why
 11. seriesPotential: how this can become a series
-${input.platforms.includes("instagram-reels") ? "12. instagramCaption: Instagram caption with hashtags\n13. viralAnalysis: score (1-10) and reasons array" : "12. viralAnalysis: score (1-10) and reasons array"}
+12. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
+${input.platforms.includes("instagram-reels") ? "13. instagramCaption: Instagram caption with hashtags\n14. viralAnalysis: score (1-10) and reasons array" : "13. viralAnalysis: score (1-10) and reasons array"}
 
 - ${input.depth === "concise" ? "Keep everything minimal and tight" : input.depth === "detailed" ? "Add extra detail and depth" : "Balance detail and brevity"}
 ${outputRules}`;
