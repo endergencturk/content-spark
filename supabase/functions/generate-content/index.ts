@@ -872,7 +872,8 @@ If output feels robotic, too generic, or has a tone mismatch with the topic → 
 
 QUALITY GATE CHECKLIST (check ALL before returning):
 ✔ Best hook starts with situation word, not pronoun
-✔ Script word count fits target duration (30s=75-90 words, 60s=140-180 words)
+✔ Script word count is UNDER the hard limit (15s=40, 30s=80, 60s=160 words) — if over, compress NOW
+✔ Script contains NO asterisks (*word*), NO stage directions, NO action notes — pure voiceover only
 ✔ Subject revealed mid-script, not at line 1
 ✔ Script ends with tension/teaser, not summary
 ✔ At least 1 unsettling image prompt included
