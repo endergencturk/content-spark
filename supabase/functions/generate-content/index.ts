@@ -36,6 +36,8 @@ serve(async (req) => {
     const lang = language === "tr" ? "Turkish" : "English";
 
     // ── DISCOVERY MODE ──────────────────────────────────────────────
+    const niche = body.niche;
+
     if (!topic || !topic.trim()) {
       const selectedPlatforms: string[] =
         platforms && Array.isArray(platforms) && platforms.length > 0
@@ -53,12 +55,17 @@ serve(async (req) => {
         })
         .join(", ");
 
+      const nicheBlock = niche
+        ? `Niche: ${niche}\n- ALL ideas MUST be specifically about the "${niche}" niche\n- Do NOT generate generic ideas outside this niche`
+        : "";
+
       const discoveryPrompt = `You are a viral content strategist for ${platformList}.
 
 Generate 5 viral content ideas optimized for short-form video.
 
 Language: ${lang}
 ${lang === "Turkish" ? "Write in natural, fluent Turkish. Do NOT translate from English." : ""}
+${nicheBlock}
 ${contentType ? `Content type: ${contentType}` : ""}
 ${style ? `Style: ${style}` : ""}
 
@@ -67,6 +74,7 @@ Rules:
 - Avoid generic or overused ideas
 - Each idea must feel like "I NEED to make this video"
 - Ideas should be specific, not broad categories
+${niche ? `- Every idea must be directly related to the "${niche}" niche` : ""}
 
 For each idea provide:
 - title: A specific, attention-grabbing content idea (max 10 words)
