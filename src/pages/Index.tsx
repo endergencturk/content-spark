@@ -21,6 +21,9 @@ import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
 import { ChannelProfile, loadChannelProfile, type ChannelProfileData } from "@/components/ChannelProfile";
 import { TrendingPanel } from "@/components/TrendingPanel";
+import { WeeklyPlan } from "@/components/WeeklyPlan";
+import { ABHookTester } from "@/components/ABHookTester";
+import { BulkPackDialog } from "@/components/BulkPackDialog";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
