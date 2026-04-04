@@ -1197,9 +1197,9 @@ ${viralAnalysisRules}
 ${qualityEnforcement}
 
 GENERATE:
-1. hooks: exactly 3 hooks
+1. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
 2. bestHook: the single strongest hook (marked with ⭐ in output)
-3. script: voiceover text, one line per sentence
+3. script: voiceover text, one line per sentence. Last line prefixed with "LOOP: " connecting back to opening.
 4. editingPlan: scenes
 5. imagePrompts: 5 prompts
 6. youtube: title, description, tags
@@ -1207,7 +1207,8 @@ GENERATE:
 8. music: exactly 3 music suggestions, each with type, source, why
 9. seriesPotential: how this can become a series
 10. thumbnails: exactly 2 thumbnail ideas, each with image prompt and overlay text
-11. viralAnalysis: score (1-10) and reasons array
+11. angleVariations: exactly 3 alternative angle hooks as {type, hook} objects (Fear, Mystery, Conspiracy)
+12. viralAnalysis: score (1-10) and reasons array
 
 ${outputRules}`;
 }
