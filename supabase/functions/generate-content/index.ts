@@ -794,6 +794,17 @@ IMAGE PROMPTS:
 - Format: [scene], [lighting], [mood], cinematic, photorealistic, vertical 9:16, no text, no faces
 - CRITICAL: At least 1 prompt MUST be unsettling, surreal, or visually impossible`;
 
+  const thumbnailRules = `
+THUMBNAIL IDEAS:
+- Generate exactly 2 thumbnail ideas
+- Each must include:
+  - image: A thumbnail prompt, vertical 9:16, visually strong, platform-ready, high contrast, clickable
+  - text: Overlay text, UPPERCASE, max 5 words, punchy and attention-grabbing
+- Match thumbnail style to the selected Hook Style
+- Make prompts visually clickable and high-contrast
+- Keep text short and punchy
+- Do not add extra explanation text`;
+
   const seoRules = `
 SEO PACK:
 YOUTUBE:
