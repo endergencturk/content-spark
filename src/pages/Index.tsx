@@ -50,6 +50,7 @@ function normalizeResult(data: any): any {
     out.editingPlan = out.editingPlan.map((scene: any, i: number) => ({
       ...scene,
       scene: scene.scene ?? i + 1,
+      visual: String(scene.visual || '').replace(/^Scene\s*\d*[:\-–—]?\s*/i, ''),
     }));
   }
   return out;

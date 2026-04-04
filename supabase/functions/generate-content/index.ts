@@ -716,16 +716,16 @@ If topic is selling / product / business:
 AI MUST match the topic category. Mismatched tone = INVALID output.`;
 
   const factSafetyRule = `
-FACT SAFETY RULE (TOP PRIORITY — APPLY TO ALL OUTPUT):
-- Do not write invented dialogue or invented emotional states.
-- Do not fabricate specific actions or quotes.
-- Avoid phrases like "he whispered strange warnings" or any invented speech.
-- Only describe generally unless facts are certain.
-- If uncertain about a fact → describe the situation generally, do not fabricate.
-- This is especially critical for true crime topics.
-- Do not put words in real people's mouths.
-- If a detail cannot be verified, use phrases like "reportedly", "according to sources", "it's believed that"
-- This rule applies to: Script, Hooks, SEO text, and all other output sections.`;
+FACT SAFETY RULES (TOP PRIORITY — APPLY TO ALL OUTPUT):
+- Never invent dialogue or direct quotes
+- Never write 'he screamed' 'she whispered' or similar invented emotional actions
+- Never add the word 'Reportedly' in script
+- Only describe verified facts generally
+- If uncertain → describe situation, not invented details
+- Do not put words in real people's mouths
+- Do not fabricate specific actions or quotes
+- This rule applies to: Script, Hooks, SEO text, and all other output sections.
+These rules apply to script, hooks, and SEO text.`;
 
   const autoFixRule = `
 AUTO-FIX RULE (CRITICAL — VIRAL SCORE THRESHOLD = 8):
@@ -769,13 +769,17 @@ VOICE SCRIPT (CRITICAL — STRICT RULES):
   - Use "..." for pauses and "—" for dramatic breaks
   - Add empty lines between sections for breathing space
 
-- WORD COUNT ENFORCEMENT (HARD LIMITS — DO NOT EXCEED):
-  - 15s duration = 35–42 words
-  - 30s duration = 60–68 words
-  - 60s duration = 110–130 words
-  - Before returning the script, COUNT EVERY WORD
-  - If the word count exceeds the max → remove lines from MIDDLE only (keep first 3 and last 3 lines), then re-count
-  - If the word count is below the min → ADD one tension line before ending
+- MANDATORY WORD COUNT RULES - YOU MUST FOLLOW:
+  - 15 seconds = write EXACTLY 30-38 words. Count them.
+  - 30 seconds = write EXACTLY 60-70 words. Count them.
+  - 60 seconds = write EXACTLY 125-140 words. Count them.
+  - After writing the script:
+    1. Count every word
+    2. If under minimum → add tension lines before ending
+    3. If over maximum → remove lines from middle only
+    4. Count again
+    5. Only return script when word count is correct
+  - This rule overrides everything else.
   - This is NON-NEGOTIABLE. Outside the range = INVALID output.
 
 - STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
@@ -1010,7 +1014,7 @@ If output feels robotic, too generic, or has a tone mismatch with the topic → 
 
 QUALITY GATE CHECKLIST (check ALL before returning):
 ✔ Best hook starts with situation word, not pronoun
-✔ Script word count is WITHIN the hard limit range (15s=35-42, 30s=60-68, 60s=110-130 words) — if outside range, trim from MIDDLE only (keep first 3 and last 3 lines), then re-check. NEVER return script above limit.
+✔ Script word count is WITHIN the hard limit range (15s=30-38, 30s=60-70, 60s=125-140 words) — if outside range, trim from MIDDLE only (keep first 3 and last 3 lines), then re-check. NEVER return script above limit.
 ✔ Script contains NO asterisks (*word*), NO stage directions, NO bracketed cues — pure voiceover only
 ✔ Script has NO "LOOP:" prefix on any line — last line must be plain text
 ✔ Subject revealed mid-script, not at line 1
@@ -1113,6 +1117,12 @@ ${contentTypeInstructions}
 
 ${platformHookRules}
 
+HOOK LENGTH RULES:
+- First sentence of every hook = maximum 4 words
+- Never start hook with: He, She, They, A man, A woman
+- Always start with situation word: Vanished. / Dead. / Gone. / Missing. / Trapped. / Found. / Erased. / Poisoned.
+- If hook violates these rules → rewrite before returning
+
 HOOK GENERATION:
 - Generate exactly 5 hooks with different psychological angles (see HOOK ENGINE)
 - Each hook = { type, hook } object
@@ -1156,10 +1166,9 @@ ${editSyncRule}
 ${platformBehaviorRule}
 
 EDITING PLAN:
-- Provide scenes: Scene 1, Scene 2, etc.
-- What is shown (visual)
-- Optional on-screen text
-- Mood/effect (if needed)
+- Provide scenes with sequential numbering (scene: 1, scene: 2, etc.)
+- The "visual" field must describe the visual ONLY — do NOT start with "Scene 1:" or "Scene X:" prefix. The UI adds scene numbers automatically.
+- Optional on-screen text and mood
 - Keep it short and practical
 - Match content type
 
@@ -1244,6 +1253,12 @@ ${contentTypeInstructions}
 
 ${platformHookRules}
 
+HOOK LENGTH RULES:
+- First sentence of every hook = maximum 4 words
+- Never start hook with: He, She, They, A man, A woman
+- Always start with situation word: Vanished. / Dead. / Gone. / Missing. / Trapped. / Found. / Erased. / Poisoned.
+- If hook violates these rules → rewrite before returning
+
 HOOK GENERATION:
 - Generate exactly 5 hooks with different psychological angles (see HOOK ENGINE)
 - Each hook = { type, hook } object
@@ -1287,7 +1302,8 @@ ${editSyncRule}
 ${platformBehaviorRule}
 
 EDITING PLAN:
-- Provide scenes with visual description
+- Provide scenes with sequential numbering (scene: 1, scene: 2, etc.)
+- The "visual" field must describe the visual ONLY — do NOT start with "Scene 1:" or "Scene X:" prefix. The UI adds scene numbers automatically.
 - Optional on-screen text and mood
 - Keep it short and practical
 - Match content type
