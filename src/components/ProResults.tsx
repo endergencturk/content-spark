@@ -3,6 +3,9 @@ import {
   Copy, Trophy, FileText, Youtube, Hash, Instagram, Film, Image, Mic,
   CalendarClock, Target, Music, TrendingUp, Package, ChevronDown, Clock, Layout, Shuffle,
 } from "lucide-react";
+
+const safeArray = (val: any): string[] =>
+  Array.isArray(val) ? val : typeof val === "string" ? val.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { t, type Locale } from "@/lib/i18n";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
