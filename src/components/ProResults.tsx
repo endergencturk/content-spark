@@ -144,7 +144,7 @@ export const ProResults = memo(function ProResults({
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
             <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
           </h3>
-          <CopyBtn text={`${result.tiktok.caption}\n${result.tiktok.hashtags.join(" ")}`} label="tt" copied={copied} onCopy={onCopy} locale={locale} />
+          <CopyBtn text={`${result.tiktok.caption}\n${safeArray(result.tiktok.hashtags).join(" ")}`} label="tt" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
           <p className="text-sm text-foreground leading-relaxed">{result.tiktok.caption}</p>
