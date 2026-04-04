@@ -385,27 +385,28 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
 function getLineCountGuidance(scriptLength: string): string {
   switch (scriptLength) {
-    case "15": return `LINE COUNT CONTROL (15s):
-- Target: 15–18 lines
-- Each line ≈ 0.8–1.2 seconds when spoken
+    case "15": return `TIMING CONTROL (15s):
+- Target: 15–18 lines, ~40–50 words max
+- Each line: 3–6 words ideal
+- Optimized for ElevenLabs speed 1.0
 - Focus on immediate impact and curiosity
-- Use only 1–2 ideas maximum
-- If script is too short, expand with micro-details or transitions`;
-    case "30": return `LINE COUNT CONTROL (30s):
-- Target: 25–35 lines
-- Each line ≈ 0.8–1.2 seconds when spoken
+- Use only 1–2 ideas maximum`;
+    case "30": return `TIMING CONTROL (30s):
+- Target: 25–35 lines, 75–90 words max
+- Each line: 3–6 words ideal
+- Optimized for ElevenLabs speed 1.0
 - Use 2–3 key ideas
-- Keep buildup minimal but present
-- If too short, add examples or micro-explanations`;
-    case "60": return `LINE COUNT CONTROL (60s):
-- Target: 50–70 lines
-- Each line ≈ 0.8–1.2 seconds when spoken
+- Keep buildup minimal but present`;
+    case "60": return `TIMING CONTROL (60s):
+- Target: 50–70 lines, 140–180 words max
+- Each line: 3–6 words ideal
+- Optimized for ElevenLabs speed 1.0
 - Develop 3–5 ideas with proper narrative flow
-- Allow room for tension building and payoff
-- If too short, expand with context, examples, and transitions`;
-    default: return `LINE COUNT CONTROL (30s):
-- Target: 25–35 lines
-- Each line ≈ 0.8–1.2 seconds when spoken`;
+- Allow room for tension building and payoff`;
+    default: return `TIMING CONTROL (30s):
+- Target: 25–35 lines, 75–90 words max
+- Each line: 3–6 words ideal
+- Optimized for ElevenLabs speed 1.0`;
   }
 }
 
