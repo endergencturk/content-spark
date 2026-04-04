@@ -70,6 +70,29 @@ const PLATFORM_OPTIONS = [
 
 const LENGTH_OPTIONS = ["15", "30", "60"];
 
+const TARGET_AUDIENCE_OPTIONS = [
+  { value: "global", labelKey: "audience.global" },
+  { value: "usa", labelKey: "audience.usa" },
+  { value: "europe", labelKey: "audience.europe" },
+  { value: "latam", labelKey: "audience.latam" },
+  { value: "turkey", labelKey: "audience.turkey" },
+];
+
+const HOOK_STYLE_OPTIONS = [
+  { value: "aggressive", labelKey: "hookStyle.aggressive" },
+  { value: "curiosity", labelKey: "hookStyle.curiosity" },
+  { value: "emotional", labelKey: "hookStyle.emotional" },
+  { value: "dark", labelKey: "hookStyle.dark" },
+];
+
+const POSTING_TIMES: Record<string, { primary: string; backup: string; reason: string; reasonTr: string }> = {
+  usa: { primary: "21:00", backup: "00:30", reason: "Best overlap for USA peak scrolling hours.", reasonTr: "ABD'nin en yoğun sosyal medya saatlerine denk gelir." },
+  europe: { primary: "19:00", backup: "21:00", reason: "Peak evening hours across European time zones.", reasonTr: "Avrupa saat dilimlerinde akşam zirve saatleri." },
+  latam: { primary: "22:00", backup: "00:00", reason: "Latin America evening peak overlapping with USA.", reasonTr: "Latin Amerika akşam zirvesi, ABD ile örtüşür." },
+  global: { primary: "21:00", backup: "23:00", reason: "Optimal overlap across major global audiences.", reasonTr: "Büyük küresel kitlelerde en iyi örtüşme." },
+  turkey: { primary: "20:00", backup: "22:00", reason: "Turkey evening prime time for social media.", reasonTr: "Türkiye'de sosyal medya için akşam zirve saati." },
+};
+
 // ── Niche Presets ───────────────────────────────────────────────────
 
 interface NichePreset {
