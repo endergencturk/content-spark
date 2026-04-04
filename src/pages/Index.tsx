@@ -1012,10 +1012,10 @@ export default function Index() {
           {loading && <LoadingState mode={mode} locale={locale} />}
 
           {!loading && !isProMode && generalResult && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
           )}
           {!loading && isProMode && proResult && (
-            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} />
+            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
           )}
 
           {/* Discovery Results */}
