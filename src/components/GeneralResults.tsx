@@ -1,5 +1,8 @@
 import React, { memo } from "react";
 import { Copy, Trophy, Crown, Youtube, Hash, Image, Music, TrendingUp, Clock, Layout, Shuffle } from "lucide-react";
+
+const safeArray = (val: any): string[] =>
+  Array.isArray(val) ? val : typeof val === "string" ? val.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
