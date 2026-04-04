@@ -505,6 +505,63 @@ interface PromptInput {
   hookCount: number;
   customDescription?: string;
   language: string;
+  targetAudience: string;
+  hookStyle: string;
+}
+
+function getTargetAudienceInstructions(audience: string): string {
+  switch (audience) {
+    case "usa": return `TARGET AUDIENCE: USA
+- Bold, direct English
+- Use American cultural references
+- Fast, confident, assertive tone
+- Slang is OK if natural`;
+    case "europe": return `TARGET AUDIENCE: EUROPE
+- Neutral, clear English
+- Avoid American-specific slang
+- Slightly more formal but still engaging
+- Universal European appeal`;
+    case "latam": return `TARGET AUDIENCE: LATIN AMERICA
+- Simple, clear English
+- Slightly Spanish-friendly phrasing where natural
+- Warm, energetic tone
+- Relatable across Latin American cultures`;
+    case "turkey": return `TARGET AUDIENCE: TURKEY
+- Write in natural, spoken Turkish
+- Use Turkish rhythm and cadence
+- Culturally relevant references
+- No translated-sounding phrases`;
+    default: return `TARGET AUDIENCE: GLOBAL
+- Simple, universally clear English
+- No region-specific slang or references
+- Accessible to non-native English speakers
+- Clean, direct phrasing`;
+  }
+}
+
+function getHookStyleInstructions(hookStyle: string): string {
+  switch (hookStyle) {
+    case "curiosity": return `HOOK STYLE: CURIOSITY
+- Open-loop phrasing
+- "Nobody noticed...", "What if...", unanswered tension
+- Create information gaps the viewer NEEDS to fill
+- Delay the reveal as long as possible`;
+    case "emotional": return `HOOK STYLE: EMOTIONAL
+- Personal, relatable, human-centered framing
+- Use "you" and "your" to connect
+- Tap into shared human experiences
+- Make the viewer feel seen or understood`;
+    case "dark": return `HOOK STYLE: DARK
+- Suspenseful, unsettling, slower tension
+- Ominous word choices
+- Build dread gradually
+- Leave something unexplained`;
+    default: return `HOOK STYLE: AGGRESSIVE
+- Shocking opening, maximum impact
+- Strongest possible first phrase
+- Max 4 words in opening line
+- Hit hard and fast, no buildup`;
+  }
 }
 
 function buildPrompt(input: PromptInput) {
