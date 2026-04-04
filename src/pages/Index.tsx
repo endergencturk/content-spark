@@ -349,7 +349,7 @@ export default function Index() {
   const [proResult, setProResult] = useState<ProResult | null>(null);
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [presetTopics, setPresetTopics] = useState<string[]>([]);
-
+  const [autoFixImproved, setAutoFixImproved] = useState(false);
   const isProMode = mode === "pro";
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
