@@ -1239,7 +1239,7 @@ Viral Score: ${viralScore}/10
             <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
           )}
           {!loading && isProMode && proResult && !showOriginal && (
-            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
           )}
 
           {/* Original Version (collapsed by default, shown when toggled) */}
