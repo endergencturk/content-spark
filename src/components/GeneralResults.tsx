@@ -111,9 +111,10 @@ export const GeneralResults = memo(function GeneralResults({
         </div>
         <div className="bg-muted/40 rounded-2xl p-4">
           {result.script.split("\n").map((line, i) => (
-            <p key={i} className="text-sm text-foreground leading-loose">{line || <br />}</p>
+            <p key={i} className={`text-sm leading-loose ${/^\[.+\]$/.test(line.trim()) ? 'text-primary/60 italic text-xs' : 'text-foreground'}`}>{line || <br />}</p>
           ))}
         </div>
+        <p className="text-[10px] text-muted-foreground italic px-1">💡 {t("result.microRetentionNote", locale)}</p>
         <UpsellBanner message={t("upsell.script", locale)} onUpgrade={() => {}} locale={locale} />
       </section>
 
