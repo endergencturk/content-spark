@@ -25,8 +25,19 @@ interface ThumbnailIdea {
   text: string;
 }
 
+interface TypedHook {
+  type: string;
+  hook: string;
+}
+
+interface AngleVariation {
+  type: string;
+  hook: string;
+}
+
 export interface ProResult {
   bestHook: string;
+  hooks?: TypedHook[] | string[];
   hookVariations: string[];
   script: string;
   editingPlan: EditingScene[];
@@ -40,6 +51,7 @@ export interface ProResult {
   seriesPotential?: string;
   viralAnalysis: ViralAnalysis;
   thumbnails?: ThumbnailIdea[];
+  angleVariations?: AngleVariation[];
 }
 
 const CopyBtn = memo(function CopyBtn({
