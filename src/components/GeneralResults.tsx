@@ -67,8 +67,8 @@ const CopyBtn = memo(function CopyBtn({
 });
 
 export const GeneralResults = memo(function GeneralResults({
-  result, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30",
-}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string }) {
+  result, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30", voiceSpeed = "0.9",
+}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string; voiceSpeed?: string }) {
   return (
     <div className="space-y-5">
       {/* ⭐ Best Hook */}
@@ -109,7 +109,7 @@ export const GeneralResults = memo(function GeneralResults({
 
       {/* Script */}
       <section className="space-y-2.5">
-        <ScriptEditor initialScript={result.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="script" locale={locale} />
+        <ScriptEditor initialScript={result.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="script" locale={locale} voiceSpeed={voiceSpeed as any} />
         <UpsellBanner message={t("upsell.script", locale)} onUpgrade={() => {}} locale={locale} />
       </section>
 

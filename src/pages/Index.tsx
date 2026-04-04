@@ -1430,10 +1430,10 @@ Viral Score: ${viralScore}/10
           )}
 
           {!loading && !isProMode && generalResult && !showOriginal && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
           )}
           {!loading && isProMode && proResult && !showOriginal && (
-            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
+            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
           )}
 
           {/* A/B Hook Tester — shown after results */}
@@ -1462,10 +1462,10 @@ Viral Score: ${viralScore}/10
                   : ""}
               </p>
               {!isProMode && originalGeneralResult && (
-                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
+                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
               )}
               {isProMode && originalProResult && (
-                <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
+                <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
               )}
             </>
           )}

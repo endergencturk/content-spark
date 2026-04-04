@@ -73,8 +73,8 @@ const CopyBtn = memo(function CopyBtn({
 });
 
 export const ProResults = memo(function ProResults({
-  result, platforms, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30",
-}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string }) {
+  result, platforms, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30", voiceSpeed = "0.9",
+}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string; voiceSpeed?: string }) {
   const [showPack, setShowPack] = useState(false);
 
   return (
@@ -95,7 +95,7 @@ export const ProResults = memo(function ProResults({
 
       {/* Script */}
       <section className="space-y-2.5">
-        <ScriptEditor initialScript={result.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="pro-script" locale={locale} />
+        <ScriptEditor initialScript={result.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="pro-script" locale={locale} voiceSpeed={voiceSpeed as any} />
       </section>
 
       {/* SEO — YouTube */}
