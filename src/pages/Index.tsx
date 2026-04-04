@@ -456,11 +456,15 @@ export default function Index() {
             imageFormat: "9:16", imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale,
+            targetAudience,
+            hookStyle,
           }
         : {
             mode: "general", topic, platform, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", outputStyle: settings.outputStyle,
             language: locale,
+            targetAudience,
+            hookStyle,
           };
 
       const { data, error } = await supabase.functions.invoke("generate-content", { body });
