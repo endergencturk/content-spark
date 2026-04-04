@@ -417,7 +417,7 @@ function buildProSchema(platforms: string[], _hookCount: number) {
   };
 
   const required = [
-    "bestHook", "hookVariations", "script", "editingPlan",
+    "bestHook", "hooks", "hookVariations", "angleVariations", "script", "editingPlan",
     "voiceStyle", "postingStrategy", "imagePrompts", "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis", "thumbnails",
   ];
 
