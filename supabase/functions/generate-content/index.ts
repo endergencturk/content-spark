@@ -368,7 +368,9 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 
   const props: Record<string, any> = {
     bestHook: { type: "STRING" },
+    hooks: { type: "ARRAY", items: hookWithLabelSchema },
     hookVariations: { type: "ARRAY", items: { type: "STRING" } },
+    angleVariations: { type: "ARRAY", items: angleVariationSchema },
     script: { type: "STRING" },
     editingPlan: { type: "ARRAY", items: editingScene },
     voiceStyle: { type: "STRING" },
