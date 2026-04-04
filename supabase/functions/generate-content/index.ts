@@ -591,6 +591,7 @@ function getHookStyleInstructions(hookStyle: string): string {
 }
 
 function buildPrompt(input: PromptInput) {
+  const { autoFixForced } = input;
   const hookLevel =
     input.hookIntensity === 0 ? "safe" : input.hookIntensity === 1 ? "balanced" : "aggressive";
 
