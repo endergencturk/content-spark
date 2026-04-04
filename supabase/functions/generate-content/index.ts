@@ -644,27 +644,32 @@ If topic is selling / product / business:
 AI MUST match the topic category. Mismatched tone = INVALID output.`;
 
   const scriptFormatRules = `
-VOICE SCRIPT (CRITICAL):
-- Generate a voiceover script optimized for speaking/recording.
-- FORMAT (STRICT):
-  - Each line = 2–8 words
-  - Natural speaking rhythm
+VOICE SCRIPT (CRITICAL — STRICT RULES):
+- Generate a voiceover script optimized for ElevenLabs TTS at speed 1.0.
+- OUTPUT FORMAT (MANDATORY):
+  - Pure voiceover text ONLY
+  - NO asterisks (*word*) — ElevenLabs reads them literally
+  - NO stage directions (e.g., [pause], [whisper], *leans in*)
+  - NO action notes or labels (Beat 1, Hook:, CTA:)
+  - NO parenthetical instructions
+  - Each line = one breath = max 6 words
   - One idea per line
-  - Use many short lines
-  - Break sentences often
-  - NEVER use paragraphs
-  - NEVER combine sentences
+  - NEVER write paragraphs — if the script is a paragraph, the output is INVALID
+  - Use "..." for pauses and "—" for dramatic breaks
   - Add empty lines between sections for breathing space
-  - Use pauses: "..." and "—" for dramatic effect (when tone calls for it)
-  - Use single-word lines when impactful
+
+- WORD COUNT ENFORCEMENT (HARD LIMITS — DO NOT EXCEED):
+  - 15s duration = maximum 40 words
+  - 30s duration = maximum 80 words
+  - 60s duration = maximum 160 words
+  - Before returning the script, COUNT EVERY WORD
+  - If the word count exceeds the limit for the selected duration → CUT or COMPRESS lines until under the limit
+  - This is NON-NEGOTIABLE. Exceeding the word limit = INVALID output.
+
 - STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
-- CRITICAL:
-  - First line MUST stop scrolling
-  - Ending MUST create curiosity or impact (open loop or strong closer)
-  - DO NOT use labels like "Beat 1", "Beat 2", "Hook:", "CTA:"
-  - DO NOT write paragraphs — if the script is a paragraph, the output is INVALID
-  - Create breathing space for voice recording
-  - If script is too short for the duration, expand with examples, micro-explanations, or transitions
+- First line MUST stop scrolling
+- Ending MUST create curiosity or impact (open loop or strong closer)
+- If script is too short for the duration, expand with examples or transitions — but NEVER exceed the word limit
 
 ${lineCountGuidance}`;
 
