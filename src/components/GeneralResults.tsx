@@ -141,7 +141,7 @@ export const GeneralResults = memo(function GeneralResults({
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
             <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
           </h3>
-          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${result.youtube.tags.join(", ")}`} label="yt-seo" copied={copied} onCopy={onCopy} locale={locale} />
+          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${safeArray(result.youtube.tags).join(", ")}`} label="yt-seo" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
           <div>
