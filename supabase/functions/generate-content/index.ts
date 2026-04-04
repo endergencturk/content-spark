@@ -31,6 +31,8 @@ serve(async (req) => {
       outputDepth,
       customDescription,
       language,
+      targetAudience,
+      hookStyle,
     } = body;
 
     const lang = language === "tr" ? "Turkish" : "English";
