@@ -158,6 +158,7 @@ Return exactly 5 ideas as JSON.`;
       language: lang,
       targetAudience: targetAudience || "global",
       hookStyle: hookStyle || "aggressive",
+      autoFixForced: !!autoFixForced,
     });
 
     const schema = mode === "pro"
@@ -531,6 +532,7 @@ interface PromptInput {
   language: string;
   targetAudience: string;
   hookStyle: string;
+  autoFixForced?: boolean;
 }
 
 function getTargetAudienceInstructions(audience: string): string {
@@ -589,6 +591,7 @@ function getHookStyleInstructions(hookStyle: string): string {
 }
 
 function buildPrompt(input: PromptInput) {
+  const { autoFixForced } = input;
   const hookLevel =
     input.hookIntensity === 0 ? "safe" : input.hookIntensity === 1 ? "balanced" : "aggressive";
 
