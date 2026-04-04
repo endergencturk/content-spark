@@ -452,6 +452,32 @@ const translations: Record<Locale, Record<string, string>> = {
     // Niche presets
     "preset.title": "Hızlı Başlangıç",
 
+    // Target Audience
+    "selector.targetAudience": "Hedef Kitle",
+    "audience.global": "Global",
+    "audience.usa": "ABD",
+    "audience.europe": "Avrupa",
+    "audience.latam": "Latin Amerika",
+    "audience.turkey": "Türkiye",
+
+    // Hook Style
+    "selector.hookStyle": "Hook Stili",
+    "hookStyle.aggressive": "Agresif",
+    "hookStyle.curiosity": "Merak",
+    "hookStyle.emotional": "Duygusal",
+    "hookStyle.dark": "Karanlık",
+
+    // Thumbnail output
+    "result.thumbnails": "Thumbnail Fikirleri",
+    "result.thumbnail.image": "Görsel",
+    "result.thumbnail.text": "Metin",
+
+    // Posting time output
+    "result.postingTime": "En İyi Paylaşım Zamanı",
+    "result.postingTime.primary": "Birincil Zaman",
+    "result.postingTime.backup": "Yedek Zaman",
+    "result.postingTime.reason": "Sebep",
+
     // Viral categories
     "viral.hookStrength": "Hook Gücü",
     "viral.curiosityGap": "Merak Boşluğu",
