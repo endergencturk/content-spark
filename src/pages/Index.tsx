@@ -341,6 +341,8 @@ export default function Index() {
   const [hookIntensity, setHookIntensity] = useState(0); // 0 = Low, 1 = High
   const [imagePromptCount, setImagePromptCount] = useState(3);
   const [customDescription, setCustomDescription] = useState("");
+  const [targetAudience, setTargetAudience] = useState("global");
+  const [hookStyle, setHookStyle] = useState("aggressive");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState("");
   const [generalResult, setGeneralResult] = useState<GeneralResult | null>(null);
