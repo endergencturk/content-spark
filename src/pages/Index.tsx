@@ -278,12 +278,29 @@ type Mode = "general" | "pro";
 interface DiscoveryIdea {
   title: string;
   why: string;
+  category?: string;
+  region?: string;
 }
 
 interface DiscoveryResult {
   discoveryMode: true;
   ideas: DiscoveryIdea[];
 }
+
+interface DuplicateWarning {
+  topic: string;
+  date: string;
+  id: string;
+  output_json: any;
+  plan_type: string;
+  platforms: string[];
+  style: string;
+  content_type: string;
+  duration: string;
+  goal: string;
+}
+
+const DISCOVERY_CATEGORIES = ["All", "Mystery", "Horror", "True Crime", "Educational", "Finance", "Entertainment"];
 
 // ── Micro components ────────────────────────────────────────────────
 
