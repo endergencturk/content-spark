@@ -158,6 +158,7 @@ Return exactly 5 ideas as JSON.`;
       language: lang,
       targetAudience: targetAudience || "global",
       hookStyle: hookStyle || "aggressive",
+      autoFixForced: !!autoFixForced,
     });
 
     const schema = mode === "pro"
