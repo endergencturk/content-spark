@@ -415,10 +415,24 @@ export default function Index() {
   const isProMode = mode === "pro";
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [profileForceOpen, setProfileForceOpen] = useState(false);
 
   useEffect(() => {
     setSuggestions(getTopicSuggestions(isProMode ? 6 : 3, contentType, style));
   }, [isProMode, contentType, style]);
+
+  // Apply channel profile defaults on first load
+  useEffect(() => {
+    const profile = loadChannelProfile();
+    if (profile) {
+      if (profile.audience) setTargetAudience(profile.audience);
+      if (profile.niche) {
+        const presetMatch = NICHE_PRESETS.find(p => p.id === profile.niche);
+        if (presetMatch) handlePresetClick(presetMatch);
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
   const [discoveryFilter, setDiscoveryFilter] = useState("All");
