@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Copy, Trophy, Crown, Youtube, Hash, Image, Music, TrendingUp, Clock, Layout } from "lucide-react";
+import { Copy, Trophy, Crown, Youtube, Hash, Image, Music, TrendingUp, Clock, Layout, Shuffle } from "lucide-react";
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
