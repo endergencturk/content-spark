@@ -493,6 +493,21 @@ const translations: Record<Locale, Record<string, string>> = {
     "result.postingTime.backup": "Yedek Zaman",
     "result.postingTime.reason": "Sebep",
 
+    // Hook types
+    "hookType.fear": "Korku",
+    "hookType.curiosity": "Merak",
+    "hookType.wtf": "WTF",
+    "hookType.conspiracy": "Komplo",
+    "hookType.emotional": "Duygusal",
+    "hookType.mystery": "Gizem",
+
+    // Angle variations
+    "result.angleVariations": "Açı Varyasyonları",
+
+    // Download
+    "btn.downloadTxt": "TXT İndir",
+    "toast.downloaded": "İndirildi — içerik paketi kaydedildi 📁",
+
     // Viral categories
     "viral.hookStrength": "Hook Gücü",
     "viral.curiosityGap": "Merak Boşluğu",
