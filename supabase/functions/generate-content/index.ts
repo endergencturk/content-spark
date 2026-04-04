@@ -693,13 +693,14 @@ HOOK QUALITY GATE (MANDATORY):
 - NEVER return a weak, generic hook`;
 
   const commentTriggerRule = `
-COMMENT TRIGGER:
-- The ending MUST do at least one of:
-  - Ask a provocative question
-  - Suggest a theory viewers will debate
-  - Leave a mystery open
-  - Challenge the viewer's belief
-- Goal: maximize comments and engagement`;
+COMMENT TRIGGER RULE:
+- The ending MUST provoke engagement using:
+  - Uncertainty
+  - Disagreement potential
+  - Hidden clue implication
+  - A provocative question
+  - A theory viewers will debate
+- Goal: maximize comments and interaction`;
 
   const imagePromptRules = `
 IMAGE PROMPTS:
