@@ -45,6 +45,13 @@ function normalizeResult(data: any): any {
   if (out.tiktok?.hashtags && !Array.isArray(out.tiktok.hashtags)) {
     out.tiktok = { ...out.tiktok, hashtags: String(out.tiktok.hashtags).split(",").map((s: string) => s.trim()) };
   }
+  // Fix editing plan scene numbering
+  if (Array.isArray(out.editingPlan)) {
+    out.editingPlan = out.editingPlan.map((scene: any, i: number) => ({
+      ...scene,
+      scene: scene.scene ?? i + 1,
+    }));
+  }
   return out;
 }
 import { ProResults, type ProResult } from "@/components/ProResults";
@@ -1236,10 +1243,10 @@ Viral Score: ${viralScore}/10
           )}
 
           {!loading && !isProMode && generalResult && !showOriginal && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
           )}
           {!loading && isProMode && proResult && !showOriginal && (
-            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
           )}
 
           {/* Original Version (collapsed by default, shown when toggled) */}
@@ -1251,10 +1258,10 @@ Viral Score: ${viralScore}/10
                   : ""}
               </p>
               {!isProMode && originalGeneralResult && (
-                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
               )}
               {isProMode && originalProResult && (
-                <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} />
+                <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} />
               )}
             </>
           )}

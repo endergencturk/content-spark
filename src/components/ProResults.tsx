@@ -8,6 +8,7 @@ const safeArray = (val: any): string[] =>
   Array.isArray(val) ? val : typeof val === "string" ? val.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { t, type Locale } from "@/lib/i18n";
+import { ScriptEditor } from "@/components/ScriptEditor";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
 
 interface EditingScene {
@@ -72,8 +73,8 @@ const CopyBtn = memo(function CopyBtn({
 });
 
 export const ProResults = memo(function ProResults({
-  result, platforms, copied, onCopy, locale = "en", targetAudience = "global",
-}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string }) {
+  result, platforms, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30",
+}: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string }) {
   const [showPack, setShowPack] = useState(false);
 
   return (
@@ -94,17 +95,7 @@ export const ProResults = memo(function ProResults({
 
       {/* Script */}
       <section className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-primary" />{t("result.voiceover", locale)}
-          </h3>
-          <CopyBtn text={result.script.split("\n").filter(l => !/^\[.+\]$/.test(l.trim())).map(l => l.replace(/^LOOP:\s*/i, '')).join("\n")} label="pro-script" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-        <div className="bg-muted/40 rounded-2xl p-4">
-          {result.script.split("\n").filter(line => !/^\[.+\]$/.test(line.trim())).map((line, i) => (
-            <p key={i} className="text-sm leading-loose text-foreground">{line.replace(/^LOOP:\s*/i, '') || <br />}</p>
-          ))}
-        </div>
+        <ScriptEditor initialScript={result.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="pro-script" locale={locale} />
       </section>
 
       {/* SEO — YouTube */}
@@ -274,7 +265,7 @@ export const ProResults = memo(function ProResults({
                   <div className="space-y-2.5">
                     {result.editingPlan.map((scene, i) => (
                       <div key={i} className="bg-muted/40 rounded-xl p-3 space-y-1">
-                        <p className="text-xs font-bold text-primary">Scene {scene.scene}</p>
+                        <p className="text-xs font-bold text-primary">Scene {scene.scene ?? i + 1}</p>
                         <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{scene.visual}</p>
                         {scene.onScreenText && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Text:</span>{scene.onScreenText}</p>}
                         {scene.mood && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Mood:</span>{scene.mood}</p>}

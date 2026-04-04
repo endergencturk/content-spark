@@ -481,29 +481,29 @@ function buildProSchema(platforms: string[], _hookCount: number) {
 function getLineCountGuidance(scriptLength: string): string {
   switch (scriptLength) {
     case "15": return `STRICT TIMING CONTROL (15s):
-- HARD LIMIT: 35–42 words total. Target 38 words. NEVER exceed 42. NEVER go below 35.
+- HARD LIMIT: 30–38 words total. Target 34 words. NEVER exceed 38. NEVER go below 30.
 - Each line: 1 breath, max 6 words per line
 - Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 42 → remove lines from MIDDLE only (keep first 3 and last 3 lines). If still over → compress remaining middle. If under 35 → add one tension line before ending.
+- Count every word before finalizing. If over 38 → remove lines from MIDDLE only (keep first 3 and last 3 lines). If still over → compress remaining middle. If under 30 → add one tension line before ending.
 - Focus on immediate impact, 1–2 ideas max`;
     case "30": return `STRICT TIMING CONTROL (30s):
-- HARD LIMIT: 60–68 words total. Target 64 words. NEVER exceed 68. NEVER go below 60.
+- HARD LIMIT: 60–70 words total. Target 65 words. NEVER exceed 70. NEVER go below 60.
 - Each line: 1 breath, max 6 words per line
 - Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 68 → remove lines from MIDDLE section only (always keep first 3 lines and last 3 lines). Then re-count. If still over → compress remaining middle lines. NEVER return script above 68 words.
+- Count every word before finalizing. If over 70 → remove lines from MIDDLE section only (always keep first 3 lines and last 3 lines). Then re-count. If still over → compress remaining middle lines. NEVER return script above 70 words.
 - If under 60 → add one tension line before ending.
 - Use 2–3 key ideas, minimal buildup`;
     case "60": return `STRICT TIMING CONTROL (60s):
-- HARD LIMIT: 110–130 words total. Target 120 words. NEVER exceed 130. NEVER go below 110.
+- HARD LIMIT: 125–140 words total. Target 132 words. NEVER exceed 140. NEVER go below 125.
 - Each line: 1 breath, max 6 words per line
 - Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 130 → remove lines from MIDDLE only (keep first 3 and last 3 lines). If still over → compress remaining middle. If under 110 → add one tension line before ending.
+- Count every word before finalizing. If over 140 → remove lines from MIDDLE only (keep first 3 and last 3 lines). If still over → compress remaining middle. If under 125 → add one tension line before ending.
 - Develop 3–5 ideas with narrative flow`;
     default: return `STRICT TIMING CONTROL (30s):
-- HARD LIMIT: 60–68 words total. Target 64 words. NEVER exceed 68. NEVER go below 60.
+- HARD LIMIT: 60–70 words total. Target 65 words. NEVER exceed 70. NEVER go below 60.
 - Each line: 1 breath, max 6 words per line
 - Editing cues like [pause] do NOT count as words
-- Count every word before finalizing. If over 68 → compress. If under 60 → add tension line.`;
+- Count every word before finalizing. If over 70 → compress. If under 60 → add tension line.`;
   }
 }
 

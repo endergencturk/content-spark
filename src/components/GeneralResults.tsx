@@ -6,6 +6,7 @@ const safeArray = (val: any): string[] =>
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
+import { ScriptEditor } from "@/components/ScriptEditor";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
 
 interface EditingScene {
@@ -66,8 +67,8 @@ const CopyBtn = memo(function CopyBtn({
 });
 
 export const GeneralResults = memo(function GeneralResults({
-  result, copied, onCopy, locale = "en", targetAudience = "global",
-}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string }) {
+  result, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30",
+}: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string }) {
   return (
     <div className="space-y-5">
       {/* ⭐ Best Hook */}
@@ -108,15 +109,7 @@ export const GeneralResults = memo(function GeneralResults({
 
       {/* Script */}
       <section className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("result.script", locale)}</h3>
-          <CopyBtn text={result.script.split("\n").filter(l => !/^\[.+\]$/.test(l.trim())).map(l => l.replace(/^LOOP:\s*/i, '')).join("\n")} label="script" copied={copied} onCopy={onCopy} locale={locale} />
-        </div>
-        <div className="bg-muted/40 rounded-2xl p-4">
-          {result.script.split("\n").filter(line => !/^\[.+\]$/.test(line.trim())).map((line, i) => (
-            <p key={i} className="text-sm leading-loose text-foreground">{line.replace(/^LOOP:\s*/i, '') || <br />}</p>
-          ))}
-        </div>
+        <ScriptEditor initialScript={result.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="script" locale={locale} />
         <UpsellBanner message={t("upsell.script", locale)} onUpgrade={() => {}} locale={locale} />
       </section>
 
@@ -126,7 +119,7 @@ export const GeneralResults = memo(function GeneralResults({
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.editingPlan", locale)}</h3>
           {result.editingPlan.map((scene, i) => (
             <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-1">
-              <p className="text-xs font-bold text-primary">Scene {scene.scene}</p>
+              <p className="text-xs font-bold text-primary">Scene {scene.scene ?? i + 1}</p>
               <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{scene.visual}</p>
               {scene.onScreenText && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Text:</span>{scene.onScreenText}</p>}
               {scene.mood && <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Mood:</span>{scene.mood}</p>}
