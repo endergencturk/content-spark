@@ -789,6 +789,10 @@ ${patternInterruptRule}
 
 ${rewatchFactorRule}
 
+${retentionHookRule}
+
+${hookQualityGate}
+
 ${commentTriggerRule}
 
 EDITING PLAN:
