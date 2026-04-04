@@ -914,7 +914,7 @@ SCRIPT WRITING RULES - READ CAREFULLY:
 
 STEP 1 - DETERMINE TARGET:
 - If duration = 15s → write 160-190 characters
-- If duration = 30s → write 330-380 characters
+- If duration = 30s → write 260-340 characters (speed 0.8x=260-300, 0.9x=290-340, 1.0x=330-380)
 - If duration = 60s → write 660-760 characters
 
 STEP 2 - WRITE THE SCRIPT:
@@ -1183,7 +1183,7 @@ If output feels robotic, too generic, or has a tone mismatch with the topic → 
 
 QUALITY GATE CHECKLIST (check ALL before returning):
 ✔ Best hook starts with situation word, not pronoun
-✔ Script character count is WITHIN the hard limit range (15s=160-190, 30s=330-380, 60s=660-760 characters) — if outside range, trim from MIDDLE only (keep first 3 and last 3 lines), then re-check. NEVER return script above limit.
+✔ Script character count is WITHIN the hard limit range (15s=160-190, 30s=260-380 depending on speed, 60s=660-760 characters) — if outside range, trim from MIDDLE only (keep first 3 and last 3 lines), then re-check. NEVER return script above limit.
 ✔ Script contains NO asterisks (*word*), NO stage directions, NO bracketed cues — pure voiceover only
 ✔ Script has NO "LOOP:" prefix on any line — last line must be plain text
 ✔ Subject revealed mid-script, not at line 1
