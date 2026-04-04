@@ -754,14 +754,36 @@ REWATCH LOOP RULE (CRITICAL):
 - If no rewatch moment exists → REWRITE the script until it does`;
 
   const hookVariationRule = `
-HOOK VARIATION RULE:
-- Each hook MUST use a DIFFERENT emotional trigger:
-  * fear
-  * curiosity
-  * urgency
-  * impossibility
+HOOK ENGINE (5 PSYCHOLOGICAL ANGLES):
+- Generate exactly 5 hooks, each with a DIFFERENT psychological angle:
+  Hook 1 - Fear: immediate danger or threat
+  Hook 2 - Curiosity: open loop, unanswered question
+  Hook 3 - WTF: impossible or bizarre situation
+  Hook 4 - Conspiracy: hidden truth, cover-up angle
+  Hook 5 - Emotional: human loss, family, personal impact
+- Each hook MUST be returned as an object: { type: "Fear" | "Curiosity" | "WTF" | "Conspiracy" | "Emotional", hook: "the hook text" }
+- The bestHook must be the single strongest one from these 5
 - Avoid repeating the same tone across hooks
 - If two hooks feel similar → rewrite one`;
+
+  const loopEndingRule = `
+LOOP ENDING RULE (CRITICAL):
+- The LAST line of the script MUST connect back to the opening
+- It must reference the first word or situation from the hook
+- Example: if hook starts "Vanished." → ending references vanishing
+- Add the prefix "LOOP: " before the final line in the script output
+- This creates a circular narrative that rewards rewatching
+- The loop ending must still feel natural and not forced`;
+
+  const angleVariationRule = `
+ANGLE VARIATION (REQUIRED):
+- After generating the main script, generate 3 alternative angles for the same topic
+- Each angle is a SINGLE hook line (not a full script), returned as { type, hook }:
+  ANGLE 1 - Fear: reframe as personal danger to viewer
+  ANGLE 2 - Mystery: focus on unanswered questions only
+  ANGLE 3 - Conspiracy: suggest cover-up or hidden party
+- Return these in the "angleVariations" array
+- Each must be a completely different perspective from the main hook`;
 
   const editSyncRule = `
 EDIT SYNC RULE:
