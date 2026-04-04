@@ -927,6 +927,9 @@ Viral Score: ${viralScore}/10
             </button>
           </div>
 
+          {/* Channel Profile Onboarding */}
+          <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />
+
           {/* USAGE BANNER (Free mode only) */}
           {!isProMode && (
             <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} locale={locale} />
