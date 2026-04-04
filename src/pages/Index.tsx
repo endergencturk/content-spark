@@ -660,7 +660,39 @@ export default function Index() {
               {isProMode && <p className="text-[10px] text-muted-foreground text-center">{t("selector.platform.multi", locale)}</p>}
             </div>
 
-            {/* 2. Niche Presets */}
+            {/* 2. Target Audience */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.targetAudience", locale)}</p>
+              <div className="flex gap-2 flex-wrap">
+                {TARGET_AUDIENCE_OPTIONS.map((o) => (
+                  <Pill
+                    key={o.value}
+                    selected={targetAudience === o.value}
+                    onClick={() => setTargetAudience(o.value)}
+                  >
+                    {t(o.labelKey, locale)}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. Hook Style */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.hookStyle", locale)}</p>
+              <div className="flex gap-2 flex-wrap">
+                {HOOK_STYLE_OPTIONS.map((o) => (
+                  <Pill
+                    key={o.value}
+                    selected={hookStyle === o.value}
+                    onClick={() => setHookStyle(o.value)}
+                  >
+                    {t(o.labelKey, locale)}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+
+            {/* 4. Niche Presets */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                 {t("preset.title", locale)}
