@@ -1196,7 +1196,7 @@ Viral Score: ${viralScore}/10
                 id="generate-btn"
                 className="flex-1 h-13 text-base rounded-2xl font-bold w-full"
                 disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
-                onClick={generateContent}
+                onClick={() => generateContent()}
               >
                 {loading && topic.trim() ? (
                   <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
