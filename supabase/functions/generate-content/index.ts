@@ -985,13 +985,19 @@ MULTI-PLATFORM: Generate TikTok hooks first, then adapt for YouTube.
 If any hook feels weak or narrative → rewrite internally before returning.`;
 
   const scrollStopperRule = `
-SCROLL STOPPER / OPENING WORD RULE (CRITICAL):
-- The FIRST SPOKEN WORD of the script must match TikTok hook rule
-- First word must be a situation word (Vanished / Dead / Gone / Missing / Trapped / Found / etc.)
-- If the script opens with He / She / They / A man → REWRITE
+SCROLL STOPPER / OPENING WORD RULE (CRITICAL - HOOK ENGINE):
+- The FIRST LINE of the script MUST be maximum 3 words
+- First word must be disruptive, emotional, or unusual
+- Do NOT explain context in the first line
+- Do NOT use generic openings: "This is...", "Did you know...", "Have you ever...", "What if..."
+- Aggressive: shocking word ("Cut.", "Dead.", "Wrong.")
+- Curiosity: incomplete statement ("He never left.", "Something went wrong.")
+- Emotional: human statement ("They were wrong.", "He wasn't ready.")
+- Dark: disturbing implication ("This shouldn't happen.", "He wasn't alone.")
+- If the script opens with He / She / They / A man / In [year] → REWRITE
 - The first line must stop scrolling instantly
 - Bad: "London, 1888." / "This is Lars Mittank" / "Did you know..."
-- Good: "Vanished." / "Gone." / "Dead. No body." / "Missing. No trace."`;
+- Good: "Vanished." / "Gone." / "Dead. No body." / "Missing."`;
 
   const patternInterruptRule = `
 PATTERN INTERRUPT RULE:
