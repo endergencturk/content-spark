@@ -66,13 +66,38 @@ const TRENDING_DATA: Record<string, TrendingSuggestion[]> = {
   ],
 };
 
+// Track which items have been shown this session to avoid repeats
+const shownKey = (niche: string) => `viralengine-trending-shown-${niche}`;
+
 function getSessionKey(niche: string, audience: string) {
   return `viralengine-trending-${niche}-${audience}`;
 }
 
-function pickRandom(arr: TrendingSuggestion[], count: number): TrendingSuggestion[] {
-  const shuffled = [...arr].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+function pickRandom(arr: TrendingSuggestion[], count: number, niche: string): TrendingSuggestion[] {
+  // Get previously shown titles from this session
+  let shown: string[] = [];
+  try {
+    const raw = sessionStorage.getItem(shownKey(niche));
+    if (raw) shown = JSON.parse(raw);
+  } catch {}
+
+  // Prefer items not yet shown
+  const unseen = arr.filter(s => !shown.includes(s.title));
+  const pool = unseen.length >= count ? unseen : arr;
+  
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const picked = shuffled.slice(0, count);
+
+  // Track what we showed
+  const newShown = [...shown, ...picked.map(p => p.title)];
+  // Reset if we've shown everything
+  if (newShown.length >= arr.length) {
+    sessionStorage.setItem(shownKey(niche), JSON.stringify(picked.map(p => p.title)));
+  } else {
+    sessionStorage.setItem(shownKey(niche), JSON.stringify(newShown));
+  }
+
+  return picked;
 }
 
 interface TrendingPanelProps {
@@ -90,33 +115,18 @@ export const TrendingPanel = memo(function TrendingPanel({ niche, audience, loca
   const effectiveNiche = niche || "mystery";
 
   const [suggestions, setSuggestions] = useState<TrendingSuggestion[]>(() => {
-    const cached = sessionStorage.getItem(getSessionKey(effectiveNiche, audience));
-    if (cached) {
-      try { return JSON.parse(cached); } catch {}
-    }
     const pool = TRENDING_DATA[effectiveNiche] || TRENDING_DATA.mystery;
-    const picked = pickRandom(pool, 5);
-    sessionStorage.setItem(getSessionKey(effectiveNiche, audience), JSON.stringify(picked));
-    return picked;
+    return pickRandom(pool, 5, effectiveNiche);
   });
 
   useEffect(() => {
-    const key = getSessionKey(effectiveNiche, audience);
-    const cached = sessionStorage.getItem(key);
-    if (cached) {
-      try { setSuggestions(JSON.parse(cached)); return; } catch {}
-    }
     const pool = TRENDING_DATA[effectiveNiche] || TRENDING_DATA.mystery;
-    const picked = pickRandom(pool, 5);
-    sessionStorage.setItem(key, JSON.stringify(picked));
-    setSuggestions(picked);
+    setSuggestions(pickRandom(pool, 5, effectiveNiche));
   }, [effectiveNiche, audience]);
 
   const refresh = () => {
     const pool = TRENDING_DATA[effectiveNiche] || TRENDING_DATA.mystery;
-    const picked = pickRandom(pool, 5);
-    sessionStorage.setItem(getSessionKey(effectiveNiche, audience), JSON.stringify(picked));
-    setSuggestions(picked);
+    setSuggestions(pickRandom(pool, 5, effectiveNiche));
   };
 
   if (!visible) return null;
