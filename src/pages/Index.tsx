@@ -13,6 +13,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
+import { AppSidebar } from "@/components/AppSidebar";
 import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
@@ -896,7 +897,17 @@ Viral Score: ${viralScore}/10
   }, [handlePresetClick]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex">
+      {/* Desktop Left Sidebar */}
+      <AppSidebar
+        locale={locale}
+        activeNav="create"
+        remaining={isProMode ? undefined : remaining}
+        isAtLimit={isAtLimit}
+      />
+
+      {/* Main content area */}
+      <div className="flex-1 min-w-0 flex flex-col">
       <Navbar onEditProfile={() => setProfileForceOpen(true)} />
 
       {/* Mobile: keep floating trending panel */}
@@ -909,8 +920,8 @@ Viral Score: ${viralScore}/10
         />
       )}
 
-      <div className="py-6 lg:py-8 px-4 lg:px-6">
-        <div className="mx-auto max-w-7xl">
+      <div className="py-6 lg:py-8 px-4 lg:px-6 flex-1">
+        <div className="mx-auto max-w-6xl">
           <div className="flex gap-8">
             {/* ── LEFT MAIN WORKSPACE ── */}
             <div className="flex-1 min-w-0 max-w-3xl mx-auto lg:mx-0 space-y-7">
@@ -1326,10 +1337,10 @@ Viral Score: ${viralScore}/10
               )}
             </div>
             {/* Generate + Bulk Pack buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-3 pt-2">
               <Button
                 id="generate-btn"
-                className="h-13 text-base rounded-2xl font-bold flex-1"
+                className="h-14 text-base rounded-2xl font-bold flex-1 shadow-lg hover:shadow-xl transition-all"
                 disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
                 onClick={() => generateContent()}
               >
@@ -1468,31 +1479,38 @@ Viral Score: ${viralScore}/10
           {/* ─── RESULTS TAB CONTENT ─── */}
           {activeTab === "results" && !loading && (
           <div className="space-y-6">
-            {/* Results summary bar */}
+            {/* Results header */}
             {hasResults && (
-              <div className="rounded-2xl border border-border/40 bg-muted/20 p-4 flex flex-wrap items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Topic</p>
-                  <p className="text-sm font-bold text-foreground truncate">{topic}</p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-foreground">
+                    {locale === "tr" ? "📦 Oluşturulan İçerik Paketi" : "📦 Generated Content Pack"}
+                  </h2>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-center">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Platform</p>
-                    <p className="text-xs font-semibold text-foreground">{(isProMode ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
+                <div className="rounded-2xl border border-border/40 bg-card shadow-sm p-4 flex flex-wrap items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Topic</p>
+                    <p className="text-sm font-bold text-foreground truncate">{topic}</p>
                   </div>
-                  {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
-                    <div className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5">
-                      <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                      <span className="text-sm font-bold text-primary">{(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10</span>
+                  <div className="flex items-center gap-3">
+                    <div className="text-center">
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Platform</p>
+                      <p className="text-xs font-semibold text-foreground">{(isProMode ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
                     </div>
-                  )}
+                    {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
+                      <div className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5">
+                        <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-sm font-bold text-primary">{(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Action bar */}
             {hasResults && (
-              <div className="space-y-3">
+              <div className="rounded-2xl border border-border/40 bg-card shadow-sm p-4 space-y-3">
                 <div className="flex gap-2">
                   <button
                     onClick={copyAll}
@@ -1673,6 +1691,7 @@ Viral Score: ${viralScore}/10
           </div>{/* end flex */}
         </div>
       </div>
+      </div>{/* end main content area */}
     </div>
   );
 }
