@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown } from "lucide-react";
+import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { useRouteThemeSync } from "@/contexts/SettingsContext";
@@ -21,6 +21,16 @@ function LandingNav() {
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const toggleLandingTheme = () => {
+    const current = localStorage.getItem("viralengine-landing-theme") || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    localStorage.setItem("viralengine-landing-theme", next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+  };
+
+  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+
   return (
     <nav className="sticky top-0 z-50 border-b border-border/30 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -39,11 +49,20 @@ function LandingNav() {
           <button onClick={() => scrollTo("contact")} className="hover:text-foreground transition-colors">Contact</button>
         </div>
 
-        <Link to="/app">
-          <Button size="sm" className="rounded-xl font-semibold shadow-[var(--shadow-warm)]">
-            Try Free
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleLandingTheme}
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            aria-label="Toggle theme"
+          >
+            {isDark ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+          </button>
+          <Link to="/app">
+            <Button size="sm" className="rounded-xl font-semibold shadow-[var(--shadow-warm)]">
+              Try Free
+            </Button>
+          </Link>
+        </div>
       </div>
     </nav>
   );
@@ -217,32 +236,116 @@ function HowItWorks() {
   );
 }
 
-/* ───── Example Output ───── */
+/* ───── Before / Free / Pro Comparison ───── */
+const COMPARISON_DATA = {
+  original: {
+    topic: "He disappeared at an airport",
+    hook: "He went missing.",
+    script: ["He entered the airport.", "After that, nobody could find him.", "People were confused.", "No one knew what happened."],
+    score: 4.1,
+    badge: null,
+  },
+  free: {
+    topic: "He Vanished Inside an Airport. No Trace.",
+    hook: "Vanished. On camera.",
+    script: ["Vanished.", "He walked into the terminal.", "Security footage shows him enter.", "But he never exits."],
+    score: 8.7,
+    badge: "Free",
+  },
+  pro: {
+    topic: "He Vanished Inside an Airport. No Trace.",
+    hook: "Vanished. On camera. Then erased.",
+    script: ["Vanished.", "He walked into the terminal at 8:14 PM.", "Security footage shows him enter.", "No exit. No trace. No explanation."],
+    score: 10,
+    badge: "Pro",
+  },
+} as const;
+
+type ComparisonKey = keyof typeof COMPARISON_DATA;
+
+const TOGGLE_OPTIONS: { key: ComparisonKey; label: string }[] = [
+  { key: "original", label: "Original" },
+  { key: "free", label: "Free Upgrade" },
+  { key: "pro", label: "Pro Upgrade" },
+];
+
 function ExampleOutput() {
+  const [active, setActive] = useState<ComparisonKey>("original");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const data = COMPARISON_DATA[active];
+
+  const scoreColor =
+    data.score >= 9
+      ? "text-primary bg-primary/10"
+      : data.score >= 7
+      ? "text-green-500 bg-green-500/10"
+      : "text-orange-500 bg-orange-500/10";
+
   return (
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">See What You Get</h2>
-          <p className="mt-3 text-muted-foreground">Real output from the Content Spark engine.</p>
+          <p className="mt-3 text-muted-foreground">Watch content transform from generic to viral-ready.</p>
         </div>
 
-        <div className="rounded-2xl border border-border/50 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)]">
+        {/* Segmented Toggle */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex rounded-2xl border border-border/50 bg-muted/50 p-1 gap-1">
+            {TOGGLE_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => setActive(opt.key)}
+                className={`rounded-xl px-4 sm:px-6 py-2 text-xs sm:text-sm font-semibold transition-all ${
+                  active === opt.key
+                    ? "bg-primary text-primary-foreground shadow-[var(--shadow-warm)]"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Card */}
+        <div
+          className={`rounded-2xl border bg-card p-6 sm:p-8 transition-all duration-300 ${
+            active === "pro"
+              ? "border-primary/50 shadow-[0_0_30px_-5px_hsl(var(--primary)/0.2)]"
+              : "border-border/50 shadow-[var(--shadow-card)]"
+          }`}
+        >
+          {/* Badge */}
+          {data.badge && (
+            <div className="mb-4">
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                  data.badge === "Pro"
+                    ? "bg-primary/15 text-primary"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {data.badge === "Pro" && <Crown className="h-3 w-3 mr-1" />}
+                {data.badge === "Pro" ? "Pro Quality" : "Free Tier"}
+              </span>
+            </div>
+          )}
+
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Topic</p>
-          <p className="text-lg font-bold text-foreground mb-6">He Vanished Inside an Airport. No Trace.</p>
+          <p className="text-lg font-bold text-foreground mb-6">{data.topic}</p>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
               <p className="text-xs uppercase tracking-widest text-primary mb-2">🪝 Hook</p>
-              <p className="text-xl font-extrabold text-foreground">"Vanished. On camera."</p>
+              <p className="text-xl font-extrabold text-foreground">"{data.hook}"</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">📜 Script (first 4 lines)</p>
-              <div className="space-y-1 text-sm text-muted-foreground font-mono">
-                <p>Vanished.</p>
-                <p>He walked into the terminal.</p>
-                <p>Security footage shows him enter.</p>
-                <p>But he never exits.</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">📜 Script</p>
+              <div className={`space-y-1 text-sm font-mono ${active === "original" ? "text-muted-foreground/70" : "text-muted-foreground"}`}>
+                {data.script.map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
               </div>
             </div>
           </div>
@@ -252,13 +355,32 @@ function ExampleOutput() {
               <span className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">TikTok</span>
               <span className="rounded-lg bg-destructive/10 px-3 py-1.5 text-xs font-bold text-destructive">YouTube Shorts</span>
             </div>
-            <div className="flex items-center gap-1.5 rounded-lg bg-green-500/10 px-3 py-1.5">
-              <Star className="h-4 w-4 text-green-500 fill-green-500" />
-              <span className="text-sm font-bold text-green-500">8.7 / 10</span>
+            <div className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 ${scoreColor}`}>
+              <Star className="h-4 w-4 fill-current" />
+              <span className="text-sm font-bold">{data.score} / 10</span>
             </div>
           </div>
         </div>
+
+        {/* CTAs */}
+        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+          <Link to="/app">
+            <Button size="lg" className="rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto">
+              <Zap className="h-4 w-4 mr-1" /> Try Free
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            size="lg"
+            className="rounded-2xl text-base font-medium px-8"
+            onClick={() => setUpgradeOpen(true)}
+          >
+            <Crown className="h-4 w-4 mr-1" /> Unlock Pro Quality
+          </Button>
+        </div>
       </div>
+
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </section>
   );
 }
