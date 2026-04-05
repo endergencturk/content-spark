@@ -1665,6 +1665,14 @@ ${scriptFormatRules}
 
 ${intensityEngineRule}
 
+${hookScriptContinuityRule}
+
+${scriptStructureRule}
+
+${intensityLevelRule}
+
+${platformScriptAdaptationRule}
+
 ${informationDelayRule}
 
 ${patternInterruptRule}
