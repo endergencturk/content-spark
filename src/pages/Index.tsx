@@ -393,6 +393,8 @@ const UsageBanner = memo(function UsageBanner({
 // ── Main page ───────────────────────────────────────────────────────
 
 export default function Index() {
+  useRouteThemeSync();
+  const isMobile = useIsMobile();
   const { settings } = useSettings();
   const locale = settings.language;
   const { remaining, isAtLimit, increment, nextRefillLabel } = useUsageLimit();
