@@ -47,9 +47,8 @@ export function useProStatus() {
   const openGumroad = () => {
     if (PAYMENTS_ENABLED) {
       window.open(GUMROAD_URL, "_blank");
-    } else {
-      toast.info("Pro checkout coming soon");
     }
+    // When payments disabled, callers should show the UpgradeDialog instead
   };
 
   const resetPro = () => {
