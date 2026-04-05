@@ -753,25 +753,37 @@ function getTargetAudienceInstructions(audience: string): string {
 
 function getHookStyleInstructions(hookStyle: string): string {
   switch (hookStyle) {
-    case "curiosity": return `HOOK STYLE: CURIOSITY
-- Open-loop phrasing
-- "Nobody noticed...", "What if...", unanswered tension
-- Create information gaps the viewer NEEDS to fill
+    case "curiosity": return `HOOK STYLE: CURIOSITY (HOOK ENGINE)
+- First line MUST be an incomplete statement that creates an open loop
+- Maximum 3 words in first line
+- Examples: "He never left." / "Something went wrong." / "Nobody checked."
+- Do NOT explain context in the first line
+- Do NOT use generic openings like "Have you ever..." or "What if..."
+- The hook must make the viewer NEED to know what happens next
 - Delay the reveal as long as possible`;
-    case "emotional": return `HOOK STYLE: EMOTIONAL
-- Personal, relatable, human-centered framing
-- Use "you" and "your" to connect
-- Tap into shared human experiences
-- Make the viewer feel seen or understood`;
-    case "dark": return `HOOK STYLE: DARK
-- Suspenseful, unsettling, slower tension
-- Ominous word choices
-- Build dread gradually
+    case "emotional": return `HOOK STYLE: EMOTIONAL (HOOK ENGINE)
+- First line MUST be a human statement that triggers empathy
+- Maximum 3 words in first line
+- Examples: "They were wrong." / "He wasn't ready." / "She knew."
+- Do NOT explain context in the first line
+- Do NOT use generic openings like "This is the story of..."
+- The hook must make the viewer feel something immediately
+- Tap into shared human experiences`;
+    case "dark": return `HOOK STYLE: DARK (HOOK ENGINE)
+- First line MUST be a disturbing implication
+- Maximum 3 words in first line
+- Examples: "This shouldn't happen." / "He wasn't alone." / "Nobody survived."
+- Do NOT explain context in the first line
+- Do NOT use generic openings
+- The hook must create immediate unease or dread
 - Leave something unexplained`;
-    default: return `HOOK STYLE: AGGRESSIVE
-- Shocking opening, maximum impact
-- Strongest possible first phrase
-- Max 4 words in opening line
+    default: return `HOOK STYLE: AGGRESSIVE (HOOK ENGINE)
+- First line MUST be a shocking word or command
+- Maximum 3 words in first line
+- Examples: "Cut." / "Dead." / "Wrong." / "Gone." / "Trapped."
+- Do NOT explain context in the first line
+- Do NOT use generic openings like "This is..." or "Did you know..."
+- The hook must stop scrolling instantly
 - Hit hard and fast, no buildup`;
   }
 }
