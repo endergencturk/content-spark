@@ -12,6 +12,9 @@ export interface ChannelProfileData {
   audience: string;
   language: string;
   frequency: string;
+  platformFocus?: string;
+  contentStyle?: string;
+  experienceLevel?: string;
 }
 
 const STORAGE_KEY = "viralengine-channel-profile";
@@ -57,6 +60,25 @@ const FREQUENCY_OPTIONS = [
   { value: "weekly", label: "Weekly", labelTr: "Haftalık" },
 ];
 
+const PLATFORM_FOCUS_OPTIONS = [
+  { value: "tiktok", label: "TikTok" },
+  { value: "youtube-shorts", label: "YouTube Shorts" },
+  { value: "both", label: "Both" },
+];
+
+const CONTENT_STYLE_OPTIONS = [
+  { value: "suspense", label: "Suspense", labelTr: "Gerilim" },
+  { value: "dark", label: "Dark", labelTr: "Karanlık" },
+  { value: "storytelling", label: "Storytelling", labelTr: "Hikaye" },
+  { value: "shocking", label: "Shocking", labelTr: "Şok edici" },
+];
+
+const EXPERIENCE_OPTIONS = [
+  { value: "beginner", label: "Beginner", labelTr: "Başlangıç" },
+  { value: "intermediate", label: "Intermediate", labelTr: "Orta" },
+  { value: "advanced", label: "Advanced", labelTr: "İleri" },
+];
+
 interface ChannelProfileProps {
   locale: Locale;
   onSave: (profile: ChannelProfileData) => void;
@@ -73,9 +95,12 @@ export const ChannelProfile = memo(function ChannelProfile({ locale, onSave, for
   const [audience, setAudience] = useState(existing?.audience || "global");
   const [language, setLanguage] = useState(existing?.language || "en");
   const [frequency, setFrequency] = useState(existing?.frequency || "3x");
+  const [platformFocus, setPlatformFocus] = useState(existing?.platformFocus || "both");
+  const [contentStyle, setContentStyle] = useState(existing?.contentStyle || "");
+  const [experienceLevel, setExperienceLevel] = useState(existing?.experienceLevel || "");
 
   const handleSave = () => {
-    const profile: ChannelProfileData = { channelName: channelName.trim(), niche, audience, language, frequency };
+    const profile: ChannelProfileData = { channelName: channelName.trim(), niche, audience, language, frequency, platformFocus, contentStyle, experienceLevel };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
     localStorage.setItem(SETUP_DONE_KEY, "true");
     onSave(profile);
@@ -161,6 +186,51 @@ export const ChannelProfile = memo(function ChannelProfile({ locale, onSave, for
                 <SelectTrigger className="h-9 rounded-xl text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {FREQUENCY_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{locale === "tr" ? o.labelTr : o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Optional fields */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                {locale === "tr" ? "Platform" : "Platform Focus"}
+              </label>
+              <Select value={platformFocus} onValueChange={setPlatformFocus}>
+                <SelectTrigger className="h-9 rounded-xl text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PLATFORM_FOCUS_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                {locale === "tr" ? "İçerik Stili" : "Content Style"}
+              </label>
+              <Select value={contentStyle} onValueChange={setContentStyle}>
+                <SelectTrigger className="h-9 rounded-xl text-xs"><SelectValue placeholder="Optional" /></SelectTrigger>
+                <SelectContent>
+                  {CONTENT_STYLE_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{locale === "tr" ? o.labelTr : o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                {locale === "tr" ? "Deneyim" : "Experience"}
+              </label>
+              <Select value={experienceLevel} onValueChange={setExperienceLevel}>
+                <SelectTrigger className="h-9 rounded-xl text-xs"><SelectValue placeholder="Optional" /></SelectTrigger>
+                <SelectContent>
+                  {EXPERIENCE_OPTIONS.map((o) => (
                     <SelectItem key={o.value} value={o.value}>{locale === "tr" ? o.labelTr : o.label}</SelectItem>
                   ))}
                 </SelectContent>
