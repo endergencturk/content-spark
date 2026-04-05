@@ -1,4 +1,5 @@
 import React, { useState, useCallback, memo, useMemo, useEffect, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
