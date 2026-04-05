@@ -8,7 +8,7 @@ import {
   Image, Clock, Flame, Crown, Hash, Youtube, Mic,
   Lock, TrendingUp, Shuffle, Lightbulb, Zap, Instagram,
   Search, Dumbbell, DollarSign, Brain, Skull, BookOpen,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, PenTool, LayoutGrid,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
