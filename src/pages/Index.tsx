@@ -438,6 +438,7 @@ export default function Index() {
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"generate" | "results">("generate");
   const [profileForceOpen, setProfileForceOpen] = useState(false);
 
   useEffect(() => {
