@@ -147,6 +147,10 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
   };
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<Tab>("all");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
+  const [confirmDeleteSelected, setConfirmDeleteSelected] = useState(false);
 
   const fetchItems = useCallback(() => {
     if (!deviceId) return;
@@ -168,7 +172,11 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
   }, [deviceId, isPro]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setSelectMode(false);
+      setSelected(new Set());
+      return;
+    }
     fetchItems();
   }, [open, fetchItems]);
 
@@ -197,6 +205,42 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
       toast.success(newVal ? t("favorites.added", locale) : t("favorites.removed", locale), { duration: 1500 });
     }
   }, [isPro, items, locale]);
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleDeleteAll = async () => {
+    const { error } = await supabase
+      .from("generations")
+      .delete()
+      .eq("device_id", deviceId);
+    if (!error) {
+      setItems([]);
+      toast.success(locale === "tr" ? "Tüm geçmiş silindi" : "All history deleted");
+    }
+    setConfirmDeleteAll(false);
+  };
+
+  const handleDeleteSelected = async () => {
+    const ids = Array.from(selected);
+    const { error } = await supabase
+      .from("generations")
+      .delete()
+      .in("id", ids);
+    if (!error) {
+      setItems((prev) => prev.filter((i) => !selected.has(i.id)));
+      setSelected(new Set());
+      setSelectMode(false);
+      toast.success(locale === "tr" ? `${ids.length} öğe silindi` : `${ids.length} item(s) deleted`);
+    }
+    setConfirmDeleteSelected(false);
+  };
 
   const filtered = tab === "favorites" ? items.filter((i) => i.is_favorite) : items;
 
