@@ -222,6 +222,7 @@ export const GeneralResults = memo(function GeneralResults({
           ))}
         </section>
       )}
+      </div>{/* end image/thumbnail grid */}
 
       {/* Music Suggestions */}
       {result.music && result.music.length > 0 && (
