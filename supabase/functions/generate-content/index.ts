@@ -1034,7 +1034,25 @@ HOOK ENGINE (5 PSYCHOLOGICAL ANGLES):
 - Each hook MUST be returned as an object: { type: "Fear" | "Curiosity" | "WTF" | "Conspiracy" | "Emotional", hook: "the hook text" }
 - The bestHook must be the single strongest one from these 5
 - Avoid repeating the same tone across hooks
-- If two hooks feel similar → rewrite one`;
+- If two hooks feel similar → rewrite one
+
+HOOK VALIDATION (MANDATORY - APPLY TO ALL HOOKS):
+- Every hook's first line MUST be maximum 3 words
+- First word MUST be disruptive, emotional, or unusual
+- Do NOT explain context in the first line
+- Do NOT use generic openings: "This is the story of...", "Have you ever...", "What if...", "Did you know..."
+- The hook MUST create immediate curiosity or tension
+- If any hook fails these checks → regenerate that hook
+- Output format for bestHook:
+  HOOK:
+  Line 1 (impact line - max 3 words)
+  Line 2 (optional continuation)
+
+VISUAL SYNC RULE (IMPORTANT):
+- The first hook line must visually match the first scene in the editing plan
+- Ensure the hook can be paired with a strong visual moment
+- The opening word/phrase should evoke a clear, filmable image
+- Example: "Vanished." pairs with empty room / "Dead." pairs with crime scene`;
 
   const loopEndingRule = `
 LOOP ENDING RULE (CRITICAL):
