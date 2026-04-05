@@ -107,8 +107,8 @@ function Hero() {
             <div className="rounded-2xl border border-border/50 bg-card p-6 shadow-2xl shadow-primary/5">
               <div className="mb-4 flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-destructive/60" />
-                <div className="h-3 w-3 rounded-full bg-yellow-400/60" />
-                <div className="h-3 w-3 rounded-full bg-green-400/60" />
+                <div className="h-3 w-3 rounded-full bg-accent/80" />
+                <div className="h-3 w-3 rounded-full bg-primary/40" />
               </div>
 
               <div className="space-y-4">
