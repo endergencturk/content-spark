@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play } from "lucide-react";
+import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 
 /* ───── smooth-scroll helper ───── */
 function useSmoothScroll() {
@@ -291,6 +292,8 @@ function Testimonials() {
 
 /* ───── Pricing ───── */
 function Pricing() {
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
   return (
     <section id="pricing" className="py-20 sm:py-28">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
@@ -315,10 +318,11 @@ function Pricing() {
           {/* Pro */}
           <div className="relative rounded-2xl border-2 border-primary bg-card p-8 shadow-[var(--shadow-warm)]">
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground">
-              Most Popular
+              Early Access
             </span>
             <h3 className="text-lg font-bold text-foreground">Pro</h3>
             <p className="mt-1 text-4xl font-extrabold text-foreground">$15<span className="text-base font-medium text-muted-foreground">/month</span></p>
+            <p className="mt-1 text-xs text-muted-foreground">Early access — billing coming soon</p>
             <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
               {[
                 "Unlimited generations",
@@ -333,10 +337,18 @@ function Pricing() {
                 <li key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" />{f}</li>
               ))}
             </ul>
-            <Button className="w-full mt-8 rounded-xl font-semibold shadow-[var(--shadow-warm)]">Get Pro</Button>
+            <Button
+              className="w-full mt-8 rounded-xl font-semibold shadow-[var(--shadow-warm)]"
+              onClick={() => setUpgradeOpen(true)}
+            >
+              <Crown className="h-4 w-4 mr-2" />
+              Request Access
+            </Button>
           </div>
         </div>
       </div>
+
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </section>
   );
 }
