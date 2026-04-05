@@ -1337,10 +1337,10 @@ Viral Score: ${viralScore}/10
               )}
             </div>
             {/* Generate + Bulk Pack buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-3 pt-2">
               <Button
                 id="generate-btn"
-                className="h-13 text-base rounded-2xl font-bold flex-1"
+                className="h-14 text-base rounded-2xl font-bold flex-1 shadow-lg hover:shadow-xl transition-all"
                 disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
                 onClick={() => generateContent()}
               >
