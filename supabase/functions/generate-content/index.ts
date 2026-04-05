@@ -1003,6 +1003,133 @@ INTENSITY RULES:
 - If the last 3 lines are not the strongest → REWRITE the ending
 - Every line must earn its place — no filler, no padding, no generic narration`;
 
+  const hookScriptContinuityRule = `
+=== HOOK → SCRIPT CONTINUITY (CRITICAL) ===
+The script MUST directly continue the tone and energy of the selected bestHook.
+
+Rules:
+- First line of script must feel like a NATURAL continuation of the hook
+- Do NOT restart the story from zero after the hook
+- Maintain the SAME tension level and style throughout
+- If hook is aggressive → script must stay aggressive
+- If hook is emotional → script must stay emotional
+- If hook is dark → script must stay dark
+
+BAD example:
+  Hook: "Vanished. On camera."
+  Script: "This is a story about a man who disappeared..."
+
+GOOD example:
+  Hook: "Vanished. On camera."
+  Script: "He walked into the terminal."
+
+- The hook and script must read as ONE continuous piece
+- A listener should not feel a "reset" between hook and script opening`;
+
+  const scriptStructureRule = `
+=== SCRIPT STRUCTURE ENFORCEMENT (MANDATORY) ===
+Every script MUST follow this exact structure:
+
+OPENING (first 2 lines):
+- Immediate continuation of the hook
+- Fast escalation — no background explanation
+- Do NOT introduce or explain the subject here
+
+BUILD (middle section):
+- Add details, tension, progression
+- Insert at least 1 pattern interrupt here
+- Each line adds new information or raises stakes
+
+SPIKE (climax):
+- The most emotional, shocking, or disturbing element
+- This is the peak moment — make it hit hard
+- Can be a single devastating line
+
+ENDING (last 3 lines):
+- MUST be the strongest part of the entire script
+- Options: cliffhanger / disturbing realization / unanswered question
+- Must NOT feel flat, explanatory, or conclusive
+- Must connect back to the opening (loop ending)
+
+If the ending feels weak or explanatory → REWRITE until it's the strongest section.`;
+
+  const intensityLevelRule = `
+=== INTENSITY LEVEL SYSTEM ===
+Apply intensity based on hook intensity setting:
+
+LOW (safe):
+- Softer tone, gentler pacing
+- Less aggressive language
+- Curiosity over shock
+- Longer, more descriptive lines (4-6 words)
+
+MEDIUM (balanced):
+- Balanced pacing with clear tension
+- Mix of short and medium lines
+- Steady emotional build
+- Pattern interrupts every 3-4 lines
+
+HIGH (aggressive):
+- Strong hooks, more impact lines
+- Faster rhythm, shorter lines (2-4 words)
+- Pattern interrupts every 2-3 lines
+- More emotional weight per line
+
+EXTREME (maximum tension):
+- Very short lines (1-3 words dominant)
+- Aggressive, punchy phrasing
+- Maximum tension and curiosity in every line
+- Pattern interrupts every 2 lines
+- Every sentence must hit like a punch
+- No breathing room — relentless pacing
+
+Intensity level affects: word choice, sentence length, emotional weight, pacing, and number of pattern interrupts.`;
+
+  const platformScriptAdaptationRule = `
+=== PLATFORM SCRIPT ADAPTATION (CRITICAL) ===
+Do NOT generate identical scripts for all platforms. Adapt style based on primary platform:
+
+TIKTOK:
+- Fastest pacing of all platforms
+- Shortest lines (1-4 words dominant)
+- Most aggressive hooks — situation words only
+- Maximum pattern interrupts
+- Raw, unfiltered energy
+- Conversational but punchy
+
+YOUTUBE SHORTS:
+- Slightly more context than TikTok
+- Smoother progression between ideas
+- Curiosity-driven over shock-driven
+- Lines can be 3-6 words
+- More narrative flow, less staccato
+
+INSTAGRAM REELS:
+- Most emotional / relatable tone
+- Personal, human connection focus
+- Slightly warmer language
+- Relatable situations over shocking facts
+- Lines can be 3-5 words with emotional weight
+
+The script should feel optimized for the PRIMARY selected platform.
+If multiple platforms selected, optimize for the first one listed.`;
+
+  const finalQualityRule = `
+=== FINAL QUALITY CHECK (BEFORE OUTPUT) ===
+Before returning the final output, perform this mental check:
+
+1. Read the script as if speaking it out loud
+2. Does it flow naturally as a voiceover? If not → rewrite awkward lines
+3. Does every line transition smoothly to the next? If not → fix transitions
+4. Are there any repeated sentence structures? If yes → vary them
+5. Does any line sound robotic, translated, or AI-generated? If yes → rewrite in natural speech
+6. Does the hook connect seamlessly to the script opening? If not → fix continuity
+7. Is the ending stronger than the middle? If not → strengthen ending
+
+If ANY check fails → rewrite the affected section before returning.
+The final output must sound like a skilled human writer, not an AI.`;
+
+
   const platformHookRules = `
 === PLATFORM HOOK RULES (CRITICAL) ===
 
