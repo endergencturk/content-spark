@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown } from "lucide-react";
+import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { useRouteThemeSync } from "@/contexts/SettingsContext";
