@@ -1390,7 +1390,7 @@ ${microRetentionRule}
 
 ${scriptFormatRules}
 
-${scrollStopperRule}
+${intensityEngineRule}
 
 ${informationDelayRule}
 
@@ -1526,7 +1526,7 @@ ${microRetentionRule}
 
 ${scriptFormatRules}
 
-${scrollStopperRule}
+${intensityEngineRule}
 
 ${informationDelayRule}
 
