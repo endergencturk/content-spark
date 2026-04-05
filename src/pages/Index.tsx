@@ -658,6 +658,8 @@ export default function Index() {
         setProResult(null);
         increment();
       }
+      setActiveTab("results");
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 
       try {
         await supabase.from("generations").insert({
