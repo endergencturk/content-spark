@@ -897,7 +897,17 @@ Viral Score: ${viralScore}/10
   }, [handlePresetClick]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex">
+      {/* Desktop Left Sidebar */}
+      <AppSidebar
+        locale={locale}
+        activeNav="create"
+        remaining={isProMode ? undefined : remaining}
+        isAtLimit={isAtLimit}
+      />
+
+      {/* Main content area */}
+      <div className="flex-1 min-w-0 flex flex-col">
       <Navbar onEditProfile={() => setProfileForceOpen(true)} />
 
       {/* Mobile: keep floating trending panel */}
@@ -910,8 +920,8 @@ Viral Score: ${viralScore}/10
         />
       )}
 
-      <div className="py-6 lg:py-8 px-4 lg:px-6">
-        <div className="mx-auto max-w-7xl">
+      <div className="py-6 lg:py-8 px-4 lg:px-6 flex-1">
+        <div className="mx-auto max-w-6xl">
           <div className="flex gap-8">
             {/* ── LEFT MAIN WORKSPACE ── */}
             <div className="flex-1 min-w-0 max-w-3xl mx-auto lg:mx-0 space-y-7">
