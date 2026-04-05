@@ -1714,6 +1714,8 @@ ${viralAnalysisRules}
 
 ${qualityEnforcement}
 
+${finalQualityRule}
+
 GENERATE:
 1. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
 2. bestHook: the single strongest hook (marked with ⭐ in output)
