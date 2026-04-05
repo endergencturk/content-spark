@@ -916,20 +916,24 @@ VOICE SCRIPT (CRITICAL — STRICT RULES):
   - NO stage directions of any kind
   - NO action notes or labels (Beat 1, Hook:, CTA:)
   - NO parenthetical instructions
-  - Each line = one breath = max 6 words
+  - Short lines: 1-6 words maximum per line
   - One idea per line
   - NEVER write paragraphs — if the script is a paragraph, the output is INVALID
   - Use "..." for pauses and "—" for dramatic breaks
   - Add empty lines between sections for breathing space
 
-SCRIPT WRITING RULES - READ CAREFULLY:
-
-STEP 1 - DETERMINE TARGET:
-- If duration = 15s → write 160-190 characters
-- If duration = 30s → write 260-340 characters (speed 0.8x=260-300, 0.9x=290-340, 1.0x=330-380)
-- If duration = 60s → write 660-760 characters
+=== SCRIPT TIMING ENGINE (WORD COUNT TARGETS) ===
+STEP 1 - DETERMINE WORD COUNT TARGET:
+- If duration = 15s → write 40-50 words
+- If duration = 30s → write 85-100 words
+- If duration = 60s → write 150-180 words
 
 STEP 2 - WRITE THE SCRIPT:
+- Short lines: 1-6 words maximum
+- Use rhythm and spacing between ideas
+- Avoid long sentences
+- Add tension through controlled repetition
+- Prioritize pacing over strict word count
 Structure:
 - Opening (shocking word): 1 line, 1-3 words
 - Setup (context): 3-4 lines, 3-5 words each
@@ -938,32 +942,66 @@ Structure:
 - Peak (most intense): 3-4 lines, 2-4 words each
 - Loop ending: 1-2 lines, connects back to opening
 
-STEP 3 - COUNT CHARACTERS:
-Count every character including spaces and punctuation.
-Example: 'Vanished.' = 9 characters
-'Running from unseen.' = 20 characters
+STEP 3 - COUNT WORDS:
+Count every word in the script.
 
-STEP 4 - VERIFY:
-If character count is below minimum:
-→ Expand setup section with more detail
-→ Expand escalation with more tension lines
-→ Add one more pattern interrupt
-→ Recount
+STEP 4 - POST-GENERATION ADJUSTMENT:
+If UNDER target word count:
+→ Add tension lines: "No warning." / "Nothing." / "Silence."
+→ Add atmosphere: "The room was still." / "Nobody moved."
+→ Only add lines that increase tension or curiosity
+→ Never add filler. Every line must earn its place.
 
-If character count is above maximum:
-→ Remove 1-2 lines from escalation section only
-→ Never remove opening or ending
-→ Recount
+If OVER target word count:
+→ Remove weak or repetitive lines
+→ Compress sentences
+→ Keep only strongest lines
+→ Keep first 3 and last 3 lines always
 
-STEP 5 - ONLY RETURN when character count is correct.
-This rule cannot be skipped.
-This is NON-NEGOTIABLE. Outside the range = INVALID output.
+STEP 5 - RECOUNT AND VERIFY:
+- Recount words after adjustment
+- Script must feel: natural, properly paced, not rushed, not dragged
+- Quality rule: Never add filler. Every line must earn its place.
+- ONLY RETURN when word count is within target range.
+- This is NON-NEGOTIABLE. Outside the range = INVALID output.
+
+CHARACTER COUNT TARGETS (for live counter validation):
+- If duration = 15s → 160-190 characters
+- If duration = 30s → 260-340 characters (speed 0.8x=260-300, 0.9x=290-340, 1.0x=330-380)
+- If duration = 60s → 660-760 characters
 
 - STRUCTURE: Adapt to topic (see TOPIC-AWARE TONE ADAPTATION above)
 - First line MUST stop scrolling
 - Ending MUST create curiosity or impact (open loop or strong closer)
 
 ${lineCountGuidance}`;
+
+  const intensityEngineRule = `
+=== INTENSITY ENGINE (MANDATORY FOR EVERY SCRIPT) ===
+Every script MUST contain ALL of the following:
+
+1. AT LEAST 1 HARD IMPACT LINE:
+   - A short, powerful line that hits like a punch
+   - Examples: "Not one trace." / "Gone." / "Nobody survived." / "Dead silence."
+   - Must appear naturally within the script flow
+
+2. AT LEAST 1 PATTERN INTERRUPT IN THE MIDDLE:
+   - A sudden short line after a longer build
+   - An unexpected fact or rhythm break
+   - Examples: sudden 1-word line after 5-word lines, shocking detail that changes direction
+
+3. AT LEAST 1 EMOTIONAL OR DISTURBING SPIKE:
+   - Family angle, personal detail, or impossible fact
+   - Something that makes the viewer feel something visceral
+   - Examples: "His daughter was 4." / "The door was locked from inside." / "They never came back."
+
+INTENSITY RULES:
+- Avoid generic phrasing like "mysterious events" or "strange occurrences"
+- Increase tension PROGRESSIVELY through the script — never flatten
+- Never flatten the pacing — always build toward something
+- The last 3 lines MUST be the most powerful lines in the entire script
+- If the last 3 lines are not the strongest → REWRITE the ending
+- Every line must earn its place — no filler, no padding, no generic narration`;
 
   const platformHookRules = `
 === PLATFORM HOOK RULES (CRITICAL) ===
