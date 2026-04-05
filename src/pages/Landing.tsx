@@ -18,18 +18,20 @@ function useSmoothScroll() {
 
 /* ───── Navbar ───── */
 function LandingNav() {
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+  );
+
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   const toggleLandingTheme = () => {
-    const current = localStorage.getItem("viralengine-landing-theme") || "dark";
-    const next = current === "dark" ? "light" : "dark";
+    const next = isDark ? "light" : "dark";
     localStorage.setItem("viralengine-landing-theme", next);
     document.documentElement.classList.toggle("dark", next === "dark");
+    setIsDark(next === "dark");
   };
-
-  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border/30 bg-background/80 backdrop-blur-xl">
@@ -55,7 +57,7 @@ function LandingNav() {
             className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             aria-label="Toggle theme"
           >
-            {isDark ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <Link to="/app">
             <Button size="sm" className="rounded-xl font-semibold shadow-[var(--shadow-warm)]">
