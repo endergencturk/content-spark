@@ -128,6 +128,8 @@ export const GeneralResults = memo(function GeneralResults({
         </section>
       )}
 
+      {/* SEO sections in desktop grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       {/* SEO — YouTube */}
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
@@ -181,6 +183,10 @@ export const GeneralResults = memo(function GeneralResults({
         </div>
       </section>
 
+      </div>{/* end SEO grid */}
+
+      {/* Image Prompts & Thumbnails in desktop grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       {/* Image Prompts */}
       <section className="space-y-2.5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.imagePrompts", locale)}</h3>
