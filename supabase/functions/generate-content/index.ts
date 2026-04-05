@@ -1570,6 +1570,8 @@ ${viralAnalysisRules}
 
 ${qualityEnforcement}
 
+${finalQualityRule}
+
 GENERATE:
 1. bestHook: The single strongest scroll-stopping hook
 2. hooks: exactly 5 hooks as {type, hook} objects (Fear, Curiosity, WTF, Conspiracy, Emotional)
