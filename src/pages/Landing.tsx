@@ -375,6 +375,15 @@ function Footer() {
             <Link to="/app" className="hover:text-foreground transition-colors">App</Link>
           </div>
         </div>
+
+        <div className="mt-8 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Contact</p>
+          <p className="text-xs text-muted-foreground mb-2">For support or questions, reach out anytime.</p>
+          <a href="mailto:ender.genctuerk@gmail.com" className="text-sm text-primary hover:text-primary/80 transition-colors">
+            ender.genctuerk@gmail.com
+          </a>
+        </div>
+
         <p className="mt-8 text-center text-xs text-muted-foreground">© 2026 Content Spark. All rights reserved.</p>
       </div>
     </footer>
