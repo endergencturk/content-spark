@@ -1479,24 +1479,31 @@ Viral Score: ${viralScore}/10
           {/* ─── RESULTS TAB CONTENT ─── */}
           {activeTab === "results" && !loading && (
           <div className="space-y-6">
-            {/* Results summary bar */}
+            {/* Results header */}
             {hasResults && (
-              <div className="rounded-2xl border border-border/40 bg-muted/20 p-4 flex flex-wrap items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Topic</p>
-                  <p className="text-sm font-bold text-foreground truncate">{topic}</p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-foreground">
+                    {locale === "tr" ? "📦 Oluşturulan İçerik Paketi" : "📦 Generated Content Pack"}
+                  </h2>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-center">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Platform</p>
-                    <p className="text-xs font-semibold text-foreground">{(isProMode ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
+                <div className="rounded-2xl border border-border/40 bg-card shadow-sm p-4 flex flex-wrap items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Topic</p>
+                    <p className="text-sm font-bold text-foreground truncate">{topic}</p>
                   </div>
-                  {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
-                    <div className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5">
-                      <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                      <span className="text-sm font-bold text-primary">{(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10</span>
+                  <div className="flex items-center gap-3">
+                    <div className="text-center">
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Platform</p>
+                      <p className="text-xs font-semibold text-foreground">{(isProMode ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
                     </div>
-                  )}
+                    {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
+                      <div className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5">
+                        <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-sm font-bold text-primary">{(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
