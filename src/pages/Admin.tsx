@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Sparkles, BarChart3, Users, TrendingUp, Flame, ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Sparkles, BarChart3, Users, TrendingUp, Flame, ShieldCheck, ArrowLeft, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -127,11 +128,21 @@ function Dashboard() {
     <div className="min-h-screen bg-background">
       <nav className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span className="font-bold text-foreground">Admin Dashboard</span>
+            <span className="font-bold text-foreground hidden sm:inline">Admin Dashboard</span>
+            <span className="font-bold text-foreground sm:hidden text-sm">Admin</span>
+            <div className="h-4 w-px bg-border/60 hidden sm:block" />
+            <Link to="/" className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="h-3 w-3" />
+              <span>Home</span>
+            </Link>
+            <Link to="/app" className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <ExternalLink className="h-3 w-3" />
+              <span>App</span>
+            </Link>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground">
+          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             Logout
           </Button>
         </div>
