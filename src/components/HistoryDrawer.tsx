@@ -1,10 +1,20 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { History, Play, Clock, Hash, Youtube, Instagram, Star, RefreshCw, Download } from "lucide-react";
+import { History, Play, Clock, Hash, Youtube, Instagram, Star, RefreshCw, Download, Trash2, CheckSquare, Square, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { t, type Locale } from "@/lib/i18n";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 function downloadHistoryTxt(item: HistoryItem) {
   const output = item.output_json;
