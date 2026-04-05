@@ -96,6 +96,9 @@ interface HistoryDrawerProps {
   onReuse: (topic: string) => void;
   onReopen: (item: HistoryItem) => void;
   onRegenerate: (item: HistoryItem) => void;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
 const PLATFORM_ICONS: Record<string, React.ElementType> = {
@@ -124,9 +127,14 @@ function formatDate(dateStr: string, locale: Locale): string {
 
 type Tab = "all" | "favorites";
 
-export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRegenerate }: HistoryDrawerProps) {
+export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRegenerate, externalOpen, onExternalOpenChange, hideTrigger }: HistoryDrawerProps) {
   const [items, setItems] = useState<HistoryItem[]>([]);
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = (v: boolean) => {
+    if (onExternalOpenChange) onExternalOpenChange(v);
+    setInternalOpen(v);
+  };
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<Tab>("all");
 
@@ -184,12 +192,14 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5 rounded-xl text-xs">
-          <History className="h-3.5 w-3.5" />
-          {t("history.title", locale)}
-        </Button>
-      </SheetTrigger>
+      {!hideTrigger && (
+        <SheetTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-1.5 rounded-xl text-xs">
+            <History className="h-3.5 w-3.5" />
+            {t("history.title", locale)}
+          </Button>
+        </SheetTrigger>
+      )}
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
