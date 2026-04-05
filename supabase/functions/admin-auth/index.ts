@@ -11,21 +11,22 @@ serve(async (req) => {
   }
 
   try {
-    const { password } = await req.json();
+    const { username, password } = await req.json();
+
     // ⚠️ SECURITY NOTE: This is a lightweight client-side gate, NOT a secure auth system.
     // It protects against casual access only. For production security, implement proper
     // authentication with session tokens and server-side validation.
-    // Set ADMIN_PASSWORD via environment secrets — never hardcode a real password here.
+    const adminUser = Deno.env.get("ADMIN_USERNAME");
     const adminPw = Deno.env.get("ADMIN_PASSWORD");
 
-    if (!adminPw) {
-      return new Response(JSON.stringify({ error: "Admin password not configured" }), {
+    if (!adminUser || !adminPw) {
+      return new Response(JSON.stringify({ error: "Admin authentication is not configured" }), {
         status: 503,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (password === adminPw) {
+    if (username === adminUser && password === adminPw) {
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

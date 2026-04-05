@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 /* ──── Password gate ──── */
 function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
+  const [username, setUsername] = useState("");
   const [pw, setPw] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,16 +20,16 @@ function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke("admin-auth", {
-        body: { password: pw },
+        body: { username, password: pw },
       });
       if (fnError || !data?.success) {
-        setError("Incorrect password. Access denied.");
+        setError("Invalid credentials. Access denied.");
       } else {
         sessionStorage.setItem("admin_auth", "1");
         onSuccess();
       }
     } catch {
-      setError("Something went wrong. Try again.");
+      setError("Authentication unavailable. Try again later.");
     } finally {
       setLoading(false);
     }
@@ -42,21 +43,30 @@ function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
             <ShieldCheck className="h-7 w-7 text-primary" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Admin Access</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Enter admin password to continue</p>
+          <p className="mt-1 text-sm text-muted-foreground">Enter your credentials to continue</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <Input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="rounded-xl"
+            autoFocus
+            autoComplete="username"
+          />
           <Input
             type="password"
             placeholder="Password"
             value={pw}
             onChange={(e) => setPw(e.target.value)}
             className="rounded-xl"
-            autoFocus
+            autoComplete="current-password"
           />
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" className="w-full rounded-xl font-semibold" disabled={loading || !pw}>
-            {loading ? "Verifying…" : "Enter"}
+          <Button type="submit" className="w-full rounded-xl font-semibold" disabled={loading || !username || !pw}>
+            {loading ? "Verifying…" : "Sign In"}
           </Button>
         </form>
       </div>
