@@ -71,7 +71,7 @@ export const GeneralResults = memo(function GeneralResults({
 }: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string; voiceSpeed?: string }) {
   return (
     <div className="space-y-5">
-      {/* ⭐ Best Hook */}
+      {/* ⭐ Best Hook - full width */}
       {result.bestHook && (
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5">
           <div className="flex items-start gap-3">
