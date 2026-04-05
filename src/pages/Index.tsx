@@ -708,6 +708,7 @@ export default function Index() {
     setContentType(item.content_type || "story");
     setScriptLength(item.duration || "30");
     setGoal(item.goal || "viral");
+    setActiveTab("results");
   }, []);
 
   const handleHistoryRegenerate = useCallback((item: any) => {
