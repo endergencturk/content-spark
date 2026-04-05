@@ -1027,7 +1027,7 @@ Viral Score: ${viralScore}/10
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                 {t("preset.title", locale)}
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
                 {NICHE_PRESETS.map((preset) => {
                   const isSelected = selectedPreset === preset.id;
                   const PresetIcon = preset.icon;
