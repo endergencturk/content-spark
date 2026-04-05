@@ -567,16 +567,7 @@ export default function Landing() {
       <Pricing />
       <FinalCTA />
       <Footer />
-      {/* Auth modal rendered at landing level */}
-      <AuthModalLanding />
+      <AuthModal />
     </div>
   );
-}
-
-function AuthModalLanding() {
-  const { showAuthModal } = useAuth();
-  // Only import and render when needed
-  if (!showAuthModal) return null;
-  const { AuthModal } = require("@/components/AuthModal");
-  return <AuthModal />;
 }
