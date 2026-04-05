@@ -71,7 +71,7 @@ export const GeneralResults = memo(function GeneralResults({
 }: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string; voiceSpeed?: string }) {
   return (
     <div className="space-y-5">
-      {/* ⭐ Best Hook */}
+      {/* ⭐ Best Hook - full width */}
       {result.bestHook && (
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5">
           <div className="flex items-start gap-3">
@@ -128,6 +128,8 @@ export const GeneralResults = memo(function GeneralResults({
         </section>
       )}
 
+      {/* SEO sections in desktop grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       {/* SEO — YouTube */}
       <section className="space-y-2.5">
         <div className="flex items-center justify-between px-1">
@@ -181,6 +183,10 @@ export const GeneralResults = memo(function GeneralResults({
         </div>
       </section>
 
+      </div>{/* end SEO grid */}
+
+      {/* Image Prompts & Thumbnails in desktop grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       {/* Image Prompts */}
       <section className="space-y-2.5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.imagePrompts", locale)}</h3>
@@ -216,6 +222,7 @@ export const GeneralResults = memo(function GeneralResults({
           ))}
         </section>
       )}
+      </div>{/* end image/thumbnail grid */}
 
       {/* Music Suggestions */}
       {result.music && result.music.length > 0 && (

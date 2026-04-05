@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, memo } from "react";
-import { TrendingUp, RefreshCw, X } from "lucide-react";
+import { TrendingUp, RefreshCw, X, Lightbulb } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { type Locale } from "@/lib/i18n";
 
@@ -80,9 +80,11 @@ interface TrendingPanelProps {
   audience: string;
   locale: Locale;
   onSelectTopic: (topic: string) => void;
+  /** Render as inline sidebar content instead of floating/fixed */
+  inline?: boolean;
 }
 
-export const TrendingPanel = memo(function TrendingPanel({ niche, audience, locale, onSelectTopic }: TrendingPanelProps) {
+export const TrendingPanel = memo(function TrendingPanel({ niche, audience, locale, onSelectTopic, inline }: TrendingPanelProps) {
   const isMobile = useIsMobile();
   const [visible, setVisible] = useState(true);
   const effectiveNiche = niche || "mystery";
@@ -118,6 +120,38 @@ export const TrendingPanel = memo(function TrendingPanel({ niche, audience, loca
   };
 
   if (!visible) return null;
+
+  // Inline sidebar mode for desktop 2-column layout
+  if (inline) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />
+            💡 {locale === "tr" ? "Trend" : "Trending Now"}
+          </h3>
+          <button onClick={refresh} className="p-1 rounded-lg hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors">
+            <RefreshCw className="h-3 w-3" />
+          </button>
+        </div>
+        <div className="space-y-2">
+          {suggestions.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => onSelectTopic(s.title)}
+              className="w-full text-left bg-muted/30 hover:bg-muted/50 rounded-xl p-3 transition-colors border border-border/20 space-y-1"
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px]">{s.region}</span>
+                <span className="text-[10px] font-bold text-primary">{s.hookWord}</span>
+              </div>
+              <p className="text-[11px] font-medium text-foreground leading-snug line-clamp-2">{s.title}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // Mobile: bottom fixed bar
   if (isMobile) {
@@ -156,38 +190,6 @@ export const TrendingPanel = memo(function TrendingPanel({ niche, audience, loca
     );
   }
 
-  // Desktop: floating right panel
-  return (
-    <div className="fixed top-20 right-4 w-64 z-30 bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg overflow-hidden">
-      <div className="flex items-center justify-between px-4 pt-3 pb-2">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-          <TrendingUp className="h-3.5 w-3.5 text-primary" />
-          💡 {locale === "tr" ? "Trend" : "Trending Now"}
-        </h3>
-        <div className="flex gap-1">
-          <button onClick={refresh} className="p-1 rounded-lg hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors">
-            <RefreshCw className="h-3 w-3" />
-          </button>
-          <button onClick={() => setVisible(false)} className="p-1 rounded-lg hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors">
-            <X className="h-3 w-3" />
-          </button>
-        </div>
-      </div>
-      <div className="px-3 pb-3 space-y-1.5">
-        {suggestions.map((s, i) => (
-          <button
-            key={i}
-            onClick={() => onSelectTopic(s.title)}
-            className="w-full text-left bg-muted/30 hover:bg-muted/50 rounded-xl p-2.5 transition-colors border border-border/20 space-y-1"
-          >
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px]">{s.region}</span>
-              <span className="text-[10px] font-bold text-primary">{s.hookWord}</span>
-            </div>
-            <p className="text-[11px] font-medium text-foreground leading-snug line-clamp-2">{s.title}</p>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+  // Desktop: hidden when inline mode is used elsewhere
+  return null;
 });

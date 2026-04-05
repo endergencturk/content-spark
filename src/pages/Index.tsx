@@ -1,4 +1,5 @@
 import React, { useState, useCallback, memo, useMemo, useEffect, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -12,7 +13,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
-import { useSettings, CHAR_TARGETS_BY_SPEED } from "@/contexts/SettingsContext";
+import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
@@ -392,6 +393,8 @@ const UsageBanner = memo(function UsageBanner({
 // ── Main page ───────────────────────────────────────────────────────
 
 export default function Index() {
+  useRouteThemeSync();
+  const isMobile = useIsMobile();
   const { settings } = useSettings();
   const locale = settings.language;
   const { remaining, isAtLimit, increment, nextRefillLabel } = useUsageLimit();
@@ -892,18 +895,21 @@ Viral Score: ${viralScore}/10
     <div className="min-h-screen bg-background">
       <Navbar onEditProfile={() => setProfileForceOpen(true)} />
 
-      {/* Trending Panel */}
-      <TrendingPanel
-        niche={selectedPreset}
-        audience={targetAudience}
-        locale={locale}
-        onSelectTopic={(t) => setTopic(t)}
-      />
+      {/* Mobile: keep floating trending panel */}
+      {isMobile && (
+        <TrendingPanel
+          niche={selectedPreset}
+          audience={targetAudience}
+          locale={locale}
+          onSelectTopic={(t) => setTopic(t)}
+        />
+      )}
 
-      <div className="py-8 px-4">
-        <div className="mx-auto max-w-lg space-y-7">
-
-          {/* HEADER */}
+      <div className="py-6 lg:py-8 px-4 lg:px-6">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex gap-8">
+            {/* ── LEFT MAIN WORKSPACE ── */}
+            <div className="flex-1 min-w-0 max-w-3xl mx-auto lg:mx-0 space-y-7">
           <div className="text-center space-y-2 pt-2">
             <div className="flex items-center justify-center gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
@@ -957,7 +963,8 @@ Viral Score: ${viralScore}/10
           {/* INPUT AREA */}
           <div className="space-y-5">
 
-            {/* 1. Platform */}
+            {/* Platform + Audience row on desktop */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.platform", locale)}</p>
               <div className="flex gap-2">
@@ -997,6 +1004,7 @@ Viral Score: ${viralScore}/10
                 ))}
               </div>
             </div>
+            </div>{/* end platform+audience grid */}
 
             {/* 3. Hook Style */}
             <div className="space-y-2">
@@ -1019,7 +1027,7 @@ Viral Score: ${viralScore}/10
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                 {t("preset.title", locale)}
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
                 {NICHE_PRESETS.map((preset) => {
                   const isSelected = selectedPreset === preset.id;
                   const PresetIcon = preset.icon;
@@ -1539,6 +1547,58 @@ Viral Score: ${viralScore}/10
             </div>
           )}
 
+            </div>{/* end left workspace */}
+
+            {/* ── RIGHT SIDEBAR (desktop only) ── */}
+            {!isMobile && (
+              <aside className="hidden lg:block w-72 xl:w-80 shrink-0 space-y-6 sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
+                {/* Trending Panel - inline */}
+                <div className="rounded-2xl border border-border/40 bg-muted/10 p-4">
+                  <TrendingPanel
+                    niche={selectedPreset}
+                    audience={targetAudience}
+                    locale={locale}
+                    onSelectTopic={(t) => setTopic(t)}
+                    inline
+                  />
+                </div>
+
+                {/* Quick Tips */}
+                <div className="rounded-2xl border border-border/40 bg-muted/10 p-4 space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                    <Lightbulb className="h-3.5 w-3.5 text-primary" />
+                    {locale === "tr" ? "İpuçları" : "Quick Tips"}
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="rounded-xl bg-muted/30 p-3 border border-border/20">
+                      <p className="text-[11px] font-medium text-foreground leading-snug">
+                        {locale === "tr" ? "İlk 3 saniye hayati önem taşır" : "The first 3 seconds are critical"}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {locale === "tr" ? "En güçlü hookunuzu en başa koyun." : "Place your strongest hook at the very start."}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-muted/30 p-3 border border-border/20">
+                      <p className="text-[11px] font-medium text-foreground leading-snug">
+                        {locale === "tr" ? "Niş kalın, geniş değil" : "Stay niche, not broad"}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {locale === "tr" ? "Belirli konulardaki içerikler daha iyi performans gösterir." : "Content on specific topics performs better than generic."}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-muted/30 p-3 border border-border/20">
+                      <p className="text-[11px] font-medium text-foreground leading-snug">
+                        {locale === "tr" ? "Auto-Fix ile skoru yükseltin" : "Use Auto-Fix to boost score"}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {locale === "tr" ? "Sonuçtan sonra Auto-Fix ile viral skorunuzu artırın." : "After generating, use Auto-Fix to improve your viral score."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            )}
+          </div>{/* end flex */}
         </div>
       </div>
     </div>
