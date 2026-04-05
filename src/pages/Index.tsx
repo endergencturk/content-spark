@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { t, type Locale } from "@/lib/i18n";
 import { UpsellBanner } from "@/components/UpsellBanner";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
@@ -398,6 +399,7 @@ export default function Index() {
   const isMobile = useIsMobile();
   const { settings } = useSettings();
   const locale = settings.language;
+  const { planType, requireAuth } = useAuth();
   const { remaining, isAtLimit, increment, nextRefillLabel } = useUsageLimit();
 
   const [deviceId] = useState<string>(() => {
@@ -913,9 +915,7 @@ Viral Score: ${viralScore}/10
         activeNav="create"
         remaining={isProMode ? undefined : remaining}
         isAtLimit={isAtLimit}
-        isPro={isProMode}
         onHistoryClick={() => setHistoryOpen(true)}
-        onDiscoverClick={handleSidebarDiscover}
       />
 
       {/* Main content area */}

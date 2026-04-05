@@ -1,7 +1,7 @@
 import React, { memo } from "react";
-import { Sparkles, PenTool, Clock, Bookmark, Compass, Crown } from "lucide-react";
+import { Sparkles, PenTool, Clock, Crown, LogIn, LogOut, User } from "lucide-react";
 import { type Locale } from "@/lib/i18n";
-import { Badge } from "@/components/ui/badge";
+import { useAuth, type PlanType } from "@/contexts/AuthContext";
 
 interface AppSidebarProps {
   locale: Locale;
@@ -9,16 +9,12 @@ interface AppSidebarProps {
   onNavChange?: (nav: string) => void;
   remaining?: number;
   isAtLimit?: boolean;
-  isPro?: boolean;
   onHistoryClick?: () => void;
-  onDiscoverClick?: () => void;
 }
 
 const NAV_ITEMS = [
   { id: "create", icon: PenTool, labelEn: "Create", labelTr: "Oluştur" },
   { id: "history", icon: Clock, labelEn: "History", labelTr: "Geçmiş" },
-  { id: "saved", icon: Bookmark, labelEn: "Saved", labelTr: "Kaydedilenler", placeholder: true },
-  { id: "discover", icon: Compass, labelEn: "Discover", labelTr: "Keşfet" },
 ];
 
 export const AppSidebar = memo(function AppSidebar({
@@ -27,10 +23,11 @@ export const AppSidebar = memo(function AppSidebar({
   onNavChange,
   remaining,
   isAtLimit,
-  isPro,
   onHistoryClick,
-  onDiscoverClick,
 }: AppSidebarProps) {
+  const { user, planType, setShowAuthModal, signOut } = useAuth();
+  const isPro = planType === "pro";
+
   return (
     <aside className="hidden lg:flex flex-col w-[220px] xl:w-[240px] shrink-0 border-r border-border/40 bg-card/50 h-screen sticky top-0">
       {/* Logo */}
@@ -50,27 +47,20 @@ export const AppSidebar = memo(function AppSidebar({
             <button
               key={item.id}
               onClick={() => {
-                if (item.id === "history" && onHistoryClick) {
-                  onHistoryClick();
-                } else if (item.id === "discover" && onDiscoverClick) {
-                  onDiscoverClick();
-                } else if (!item.placeholder && onNavChange) {
+                if (item.id === "history") {
+                  if (onHistoryClick) onHistoryClick();
+                } else if (onNavChange) {
                   onNavChange(item.id);
                 }
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 isActive
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              } ${item.placeholder ? "opacity-50 cursor-default" : "cursor-pointer"}`}
+              }`}
             >
               <item.icon className="h-4 w-4 shrink-0" />
               <span>{label}</span>
-              {item.placeholder && (
-                <span className="ml-auto text-[9px] uppercase tracking-wider font-bold text-muted-foreground/60 bg-muted/60 px-1.5 py-0.5 rounded">
-                  {locale === "tr" ? "Yakında" : "Soon"}
-                </span>
-              )}
             </button>
           );
         })}
@@ -79,7 +69,6 @@ export const AppSidebar = memo(function AppSidebar({
       {/* Bottom section */}
       <div className="px-3 pb-4 space-y-3">
         {isPro ? (
-          /* Pro Active badge */
           <div className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary/5 border border-primary/20">
             <Crown className="h-4 w-4 text-primary" />
             <span className="text-xs font-semibold text-primary">
@@ -88,7 +77,6 @@ export const AppSidebar = memo(function AppSidebar({
           </div>
         ) : (
           <>
-            {/* Usage indicator */}
             {remaining !== undefined && (
               <div className="px-3 py-2.5 rounded-xl bg-muted/40 border border-border/30">
                 <div className="flex items-center justify-between mb-1.5">
@@ -108,12 +96,35 @@ export const AppSidebar = memo(function AppSidebar({
               </div>
             )}
 
-            {/* Upgrade button */}
-            <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-sm font-semibold shadow-sm hover:shadow-md transition-all">
-              <Crown className="h-4 w-4" />
-              {locale === "tr" ? "Pro'ya Yükselt" : "Upgrade to Pro"}
-            </button>
+            {!user && (
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-sm font-semibold shadow-sm hover:shadow-md transition-all"
+              >
+                <Crown className="h-4 w-4" />
+                {locale === "tr" ? "Pro'ya Yükselt" : "Upgrade to Pro"}
+              </button>
+            )}
           </>
+        )}
+
+        {/* Auth section */}
+        {user ? (
+          <button
+            onClick={() => signOut()}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span className="truncate">{user.email}</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowAuthModal(true)}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+          >
+            <LogIn className="h-3.5 w-3.5" />
+            {locale === "tr" ? "Giriş Yap" : "Sign In"}
+          </button>
         )}
       </div>
     </aside>

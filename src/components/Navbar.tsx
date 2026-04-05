@@ -1,9 +1,10 @@
 import React, { memo, useState } from "react";
-import { Settings, Sparkles, Pencil, ArrowLeft } from "lucide-react";
+import { Settings, Sparkles, Pencil, ArrowLeft, LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { t } from "@/lib/i18n";
 import { loadChannelProfile } from "@/components/ChannelProfile";
 
@@ -14,6 +15,7 @@ interface NavbarProps {
 export const Navbar = memo(function Navbar({ onEditProfile }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const { settings } = useSettings();
+  const { user, setShowAuthModal, signOut } = useAuth();
   const locale = settings.language;
   const profile = loadChannelProfile();
 
@@ -53,6 +55,27 @@ export const Navbar = memo(function Navbar({ onEditProfile }: NavbarProps) {
               >
                 <Pencil className="h-3 w-3 mr-1" />
                 {locale === "tr" ? "Profil" : "Profile"}
+              </Button>
+            )}
+            {!user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground lg:hidden"
+                onClick={() => setShowAuthModal(true)}
+              >
+                <LogIn className="h-3.5 w-3.5 mr-1" />
+                {locale === "tr" ? "Giriş" : "Sign In"}
+              </Button>
+            )}
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground lg:hidden"
+                onClick={() => signOut()}
+              >
+                {locale === "tr" ? "Çıkış" : "Sign Out"}
               </Button>
             )}
             <Button

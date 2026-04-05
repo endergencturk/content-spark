@@ -216,7 +216,7 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
               tab === "all" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
             }`}
           >
-            {t("history.all", locale)}
+            {locale === "tr" ? "Son" : "Recent"}
           </button>
           <button
             onClick={() => setTab("favorites")}
