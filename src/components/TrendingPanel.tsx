@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, memo } from "react";
-import { TrendingUp, RefreshCw, X, Lightbulb } from "lucide-react";
+import React, { useState, useEffect, memo } from "react";
+import { TrendingUp, RefreshCw, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { type Locale } from "@/lib/i18n";
 
@@ -9,95 +9,145 @@ interface TrendingSuggestion {
   region: string;
 }
 
-const TRENDING_DATA: Record<string, TrendingSuggestion[]> = {
+/* ── Building blocks for procedural generation ── */
+const HOOK_WORDS = [
+  "Gone.", "Dead.", "Found.", "Vanished.", "Missing.", "Erased.", "Trapped.",
+  "Cursed.", "Exposed.", "Buried.", "Deleted.", "Haunted.", "Stolen.", "Faked.",
+  "Hidden.", "Replaced.", "Poisoned.", "Broken.", "Impossible.", "Alive.",
+  "Submerged.", "Rewired.", "Transformed.", "Rejected.", "Silenced.",
+];
+
+const REGIONS = ["🇺🇸", "🇬🇧", "🌍", "🇩🇪", "🇯🇵", "🇧🇷", "🇫🇷"];
+
+const TEMPLATES: Record<string, string[]> = {
   mystery: [
-    { title: "The body found in a chimney after 27 years", hookWord: "Found.", region: "🇺🇸" },
-    { title: "Why did 3 lighthouse keepers vanish?", hookWord: "Vanished.", region: "🇬🇧" },
-    { title: "The hotel guest who checked in but never left", hookWord: "Trapped.", region: "🌍" },
-    { title: "The signal that came from an empty house", hookWord: "Dead.", region: "🇺🇸" },
-    { title: "A woman erased from every database", hookWord: "Erased.", region: "🇬🇧" },
-    { title: "The car found running with no driver", hookWord: "Gone.", region: "🌍" },
-    { title: "A child drew their kidnapper's face from memory", hookWord: "Missing.", region: "🇺🇸" },
+    "The {noun} found {location} after {number} years",
+    "Why did {number} {people} vanish from {location}",
+    "The {person} who checked in but never left",
+    "A {noun} that appeared in {number} photos across {number} countries",
+    "The {adjective} signal from an abandoned {place}",
+    "No one can explain the {noun} inside the {place}",
+    "{person} received a letter from {pronoun}self — dated {number} years ahead",
+    "The {place} where every clock stopped at {time}",
+    "A {noun} was found {location} with no explanation",
+    "The last {noun} {person} ever sent was {adjective}",
+    "Someone has been living inside their {place} for {number} months",
+    "The {noun} that predicted {number} events before they happened",
+    "Why this {place} has been sealed since {year}",
+    "A {person} vanished mid-{action} — cameras caught everything",
   ],
   educational: [
-    { title: "Your brain deletes memories while you sleep", hookWord: "Deleted.", region: "🌍" },
-    { title: "Why you can't remember your dreams", hookWord: "Erased.", region: "🇺🇸" },
-    { title: "The color that doesn't actually exist", hookWord: "Impossible.", region: "🇬🇧" },
-    { title: "How music physically changes your brain", hookWord: "Rewired.", region: "🌍" },
-    { title: "Why mirrors flip left-right but not up-down", hookWord: "Broken.", region: "🇺🇸" },
-    { title: "The sound that can make you hallucinate", hookWord: "Poisoned.", region: "🇬🇧" },
-    { title: "Why your voice sounds different in recordings", hookWord: "Fake.", region: "🌍" },
+    "Your {bodypart} {verb} while you sleep — here's why",
+    "The {noun} that technically doesn't exist",
+    "Why you can't {action} no matter how hard you try",
+    "How {noun} physically changes your {bodypart}",
+    "The {adjective} reason {noun} feels {adjective2}",
+    "What happens to your {bodypart} after {number} days of {action}",
+    "The {noun} trick scientists don't want mainstream",
+    "Why {number}% of what you learned about {noun} is wrong",
+    "Your {bodypart} does this {number} times a day — you never notice",
+    "The {adjective} illusion your {bodypart} creates every {time}",
+    "Why {noun} is secretly {adjective} for your {bodypart}",
+    "The {number}-second test that reveals your {noun} level",
   ],
   motivation: [
-    { title: "He failed 1,009 times before KFC existed", hookWord: "Rejected.", region: "🇺🇸" },
-    { title: "The email that changed a janitor's life forever", hookWord: "Found.", region: "🇬🇧" },
-    { title: "Why the hardest year of your life matters most", hookWord: "Broken.", region: "🌍" },
-    { title: "The 5-second rule that kills procrastination", hookWord: "Trapped.", region: "🇺🇸" },
-    { title: "A blind man who climbed Everest", hookWord: "Impossible.", region: "🌍" },
-    { title: "The morning routine billionaires won't share", hookWord: "Hidden.", region: "🇺🇸" },
-    { title: "Why your comfort zone is slowly destroying you", hookWord: "Poisoned.", region: "🇬🇧" },
+    "{pronoun} failed {number} times before {noun} existed",
+    "The {noun} that changed a {person}'s life forever",
+    "Why the hardest {timeperiod} of your life matters most",
+    "The {number}-second rule that kills {noun}",
+    "A {adjective} {person} who {verb} the impossible",
+    "Why your {noun} is slowly destroying your {noun2}",
+    "The {noun} billionaires do at {time} every morning",
+    "{person} went from {adjective} to {adjective2} in {number} months",
+    "The one {noun} every successful {person} has in common",
+    "Stop {action} — it's the reason you're not {adjective}",
+    "The {adjective} truth nobody tells you about {noun}",
   ],
   horror: [
-    { title: "The doll that moves when no one is watching", hookWord: "Alive.", region: "🇺🇸" },
-    { title: "Why you should never answer a call at 3 AM", hookWord: "Dead.", region: "🇬🇧" },
-    { title: "The forest where compasses stop working", hookWord: "Trapped.", region: "🌍" },
-    { title: "A family photo with an extra person in it", hookWord: "Found.", region: "🇺🇸" },
-    { title: "The tunnel that echoes voices from the past", hookWord: "Haunted.", region: "🇬🇧" },
-    { title: "The game that drove 3 players insane", hookWord: "Cursed.", region: "🌍" },
-    { title: "What lives at the bottom of this lake", hookWord: "Submerged.", region: "🇺🇸" },
+    "The {noun} that moves when no one is watching",
+    "Why you should never {action} at {time}",
+    "The {place} where {noun} stop working",
+    "A {noun} with an extra {noun2} in it",
+    "The {place} that echoes {noun} from the past",
+    "The {noun} that drove {number} people insane",
+    "What lives at the bottom of this {place}",
+    "Every night at {time}, the same {noun} appears",
+    "The {person} who filmed something in their {place} — and can't explain it",
+    "This {noun} was sealed shut {number} years ago — something inside is {adjective}",
+    "Don't read this {noun} after midnight — {number} people wish they hadn't",
+    "The {place} that doesn't appear on any map",
   ],
   finance: [
-    { title: "The $1 investment that became $4.8 million", hookWord: "Missed.", region: "🇺🇸" },
-    { title: "Why saving money is making you poorer", hookWord: "Trapped.", region: "🇬🇧" },
-    { title: "The side hustle nobody talks about", hookWord: "Hidden.", region: "🌍" },
-    { title: "How a teenager made $100K from his bedroom", hookWord: "Found.", region: "🇺🇸" },
-    { title: "The credit card trick banks don't want you to know", hookWord: "Exposed.", region: "🇬🇧" },
-    { title: "Why your 9-to-5 is a financial trap", hookWord: "Poisoned.", region: "🌍" },
-    { title: "The one stock Warren Buffett secretly bought", hookWord: "Hidden.", region: "🇺🇸" },
+    "The ${amount} {noun} that became ${amount2}",
+    "Why {action} money is making you poorer",
+    "The {noun} nobody talks about",
+    "How a {person} made ${amount} from their {place}",
+    "The {noun} trick {people} don't want you to know",
+    "Why your {noun} is a financial trap",
+    "The one {noun} {person} secretly {verb}",
+    "{number} {people} tried this — only {number2} succeeded",
+    "Stop {action} your money on {noun} — do this instead",
+    "The {adjective} investment that returns {number}x every {timeperiod}",
   ],
   fitness: [
-    { title: "The exercise that ages you faster", hookWord: "Poisoned.", region: "🇺🇸" },
-    { title: "Why stretching before gym is destroying your gains", hookWord: "Broken.", region: "🇬🇧" },
-    { title: "The food that kills your metabolism at night", hookWord: "Dead.", region: "🌍" },
-    { title: "What happens to your body after 30 days of cold showers", hookWord: "Transformed.", region: "🇺🇸" },
-    { title: "The 2-minute routine that replaces 30 min of cardio", hookWord: "Replaced.", region: "🇬🇧" },
-    { title: "Why protein shakes are lying to you", hookWord: "Fake.", region: "🌍" },
-    { title: "The posture mistake that causes chronic pain", hookWord: "Trapped.", region: "🇺🇸" },
+    "The {noun} that ages you faster",
+    "Why {action} before {noun} is destroying your gains",
+    "The {noun} that kills your {bodypart} at night",
+    "What happens after {number} days of {action}",
+    "The {number}-minute routine that replaces {number2} min of {noun}",
+    "Why {noun} are lying to you",
+    "The {noun} mistake that causes chronic {noun2}",
+    "Stop eating {noun} — it's {adjective} than you think",
+    "The {adjective} exercise most people do wrong",
+    "Your {bodypart} changes after just {number} days of this",
   ],
 };
 
-// Track which items have been shown this session to avoid repeats
-const shownKey = (niche: string) => `viralengine-trending-shown-${niche}`;
+const FILLS: Record<string, string[]> = {
+  noun: ["signal", "package", "recording", "document", "photo", "message", "call", "video", "letter", "diary", "email", "file", "map", "key", "tape", "shadow", "blueprint", "ticket", "receipt", "device"],
+  noun2: ["pain", "future", "routine", "ambition", "dream", "memory", "potential", "progress", "growth"],
+  person: ["teacher", "pilot", "nurse", "janitor", "teenager", "stranger", "student", "surgeon", "cashier", "detective"],
+  people: ["lighthouse keepers", "hikers", "scientists", "tourists", "researchers", "passengers", "witnesses", "volunteers"],
+  place: ["basement", "attic", "forest", "tunnel", "hospital", "warehouse", "bunker", "cabin", "hotel room", "cave", "parking garage"],
+  location: ["in a chimney", "under a bridge", "in a locked room", "behind a wall", "in the desert", "at the bottom of a lake", "inside a tree"],
+  adjective: ["impossible", "silent", "forbidden", "strange", "untraceable", "classified", "worse", "terrifying", "shocking"],
+  adjective2: ["unstoppable", "dangerous", "different", "remarkable", "wealthy", "unrecognizable"],
+  bodypart: ["brain", "eyes", "spine", "hands", "lungs", "nervous system", "gut"],
+  action: ["answer the phone", "look in the mirror", "saving", "stretching", "walking", "sleeping", "wasting", "eating"],
+  verb: ["deletes memories", "rewires itself", "climbed", "built", "bought", "decoded", "escaped"],
+  pronoun: ["He", "She", "They"],
+  number: ["3", "5", "7", "12", "27", "30", "100", "1,009"],
+  number2: ["1", "2", "3", "10", "30", "60"],
+  time: ["3 AM", "4:44 AM", "midnight", "dawn", "2:22 AM"],
+  timeperiod: ["year", "month", "week", "season", "chapter"],
+  year: ["1973", "1989", "1998", "2004", "2011"],
+  amount: ["1", "50", "100", "500"],
+  amount2: ["4.8 million", "2.3 million", "100K", "1 million", "890K"],
+};
 
-function getSessionKey(niche: string, audience: string) {
-  return `viralengine-trending-${niche}-${audience}`;
+function fillTemplate(template: string): string {
+  return template.replace(/\{(\w+)\}/g, (_, key) => {
+    const options = FILLS[key];
+    if (!options) return key;
+    return options[Math.floor(Math.random() * options.length)];
+  });
 }
 
-function pickRandom(arr: TrendingSuggestion[], count: number, niche: string): TrendingSuggestion[] {
-  // Get previously shown titles from this session
-  let shown: string[] = [];
-  try {
-    const raw = sessionStorage.getItem(shownKey(niche));
-    if (raw) shown = JSON.parse(raw);
-  } catch {}
+function generateItems(niche: string, count: number): TrendingSuggestion[] {
+  const templates = TEMPLATES[niche] || TEMPLATES.mystery;
+  const shuffled = [...templates].sort(() => Math.random() - 0.5);
+  const hookPool = [...HOOK_WORDS].sort(() => Math.random() - 0.5);
 
-  // Prefer items not yet shown
-  const unseen = arr.filter(s => !shown.includes(s.title));
-  const pool = unseen.length >= count ? unseen : arr;
-  
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  const picked = shuffled.slice(0, count);
-
-  // Track what we showed
-  const newShown = [...shown, ...picked.map(p => p.title)];
-  // Reset if we've shown everything
-  if (newShown.length >= arr.length) {
-    sessionStorage.setItem(shownKey(niche), JSON.stringify(picked.map(p => p.title)));
-  } else {
-    sessionStorage.setItem(shownKey(niche), JSON.stringify(newShown));
+  const items: TrendingSuggestion[] = [];
+  for (let i = 0; i < count; i++) {
+    const tpl = shuffled[i % shuffled.length];
+    items.push({
+      title: fillTemplate(tpl),
+      hookWord: hookPool[i % hookPool.length],
+      region: REGIONS[Math.floor(Math.random() * REGIONS.length)],
+    });
   }
-
-  return picked;
+  return items;
 }
 
 interface TrendingPanelProps {
@@ -105,7 +155,6 @@ interface TrendingPanelProps {
   audience: string;
   locale: Locale;
   onSelectTopic: (topic: string) => void;
-  /** Render as inline sidebar content instead of floating/fixed */
   inline?: boolean;
 }
 
@@ -114,24 +163,20 @@ export const TrendingPanel = memo(function TrendingPanel({ niche, audience, loca
   const [visible, setVisible] = useState(true);
   const effectiveNiche = niche || "mystery";
 
-  const [suggestions, setSuggestions] = useState<TrendingSuggestion[]>(() => {
-    const pool = TRENDING_DATA[effectiveNiche] || TRENDING_DATA.mystery;
-    return pickRandom(pool, 5, effectiveNiche);
-  });
+  const [suggestions, setSuggestions] = useState<TrendingSuggestion[]>(() =>
+    generateItems(effectiveNiche, 5)
+  );
 
   useEffect(() => {
-    const pool = TRENDING_DATA[effectiveNiche] || TRENDING_DATA.mystery;
-    setSuggestions(pickRandom(pool, 5, effectiveNiche));
+    setSuggestions(generateItems(effectiveNiche, 5));
   }, [effectiveNiche, audience]);
 
   const refresh = () => {
-    const pool = TRENDING_DATA[effectiveNiche] || TRENDING_DATA.mystery;
-    setSuggestions(pickRandom(pool, 5, effectiveNiche));
+    setSuggestions(generateItems(effectiveNiche, 5));
   };
 
   if (!visible) return null;
 
-  // Inline sidebar mode for desktop 2-column layout
   if (inline) {
     return (
       <div className="space-y-3">
@@ -147,7 +192,7 @@ export const TrendingPanel = memo(function TrendingPanel({ niche, audience, loca
         <div className="space-y-2">
           {suggestions.map((s, i) => (
             <button
-              key={i}
+              key={`${s.title}-${i}`}
               onClick={() => onSelectTopic(s.title)}
               className="w-full text-left bg-muted/30 hover:bg-muted/50 rounded-xl p-3 transition-colors border border-border/20 space-y-1"
             >
@@ -163,7 +208,6 @@ export const TrendingPanel = memo(function TrendingPanel({ niche, audience, loca
     );
   }
 
-  // Mobile: bottom fixed bar
   if (isMobile) {
     return (
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-background/95 backdrop-blur-xl border-t border-border/50 p-3 space-y-2 max-h-[45vh] overflow-y-auto">
@@ -184,7 +228,7 @@ export const TrendingPanel = memo(function TrendingPanel({ niche, audience, loca
         <div className="flex gap-2 overflow-x-auto pb-1">
           {suggestions.map((s, i) => (
             <button
-              key={i}
+              key={`${s.title}-${i}`}
               onClick={() => onSelectTopic(s.title)}
               className="flex-shrink-0 bg-muted/40 hover:bg-muted/60 rounded-xl p-3 text-left transition-colors border border-border/30 w-[200px]"
             >
@@ -200,6 +244,5 @@ export const TrendingPanel = memo(function TrendingPanel({ niche, audience, loca
     );
   }
 
-  // Desktop: hidden when inline mode is used elsewhere
   return null;
 });
