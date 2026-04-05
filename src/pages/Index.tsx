@@ -1684,6 +1684,7 @@ Viral Score: ${viralScore}/10
           </div>{/* end flex */}
         </div>
       </div>
+      </div>{/* end main content area */}
     </div>
   );
 }
