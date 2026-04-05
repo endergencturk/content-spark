@@ -1510,7 +1510,7 @@ Viral Score: ${viralScore}/10
 
             {/* Action bar */}
             {hasResults && (
-              <div className="space-y-3">
+              <div className="rounded-2xl border border-border/40 bg-card shadow-sm p-4 space-y-3">
                 <div className="flex gap-2">
                   <button
                     onClick={copyAll}
