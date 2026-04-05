@@ -1,10 +1,78 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { History, Play, Clock, Hash, Youtube, Instagram, Star, RefreshCw } from "lucide-react";
+import { History, Play, Clock, Hash, Youtube, Instagram, Star, RefreshCw, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { t, type Locale } from "@/lib/i18n";
 import { toast } from "sonner";
+
+function downloadHistoryTxt(item: HistoryItem) {
+  const output = item.output_json;
+  if (!output) return;
+
+  const isPro = item.plan_type === "pro";
+
+  const formatHook = (h: any, i: number) => {
+    if (typeof h === "object" && h !== null && h.type) return `Hook ${i + 1} [${h.type}]: ${h.hook}`;
+    return `Hook ${i + 1}: ${h}`;
+  };
+
+  const hooks = isPro ? (output.hooks || []) : (output.hooks || []);
+
+  const sections = [
+    output.bestHook ? `⭐ BEST HOOK:\n${typeof output.bestHook === "object" ? output.bestHook.hook : output.bestHook}` : "",
+    hooks.length ? `🎯 ALL HOOKS:\n${hooks.map((h: any, i: number) => formatHook(h, i)).join("\n")}` : "",
+    output.script ? `📝 SCRIPT:\n${output.script}` : "",
+    output.editingPlan?.length ? `🎬 EDITING PLAN:\n${output.editingPlan.map((s: any) => `Scene ${s.scene}: ${s.visual}${s.onScreenText ? ` | Text: ${s.onScreenText}` : ""}${s.mood ? ` | Mood: ${s.mood}` : ""}`).join("\n")}` : "",
+    output.imagePrompts?.length ? `🖼️ IMAGE PROMPTS:\n${output.imagePrompts.map((p: string, i: number) => `${i + 1}. ${p}`).join("\n")}` : "",
+    output.thumbnails?.length ? `📸 THUMBNAIL IDEAS:\n${output.thumbnails.map((th: any, i: number) => `Thumbnail ${i + 1}:\nImage: ${th.image}\nText: ${th.text}`).join("\n\n")}` : "",
+    output.youtube ? `📺 YOUTUBE:\nTitle: ${output.youtube.title}\nDescription: ${output.youtube.description}\nTags: ${(Array.isArray(output.youtube.tags) ? output.youtube.tags : String(output.youtube.tags).split(",").map((s: string) => s.trim())).join(", ")}` : "",
+    output.tiktok ? `📱 TIKTOK:\nCaption: ${output.tiktok.caption}\nHashtags: ${(Array.isArray(output.tiktok.hashtags) ? output.tiktok.hashtags : String(output.tiktok.hashtags).split(",").map((s: string) => s.trim())).join(" ")}` : "",
+    isPro && output.instagramCaption ? `📷 INSTAGRAM:\n${output.instagramCaption}` : "",
+    output.music?.length ? `🎵 MUSIC SUGGESTIONS:\n${output.music.map((m: any) => typeof m === "string" ? m : `${m.type} — ${m.source} (${m.why})`).join("\n")}` : "",
+    output.angleVariations?.length ? `🔄 ANGLE VARIATIONS:\n${output.angleVariations.map((a: any) => `[${a.type}] ${a.hook}`).join("\n")}` : "",
+    output.hookVariations?.length ? `🎯 HOOK VARIATIONS:\n${output.hookVariations.map((v: string, i: number) => `V${i + 1}: ${v}`).join("\n")}` : "",
+    isPro && output.voiceStyle ? `🎙️ VOICE STYLE: ${output.voiceStyle}` : "",
+    output.seriesPotential ? `📈 SERIES POTENTIAL: ${output.seriesPotential}` : "",
+    output.viralAnalysis ? `📊 VIRAL SCORE: ${output.viralAnalysis.score}/10\n${(output.viralAnalysis.strengths || []).map((r: string) => `✓ ${r}`).join("\n")}\n${(output.viralAnalysis.weaknesses || []).map((r: string) => `△ ${r}`).join("\n")}` : "",
+  ];
+
+  const content = sections.filter(Boolean).join("\n\n");
+
+  const dateStr = new Date(item.created_at).toISOString().replace("T", " ").slice(0, 19);
+  const platformLabels = (item.platforms || []).map((p: string) => {
+    if (p === "tiktok") return "TikTok";
+    if (p === "youtube-shorts") return "YouTube Shorts";
+    if (p === "instagram-reels") return "Instagram Reels";
+    return p;
+  }).join(", ");
+  const viralScore = output.viralAnalysis?.score || "N/A";
+
+  const metadata = `=== CONTENT PACK INFO ===
+Topic: ${item.topic}
+Platform: ${platformLabels}
+Duration: ${item.duration}s
+Style: ${item.style}
+Content Type: ${item.content_type}
+Goal: ${item.goal}
+Plan: ${item.plan_type}
+Generated: ${dateStr}
+Viral Score: ${viralScore}/10
+=========================
+
+`;
+
+  const slug = item.topic.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40) || "content";
+  const blob = new Blob([metadata + content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${slug}-content-pack.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 interface HistoryItem {
   id: string;
