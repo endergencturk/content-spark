@@ -151,7 +151,7 @@ export function AuthModal() {
               <Input
                 id="auth-invite"
                 type="text"
-                placeholder="e.g. EARLYACCESS"
+                placeholder="Enter invite code"
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                 autoComplete="off"
