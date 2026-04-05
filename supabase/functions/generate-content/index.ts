@@ -753,25 +753,37 @@ function getTargetAudienceInstructions(audience: string): string {
 
 function getHookStyleInstructions(hookStyle: string): string {
   switch (hookStyle) {
-    case "curiosity": return `HOOK STYLE: CURIOSITY
-- Open-loop phrasing
-- "Nobody noticed...", "What if...", unanswered tension
-- Create information gaps the viewer NEEDS to fill
+    case "curiosity": return `HOOK STYLE: CURIOSITY (HOOK ENGINE)
+- First line MUST be an incomplete statement that creates an open loop
+- Maximum 3 words in first line
+- Examples: "He never left." / "Something went wrong." / "Nobody checked."
+- Do NOT explain context in the first line
+- Do NOT use generic openings like "Have you ever..." or "What if..."
+- The hook must make the viewer NEED to know what happens next
 - Delay the reveal as long as possible`;
-    case "emotional": return `HOOK STYLE: EMOTIONAL
-- Personal, relatable, human-centered framing
-- Use "you" and "your" to connect
-- Tap into shared human experiences
-- Make the viewer feel seen or understood`;
-    case "dark": return `HOOK STYLE: DARK
-- Suspenseful, unsettling, slower tension
-- Ominous word choices
-- Build dread gradually
+    case "emotional": return `HOOK STYLE: EMOTIONAL (HOOK ENGINE)
+- First line MUST be a human statement that triggers empathy
+- Maximum 3 words in first line
+- Examples: "They were wrong." / "He wasn't ready." / "She knew."
+- Do NOT explain context in the first line
+- Do NOT use generic openings like "This is the story of..."
+- The hook must make the viewer feel something immediately
+- Tap into shared human experiences`;
+    case "dark": return `HOOK STYLE: DARK (HOOK ENGINE)
+- First line MUST be a disturbing implication
+- Maximum 3 words in first line
+- Examples: "This shouldn't happen." / "He wasn't alone." / "Nobody survived."
+- Do NOT explain context in the first line
+- Do NOT use generic openings
+- The hook must create immediate unease or dread
 - Leave something unexplained`;
-    default: return `HOOK STYLE: AGGRESSIVE
-- Shocking opening, maximum impact
-- Strongest possible first phrase
-- Max 4 words in opening line
+    default: return `HOOK STYLE: AGGRESSIVE (HOOK ENGINE)
+- First line MUST be a shocking word or command
+- Maximum 3 words in first line
+- Examples: "Cut." / "Dead." / "Wrong." / "Gone." / "Trapped."
+- Do NOT explain context in the first line
+- Do NOT use generic openings like "This is..." or "Did you know..."
+- The hook must stop scrolling instantly
 - Hit hard and fast, no buildup`;
   }
 }
@@ -973,13 +985,19 @@ MULTI-PLATFORM: Generate TikTok hooks first, then adapt for YouTube.
 If any hook feels weak or narrative → rewrite internally before returning.`;
 
   const scrollStopperRule = `
-SCROLL STOPPER / OPENING WORD RULE (CRITICAL):
-- The FIRST SPOKEN WORD of the script must match TikTok hook rule
-- First word must be a situation word (Vanished / Dead / Gone / Missing / Trapped / Found / etc.)
-- If the script opens with He / She / They / A man → REWRITE
+SCROLL STOPPER / OPENING WORD RULE (CRITICAL - HOOK ENGINE):
+- The FIRST LINE of the script MUST be maximum 3 words
+- First word must be disruptive, emotional, or unusual
+- Do NOT explain context in the first line
+- Do NOT use generic openings: "This is...", "Did you know...", "Have you ever...", "What if..."
+- Aggressive: shocking word ("Cut.", "Dead.", "Wrong.")
+- Curiosity: incomplete statement ("He never left.", "Something went wrong.")
+- Emotional: human statement ("They were wrong.", "He wasn't ready.")
+- Dark: disturbing implication ("This shouldn't happen.", "He wasn't alone.")
+- If the script opens with He / She / They / A man / In [year] → REWRITE
 - The first line must stop scrolling instantly
 - Bad: "London, 1888." / "This is Lars Mittank" / "Did you know..."
-- Good: "Vanished." / "Gone." / "Dead. No body." / "Missing. No trace."`;
+- Good: "Vanished." / "Gone." / "Dead. No body." / "Missing."`;
 
   const patternInterruptRule = `
 PATTERN INTERRUPT RULE:
@@ -1022,7 +1040,25 @@ HOOK ENGINE (5 PSYCHOLOGICAL ANGLES):
 - Each hook MUST be returned as an object: { type: "Fear" | "Curiosity" | "WTF" | "Conspiracy" | "Emotional", hook: "the hook text" }
 - The bestHook must be the single strongest one from these 5
 - Avoid repeating the same tone across hooks
-- If two hooks feel similar → rewrite one`;
+- If two hooks feel similar → rewrite one
+
+HOOK VALIDATION (MANDATORY - APPLY TO ALL HOOKS):
+- Every hook's first line MUST be maximum 3 words
+- First word MUST be disruptive, emotional, or unusual
+- Do NOT explain context in the first line
+- Do NOT use generic openings: "This is the story of...", "Have you ever...", "What if...", "Did you know..."
+- The hook MUST create immediate curiosity or tension
+- If any hook fails these checks → regenerate that hook
+- Output format for bestHook:
+  HOOK:
+  Line 1 (impact line - max 3 words)
+  Line 2 (optional continuation)
+
+VISUAL SYNC RULE (IMPORTANT):
+- The first hook line must visually match the first scene in the editing plan
+- Ensure the hook can be paired with a strong visual moment
+- The opening word/phrase should evoke a clear, filmable image
+- Example: "Vanished." pairs with empty room / "Dead." pairs with crime scene`;
 
   const loopEndingRule = `
 LOOP ENDING RULE (CRITICAL):
