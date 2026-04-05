@@ -1621,9 +1621,6 @@ Viral Score: ${viralScore}/10
           )}
 
 
-                >
-                  Yes, Continue
-                </button>
                 <button
                   onClick={() => {
                     setDuplicateWarning(null);
