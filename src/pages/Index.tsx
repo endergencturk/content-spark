@@ -1619,14 +1619,8 @@ Viral Score: ${viralScore}/10
             )}
           </div>
           )}
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setDuplicateWarning(null);
-                    generateContent(true);
-                  }}
-                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"
+
+
                 >
                   Yes, Continue
                 </button>
