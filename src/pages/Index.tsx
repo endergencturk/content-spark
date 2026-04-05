@@ -963,7 +963,8 @@ Viral Score: ${viralScore}/10
           {/* INPUT AREA */}
           <div className="space-y-5">
 
-            {/* 1. Platform */}
+            {/* Platform + Audience row on desktop */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.platform", locale)}</p>
               <div className="flex gap-2">
