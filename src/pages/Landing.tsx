@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "@/components/AuthModal";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { useRouteThemeSync } from "@/contexts/SettingsContext";
 
