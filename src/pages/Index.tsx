@@ -8,7 +8,7 @@ import {
   Image, Clock, Flame, Crown, Hash, Youtube, Mic,
   Lock, TrendingUp, Shuffle, Lightbulb, Zap, Instagram,
   Search, Dumbbell, DollarSign, Brain, Skull, BookOpen,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, PenTool, LayoutGrid,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -438,6 +438,7 @@ export default function Index() {
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"generate" | "results">("generate");
   const [profileForceOpen, setProfileForceOpen] = useState(false);
 
   useEffect(() => {
@@ -657,6 +658,8 @@ export default function Index() {
         setProResult(null);
         increment();
       }
+      setActiveTab("results");
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 
       try {
         await supabase.from("generations").insert({
@@ -705,6 +708,7 @@ export default function Index() {
     setContentType(item.content_type || "story");
     setScriptLength(item.duration || "30");
     setGoal(item.goal || "viral");
+    setActiveTab("results");
   }, []);
 
   const handleHistoryRegenerate = useCallback((item: any) => {
@@ -949,6 +953,37 @@ Viral Score: ${viralScore}/10
             </button>
           </div>
 
+          {/* GENERATE / RESULTS TABS */}
+          <div className="flex gap-2 p-1 rounded-2xl bg-muted/40 border border-border/30">
+            <button
+              onClick={() => setActiveTab("generate")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === "generate" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <PenTool className="h-3.5 w-3.5" />
+              {locale === "tr" ? "Oluştur" : "Generate"}
+            </button>
+            <button
+              onClick={() => setActiveTab("results")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === "results"
+                  ? "bg-card text-foreground shadow-sm"
+                  : hasResults
+                    ? "text-primary hover:text-primary/80"
+                    : "text-muted-foreground/50 cursor-not-allowed"
+              }`}
+              disabled={!hasResults && !loading}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              {locale === "tr" ? "Sonuçlar" : "Results"}
+              {hasResults && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+            </button>
+          </div>
+
+          {/* ─── GENERATE TAB CONTENT ─── */}
+          {activeTab === "generate" && (
+          <>
           {/* Channel Profile Onboarding */}
           <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />
 
@@ -1336,7 +1371,7 @@ Viral Score: ${viralScore}/10
                 ⚠️ You generated content about this topic before.
               </p>
               <p className="text-xs text-muted-foreground">
-                {duplicateWarning.date} — "{duplicateWarning.topic}"
+                {duplicateWarning.date} — &quot;{duplicateWarning.topic}&quot;
               </p>
               <div className="flex gap-2">
                 <button
@@ -1374,133 +1409,12 @@ Viral Score: ${viralScore}/10
             </div>
           )}
 
-          {hasResults && !loading && (
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <button
-                  onClick={copyAll}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
-                >
-                  <Copy className="h-4 w-4" />
-                  {copied === "all" ? t("btn.copied", locale) : t("btn.copyFullPack", locale)}
-                </button>
-                <button
-                  onClick={downloadTxt}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-muted/60 border border-border/50 text-foreground text-sm font-semibold hover:bg-muted transition-colors"
-                >
-                  <Download className="h-4 w-4" />
-                  {t("btn.downloadTxt", locale)}
-                </button>
-              </div>
-              <div className="flex justify-center gap-3">
-                <button onClick={() => generateContent()} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
-                </button>
-                <button onClick={autoFix} disabled={loading} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
-                  <Zap className="h-3 w-3" />{t("btn.autoFix", locale)}
-                </button>
-                {autoFixUsed && (originalGeneralResult || originalProResult) && (
-                  <button
-                    onClick={() => {
-                      if (showOriginal) {
-                        setShowOriginal(false);
-                      } else {
-                        setShowOriginal(true);
-                      }
-                    }}
-                    className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showOriginal ? t("result.autoFixedVersion", locale) : t("result.originalVersion", locale)}
-                  </button>
-                )}
-              </div>
-              {autoFixImproved && (
-                <div className="flex justify-center gap-2">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
-                    ✓ {autoFixScoreDiff > 0 ? t("badge.improvedBy", locale).replace("{x}", String(autoFixScoreDiff)) : t("badge.improved", locale)}
-                  </span>
-                </div>
-              )}
-              {autoFixUsed && (originalGeneralResult || originalProResult) && !showOriginal && (
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => {
-                      if (isProMode && originalProResult) {
-                        setProResult(originalProResult);
-                        setOriginalProResult(null);
-                      } else if (!isProMode && originalGeneralResult) {
-                        setGeneralResult(originalGeneralResult);
-                        setOriginalGeneralResult(null);
-                      }
-                      setAutoFixUsed(false);
-                      setAutoFixImproved(false);
-                      setAutoFixScoreDiff(0);
-                      setShowOriginal(false);
-                    }}
-                    className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {t("btn.revertOriginal", locale)}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {loading && <LoadingState mode={mode} locale={locale} />}
-
-          {/* Auto-Fixed Version label */}
-          {!loading && autoFixUsed && !showOriginal && hasResults && (
-            <p className="text-xs font-bold uppercase tracking-widest text-primary px-1">{t("result.autoFixedVersion", locale)}</p>
-          )}
-
-          {!loading && !isProMode && generalResult && !showOriginal && (
-            <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
-          )}
-          {!loading && isProMode && proResult && !showOriginal && (
-            <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
-          )}
-
-          {/* A/B Hook Tester — shown after results */}
-          {!loading && hasResults && (
-            <ABHookTester
-              topic={topic}
-              isPro={isProMode}
-              locale={locale}
-              style={style}
-              scriptLength={scriptLength}
-              onSelectHook={(hook) => {
-                if (isProMode && proResult) {
-                  setProResult({ ...proResult, bestHook: hook });
-                } else if (generalResult) {
-                  setGeneralResult({ ...generalResult, bestHook: hook });
-                }
-              }}
-            />
-          )}
-
-          {!loading && autoFixUsed && showOriginal && (
-            <>
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.originalVersion", locale)}
-                {originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score
-                  ? ` (Score: ${(originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score)}/10)`
-                  : ""}
-              </p>
-              {!isProMode && originalGeneralResult && (
-                <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
-              )}
-              {isProMode && originalProResult && (
-                <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
-              )}
-            </>
-          )}
-
-          {/* Discovery Results */}
+          {/* Discovery Results (shown in generate tab) */}
           {!loading && discoveryResult && discoveryResult.ideas?.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
                 <Lightbulb className="h-3.5 w-3.5 text-primary" />{t("result.discovery", locale)}
               </h3>
-              {/* Category Filter */}
               <div className="flex flex-wrap gap-1.5 px-1">
                 {DISCOVERY_CATEGORIES.map((cat) => (
                   <button
@@ -1516,7 +1430,6 @@ Viral Score: ${viralScore}/10
                   </button>
                 ))}
               </div>
-              {/* Card Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {discoveryResult.ideas
                   .filter((idea) => discoveryFilter === "All" || (idea.category || "").toLowerCase() === discoveryFilter.toLowerCase())
@@ -1546,7 +1459,166 @@ Viral Score: ${viralScore}/10
               <p className="text-sm text-muted-foreground">{t("empty.text", locale)}</p>
             </div>
           )}
+          </>
+          )}
 
+          {/* ─── LOADING STATE (visible in both tabs) ─── */}
+          {loading && <LoadingState mode={mode} locale={locale} />}
+
+          {/* ─── RESULTS TAB CONTENT ─── */}
+          {activeTab === "results" && !loading && (
+          <div className="space-y-6">
+            {/* Results summary bar */}
+            {hasResults && (
+              <div className="rounded-2xl border border-border/40 bg-muted/20 p-4 flex flex-wrap items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Topic</p>
+                  <p className="text-sm font-bold text-foreground truncate">{topic}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Platform</p>
+                    <p className="text-xs font-semibold text-foreground">{(isProMode ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
+                  </div>
+                  {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
+                    <div className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5">
+                      <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-sm font-bold text-primary">{(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Action bar */}
+            {hasResults && (
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <button
+                    onClick={copyAll}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
+                  >
+                    <Copy className="h-4 w-4" />
+                    {copied === "all" ? t("btn.copied", locale) : t("btn.copyFullPack", locale)}
+                  </button>
+                  <button
+                    onClick={downloadTxt}
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-muted/60 border border-border/50 text-foreground text-sm font-semibold hover:bg-muted transition-colors"
+                  >
+                    <Download className="h-4 w-4" />
+                    {t("btn.downloadTxt", locale)}
+                  </button>
+                </div>
+                <div className="flex justify-center gap-3 flex-wrap">
+                  <button onClick={() => setActiveTab("generate")} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    <PenTool className="h-3 w-3" />{locale === "tr" ? "Düzenle" : "Edit & Regenerate"}
+                  </button>
+                  <button onClick={() => generateContent()} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
+                  </button>
+                  <button onClick={autoFix} disabled={loading} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                    <Zap className="h-3 w-3" />{t("btn.autoFix", locale)}
+                  </button>
+                  {autoFixUsed && (originalGeneralResult || originalProResult) && (
+                    <button
+                      onClick={() => setShowOriginal(!showOriginal)}
+                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showOriginal ? t("result.autoFixedVersion", locale) : t("result.originalVersion", locale)}
+                    </button>
+                  )}
+                </div>
+                {autoFixImproved && (
+                  <div className="flex justify-center gap-2">
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                      ✓ {autoFixScoreDiff > 0 ? t("badge.improvedBy", locale).replace("{x}", String(autoFixScoreDiff)) : t("badge.improved", locale)}
+                    </span>
+                  </div>
+                )}
+                {autoFixUsed && (originalGeneralResult || originalProResult) && !showOriginal && (
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => {
+                        if (isProMode && originalProResult) {
+                          setProResult(originalProResult);
+                          setOriginalProResult(null);
+                        } else if (!isProMode && originalGeneralResult) {
+                          setGeneralResult(originalGeneralResult);
+                          setOriginalGeneralResult(null);
+                        }
+                        setAutoFixUsed(false);
+                        setAutoFixImproved(false);
+                        setAutoFixScoreDiff(0);
+                        setShowOriginal(false);
+                      }}
+                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {t("btn.revertOriginal", locale)}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Auto-Fixed Version label */}
+            {autoFixUsed && !showOriginal && hasResults && (
+              <p className="text-xs font-bold uppercase tracking-widest text-primary px-1">{t("result.autoFixedVersion", locale)}</p>
+            )}
+
+            {!isProMode && generalResult && !showOriginal && (
+              <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
+            )}
+            {isProMode && proResult && !showOriginal && (
+              <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
+            )}
+
+            {/* A/B Hook Tester */}
+            {hasResults && (
+              <ABHookTester
+                topic={topic}
+                isPro={isProMode}
+                locale={locale}
+                style={style}
+                scriptLength={scriptLength}
+                onSelectHook={(hook) => {
+                  if (isProMode && proResult) {
+                    setProResult({ ...proResult, bestHook: hook });
+                  } else if (generalResult) {
+                    setGeneralResult({ ...generalResult, bestHook: hook });
+                  }
+                }}
+              />
+            )}
+
+            {autoFixUsed && showOriginal && (
+              <>
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.originalVersion", locale)}
+                  {originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score
+                    ? ` (Score: ${(originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score)}/10)`
+                    : ""}
+                </p>
+                {!isProMode && originalGeneralResult && (
+                  <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
+                )}
+                {isProMode && originalProResult && (
+                  <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
+                )}
+              </>
+            )}
+
+            {!hasResults && (
+              <div className="text-center py-16 space-y-2">
+                <div className="mx-auto h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground">{locale === "tr" ? "Henüz sonuç yok. Önce içerik oluşturun." : "No results yet. Generate content first."}</p>
+                <button onClick={() => setActiveTab("generate")} className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+                  {locale === "tr" ? "← Oluşturmaya Git" : "← Go to Generate"}
+                </button>
+              </div>
+            )}
+          </div>
+          )}
             </div>{/* end left workspace */}
 
             {/* ── RIGHT SIDEBAR (desktop only) ── */}
