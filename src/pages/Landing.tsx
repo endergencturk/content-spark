@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon } from "lucide-react";
+import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { useRouteThemeSync } from "@/contexts/SettingsContext";
 
@@ -21,6 +22,7 @@ function LandingNav() {
   const [isDark, setIsDark] = useState(() =>
     typeof document !== "undefined" && document.documentElement.classList.contains("dark")
   );
+  const { user, setShowAuthModal, signOut } = useAuth();
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -59,6 +61,27 @@ function LandingNav() {
           >
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
+          {user ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground"
+              onClick={() => signOut()}
+            >
+              <LogOut className="h-4 w-4 mr-1.5" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground"
+              onClick={() => setShowAuthModal(true)}
+            >
+              <LogIn className="h-4 w-4 mr-1.5" />
+              Sign In
+            </Button>
+          )}
           <Link to="/app">
             <Button size="sm" className="rounded-xl font-semibold shadow-[var(--shadow-warm)]">
               Try Free
@@ -417,7 +440,7 @@ function Testimonials() {
 
 /* ───── Pricing ───── */
 function Pricing() {
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const { setShowAuthModal } = useAuth();
 
   return (
     <section id="pricing" className="py-20 sm:py-28">
@@ -464,16 +487,17 @@ function Pricing() {
             </ul>
             <Button
               className="w-full mt-8 rounded-xl font-semibold shadow-[var(--shadow-warm)]"
-              onClick={() => setUpgradeOpen(true)}
+              onClick={() => setShowAuthModal(true)}
             >
               <Crown className="h-4 w-4 mr-2" />
               Request Access
             </Button>
+            <p className="mt-3 text-center text-[11px] text-muted-foreground">
+              Have an invite code? Enter it during sign up to unlock Pro.
+            </p>
           </div>
         </div>
       </div>
-
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </section>
   );
 }
@@ -542,6 +566,16 @@ export default function Landing() {
       <Pricing />
       <FinalCTA />
       <Footer />
+      {/* Auth modal rendered at landing level */}
+      <AuthModalLanding />
     </div>
   );
+}
+
+function AuthModalLanding() {
+  const { showAuthModal } = useAuth();
+  // Only import and render when needed
+  if (!showAuthModal) return null;
+  const { AuthModal } = require("@/components/AuthModal");
+  return <AuthModal />;
 }
