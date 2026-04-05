@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { Locale } from "@/lib/i18n";
+import { useLocation } from "react-router-dom";
 
 export type VoiceSpeed = "0.8" | "0.9" | "1.0";
 
@@ -36,6 +37,8 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 const STORAGE_KEY = "viralengine-settings";
+const LANDING_THEME_KEY = "viralengine-landing-theme";
+const APP_THEME_KEY = "viralengine-app-theme";
 
 function loadSettings(): Settings {
   try {
@@ -43,6 +46,14 @@ function loadSettings(): Settings {
     if (raw) return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
   } catch {}
   return DEFAULT_SETTINGS;
+}
+
+function getStoredTheme(key: string): "light" | "dark" {
+  try {
+    const val = localStorage.getItem(key);
+    if (val === "light" || val === "dark") return val;
+  } catch {}
+  return "dark"; // default both to dark
 }
 
 interface SettingsContextValue {
@@ -66,8 +77,24 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  // Apply theme to document
+  // Apply theme based on current route using separate storage keys
   useEffect(() => {
+    const applyRouteTheme = () => {
+      const path = window.location.pathname;
+      const isApp = path.startsWith("/app");
+      const themeKey = isApp ? APP_THEME_KEY : LANDING_THEME_KEY;
+      const theme = getStoredTheme(themeKey);
+      document.documentElement.classList.toggle("dark", theme === "dark");
+    };
+    applyRouteTheme();
+  }, []);
+
+  // When theme changes in settings, save to the correct route-specific key
+  useEffect(() => {
+    const path = window.location.pathname;
+    const isApp = path.startsWith("/app");
+    const themeKey = isApp ? APP_THEME_KEY : LANDING_THEME_KEY;
+    localStorage.setItem(themeKey, settings.theme);
     document.documentElement.classList.toggle("dark", settings.theme === "dark");
   }, [settings.theme]);
 
@@ -76,6 +103,21 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       {children}
     </SettingsContext.Provider>
   );
+}
+
+/** Hook to sync theme when route changes between landing and app */
+export function useRouteThemeSync() {
+  const { settings, updateSettings } = useContext(SettingsContext);
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    const isApp = path.startsWith("/app");
+    const themeKey = isApp ? APP_THEME_KEY : LANDING_THEME_KEY;
+    const storedTheme = getStoredTheme(themeKey);
+    if (storedTheme !== settings.theme) {
+      updateSettings({ theme: storedTheme });
+    }
+  }, []);
 }
 
 export function useSettings() {
