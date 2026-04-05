@@ -1658,7 +1658,7 @@ Viral Score: ${viralScore}/10
             {!isMobile && (
               <aside className="hidden lg:block w-72 xl:w-80 shrink-0 space-y-6 sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
                 {/* Trending Panel - inline */}
-                <div className="rounded-2xl border border-border/40 bg-muted/10 p-4">
+              <div ref={trendingRef} className="rounded-2xl border border-border/40 bg-muted/10 p-4">
                   <TrendingPanel
                     niche={selectedPreset}
                     audience={targetAudience}
