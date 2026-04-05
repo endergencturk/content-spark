@@ -1,5 +1,6 @@
 import React, { memo, useState } from "react";
-import { Settings, Sparkles, Pencil } from "lucide-react";
+import { Settings, Sparkles, Pencil, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { useSettings } from "@/contexts/SettingsContext";
