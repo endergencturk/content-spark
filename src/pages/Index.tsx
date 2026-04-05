@@ -1004,6 +1004,7 @@ Viral Score: ${viralScore}/10
                 ))}
               </div>
             </div>
+            </div>{/* end platform+audience grid */}
 
             {/* 3. Hook Style */}
             <div className="space-y-2">
