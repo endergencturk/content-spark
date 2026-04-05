@@ -1,10 +1,20 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { History, Play, Clock, Hash, Youtube, Instagram, Star, RefreshCw, Download } from "lucide-react";
+import { History, Play, Clock, Hash, Youtube, Instagram, Star, RefreshCw, Download, Trash2, CheckSquare, Square, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { t, type Locale } from "@/lib/i18n";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 function downloadHistoryTxt(item: HistoryItem) {
   const output = item.output_json;
@@ -137,6 +147,10 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
   };
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<Tab>("all");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
+  const [confirmDeleteSelected, setConfirmDeleteSelected] = useState(false);
 
   const fetchItems = useCallback(() => {
     if (!deviceId) return;
@@ -158,7 +172,11 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
   }, [deviceId, isPro]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setSelectMode(false);
+      setSelected(new Set());
+      return;
+    }
     fetchItems();
   }, [open, fetchItems]);
 
@@ -188,6 +206,42 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
     }
   }, [isPro, items, locale]);
 
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleDeleteAll = async () => {
+    const { error } = await supabase
+      .from("generations")
+      .delete()
+      .eq("device_id", deviceId);
+    if (!error) {
+      setItems([]);
+      toast.success(locale === "tr" ? "Tüm geçmiş silindi" : "All history deleted");
+    }
+    setConfirmDeleteAll(false);
+  };
+
+  const handleDeleteSelected = async () => {
+    const ids = Array.from(selected);
+    const { error } = await supabase
+      .from("generations")
+      .delete()
+      .in("id", ids);
+    if (!error) {
+      setItems((prev) => prev.filter((i) => !selected.has(i.id)));
+      setSelected(new Set());
+      setSelectMode(false);
+      toast.success(locale === "tr" ? `${ids.length} öğe silindi` : `${ids.length} item(s) deleted`);
+    }
+    setConfirmDeleteSelected(false);
+  };
+
   const filtered = tab === "favorites" ? items.filter((i) => i.is_favorite) : items;
 
   return (
@@ -208,26 +262,77 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
           </SheetTitle>
         </SheetHeader>
 
-        {/* Tabs */}
-        <div className="mt-3 flex gap-1 p-0.5 rounded-xl bg-muted/60">
-          <button
-            onClick={() => setTab("all")}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              tab === "all" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
-            {locale === "tr" ? "Son" : "Recent"}
-          </button>
-          <button
-            onClick={() => setTab("favorites")}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
-              tab === "favorites" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
-            <Star className="h-3 w-3" />
-            {t("favorites.title", locale)}
-          </button>
+        {/* Tabs + Actions */}
+        <div className="mt-3 flex items-center gap-2">
+          <div className="flex-1 flex gap-1 p-0.5 rounded-xl bg-muted/60">
+            <button
+              onClick={() => setTab("all")}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                tab === "all" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+              }`}
+            >
+              {locale === "tr" ? "Son" : "Recent"}
+            </button>
+            <button
+              onClick={() => setTab("favorites")}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
+                tab === "favorites" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+              }`}
+            >
+              <Star className="h-3 w-3" />
+              {t("favorites.title", locale)}
+            </button>
+          </div>
+
+          {/* Delete controls */}
+          {filtered.length > 0 && (
+            <div className="flex items-center gap-1 shrink-0">
+              {selectMode ? (
+                <>
+                  <button
+                    onClick={() => { setSelectMode(false); setSelected(new Set()); }}
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                    title="Cancel"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                  {selected.size > 0 && (
+                    <button
+                      onClick={() => setConfirmDeleteSelected(true)}
+                      className="p-1.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
+                      title={`Delete ${selected.size} selected`}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setSelectMode(true)}
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                    title={locale === "tr" ? "Seç ve Sil" : "Select & Delete"}
+                  >
+                    <CheckSquare className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setConfirmDeleteAll(true)}
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    title={locale === "tr" ? "Tümünü Sil" : "Delete All"}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
+
+        {selectMode && selected.size > 0 && (
+          <p className="text-[10px] text-muted-foreground mt-1.5 px-1">
+            {selected.size} {locale === "tr" ? "öğe seçildi" : "selected"}
+          </p>
+        )}
 
         <div className="mt-3 space-y-3">
           {loading && (
@@ -244,16 +349,32 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
 
           {filtered.map((item) => {
             const hook = getFirstHook(item.output_json);
+            const isSelected = selected.has(item.id);
             return (
               <div
                 key={item.id}
-                className="rounded-2xl border border-border/50 bg-muted/30 p-4 space-y-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                className={`rounded-2xl border p-4 space-y-2 cursor-pointer hover:bg-muted/50 transition-colors ${
+                  isSelected ? "border-primary/50 bg-primary/5" : "border-border/50 bg-muted/30"
+                }`}
                 onClick={() => {
+                  if (selectMode) {
+                    toggleSelect(item.id);
+                    return;
+                  }
                   onReopen(item);
                   setOpen(false);
                 }}
               >
                 <div className="flex items-start justify-between gap-2">
+                  {selectMode && (
+                    <div className="pt-0.5 shrink-0">
+                      {isSelected ? (
+                        <CheckSquare className="h-4 w-4 text-primary" />
+                      ) : (
+                        <Square className="h-4 w-4 text-muted-foreground/40" />
+                      )}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{item.topic}</p>
                     {hook && (
@@ -295,38 +416,40 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-1" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    className="text-[11px] font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-                    onClick={() => {
-                      onReuse(item.topic);
-                      setOpen(false);
-                    }}
-                  >
-                    <Play className="h-3 w-3" />
-                    {t("history.reuse", locale)}
-                  </button>
-                  <button
-                    className="text-[11px] font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-                    onClick={() => {
-                      onRegenerate(item);
-                      setOpen(false);
-                    }}
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                    {t("btn.regenerate", locale)}
-                  </button>
-                  <button
-                    className="text-[11px] font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-                    onClick={() => {
-                      downloadHistoryTxt(item);
-                      toast.success(t("toast.downloaded", locale));
-                    }}
-                  >
-                    <Download className="h-3 w-3" />
-                    ⬇ TXT
-                  </button>
-                </div>
+                {!selectMode && (
+                  <div className="flex gap-3 pt-1" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className="text-[11px] font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                      onClick={() => {
+                        onReuse(item.topic);
+                        setOpen(false);
+                      }}
+                    >
+                      <Play className="h-3 w-3" />
+                      {t("history.reuse", locale)}
+                    </button>
+                    <button
+                      className="text-[11px] font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                      onClick={() => {
+                        onRegenerate(item);
+                        setOpen(false);
+                      }}
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                      {t("btn.regenerate", locale)}
+                    </button>
+                    <button
+                      className="text-[11px] font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                      onClick={() => {
+                        downloadHistoryTxt(item);
+                        toast.success(t("toast.downloaded", locale));
+                      }}
+                    >
+                      <Download className="h-3 w-3" />
+                      ⬇ TXT
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -337,6 +460,50 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
             </p>
           )}
         </div>
+
+        {/* Delete All Confirmation */}
+        <AlertDialog open={confirmDeleteAll} onOpenChange={setConfirmDeleteAll}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {locale === "tr" ? "Tüm geçmişi sil?" : "Delete all history?"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {locale === "tr"
+                  ? "Bu işlem geri alınamaz. Tüm üretimler kalıcı olarak silinecektir."
+                  : "This action cannot be undone. All generations will be permanently deleted."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{locale === "tr" ? "İptal" : "Cancel"}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                {locale === "tr" ? "Tümünü Sil" : "Delete All"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Selected Confirmation */}
+        <AlertDialog open={confirmDeleteSelected} onOpenChange={setConfirmDeleteSelected}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {locale === "tr" ? `${selected.size} öğeyi sil?` : `Delete ${selected.size} item(s)?`}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {locale === "tr"
+                  ? "Seçili öğeler kalıcı olarak silinecektir."
+                  : "Selected items will be permanently deleted."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{locale === "tr" ? "İptal" : "Cancel"}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteSelected} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                {locale === "tr" ? "Sil" : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </SheetContent>
     </Sheet>
   );
