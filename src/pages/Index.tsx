@@ -895,18 +895,21 @@ Viral Score: ${viralScore}/10
     <div className="min-h-screen bg-background">
       <Navbar onEditProfile={() => setProfileForceOpen(true)} />
 
-      {/* Trending Panel */}
-      <TrendingPanel
-        niche={selectedPreset}
-        audience={targetAudience}
-        locale={locale}
-        onSelectTopic={(t) => setTopic(t)}
-      />
+      {/* Mobile: keep floating trending panel */}
+      {isMobile && (
+        <TrendingPanel
+          niche={selectedPreset}
+          audience={targetAudience}
+          locale={locale}
+          onSelectTopic={(t) => setTopic(t)}
+        />
+      )}
 
-      <div className="py-8 px-4">
-        <div className="mx-auto max-w-lg space-y-7">
-
-          {/* HEADER */}
+      <div className="py-6 lg:py-8 px-4 lg:px-6">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex gap-8">
+            {/* ── LEFT MAIN WORKSPACE ── */}
+            <div className="flex-1 min-w-0 max-w-3xl mx-auto lg:mx-0 space-y-7">
           <div className="text-center space-y-2 pt-2">
             <div className="flex items-center justify-center gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
