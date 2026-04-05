@@ -896,6 +896,15 @@ Viral Score: ${viralScore}/10
     }
   }, [handlePresetClick]);
 
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const trendingRef = useRef<HTMLDivElement>(null);
+
+  const handleSidebarDiscover = useCallback(() => {
+    if (trendingRef.current) {
+      trendingRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Left Sidebar */}
@@ -904,6 +913,9 @@ Viral Score: ${viralScore}/10
         activeNav="create"
         remaining={isProMode ? undefined : remaining}
         isAtLimit={isAtLimit}
+        isPro={isProMode}
+        onHistoryClick={() => setHistoryOpen(true)}
+        onDiscoverClick={handleSidebarDiscover}
       />
 
       {/* Main content area */}
@@ -937,6 +949,9 @@ Viral Score: ${viralScore}/10
                 onReuse={(t) => setTopic(t)}
                 onReopen={handleHistoryReopen}
                 onRegenerate={handleHistoryRegenerate}
+                externalOpen={historyOpen}
+                onExternalOpenChange={setHistoryOpen}
+                hideTrigger={!isMobile}
               />
             </div>
             <p className="text-muted-foreground text-sm">
