@@ -306,6 +306,16 @@ export function HistoryDrawer({ deviceId, isPro, locale, onReuse, onReopen, onRe
                     <RefreshCw className="h-3 w-3" />
                     {t("btn.regenerate", locale)}
                   </button>
+                  <button
+                    className="text-[11px] font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                    onClick={() => {
+                      downloadHistoryTxt(item);
+                      toast.success(t("toast.downloaded", locale));
+                    }}
+                  >
+                    <Download className="h-3 w-3" />
+                    ⬇ TXT
+                  </button>
                 </div>
               </div>
             );
