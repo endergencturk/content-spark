@@ -913,9 +913,7 @@ Viral Score: ${viralScore}/10
         activeNav="create"
         remaining={isProMode ? undefined : remaining}
         isAtLimit={isAtLimit}
-        isPro={isProMode}
         onHistoryClick={() => setHistoryOpen(true)}
-        onDiscoverClick={handleSidebarDiscover}
       />
 
       {/* Main content area */}
