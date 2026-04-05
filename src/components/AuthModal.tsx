@@ -143,6 +143,19 @@ export function AuthModal() {
             </div>
           </div>
 
+          {tab === "login" && (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="remember-me"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked === true)}
+              />
+              <Label htmlFor="remember-me" className="text-sm font-normal text-muted-foreground cursor-pointer">
+                Remember me
+              </Label>
+            </div>
+          )}
+
           {tab === "register" && (
             <div className="space-y-2">
               <Label htmlFor="auth-invite" className="flex items-center gap-1.5">
