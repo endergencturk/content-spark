@@ -953,6 +953,37 @@ Viral Score: ${viralScore}/10
             </button>
           </div>
 
+          {/* GENERATE / RESULTS TABS */}
+          <div className="flex gap-2 p-1 rounded-2xl bg-muted/40 border border-border/30">
+            <button
+              onClick={() => setActiveTab("generate")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === "generate" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <PenTool className="h-3.5 w-3.5" />
+              {locale === "tr" ? "Oluştur" : "Generate"}
+            </button>
+            <button
+              onClick={() => setActiveTab("results")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === "results"
+                  ? "bg-card text-foreground shadow-sm"
+                  : hasResults
+                    ? "text-primary hover:text-primary/80"
+                    : "text-muted-foreground/50 cursor-not-allowed"
+              }`}
+              disabled={!hasResults && !loading}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              {locale === "tr" ? "Sonuçlar" : "Results"}
+              {hasResults && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+            </button>
+          </div>
+
+          {/* ─── GENERATE TAB CONTENT ─── */}
+          {activeTab === "generate" && (
+          <>
           {/* Channel Profile Onboarding */}
           <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />
 
