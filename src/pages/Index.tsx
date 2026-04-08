@@ -1696,10 +1696,10 @@ Viral Score: ${viralScore}/10
                     ? ` (Score: ${(originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score)}/10)`
                     : ""}
                 </p>
-                {!isProMode && originalGeneralResult && (
+                {!isProMode && !isHorrorMode && originalGeneralResult && (
                   <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
                 )}
-                {isProMode && originalProResult && (
+                {(isProMode || isHorrorMode) && originalProResult && (
                   <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
                 )}
               </>
