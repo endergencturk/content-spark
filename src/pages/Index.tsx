@@ -438,6 +438,7 @@ export default function Index() {
   const [showOriginal, setShowOriginal] = useState(false);
   const [autoFixUsed, setAutoFixUsed] = useState(false);
   const isProMode = mode === "pro";
+  const isHorrorMode = mode === "horror";
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
   const [advancedOpen, setAdvancedOpen] = useState(false);
