@@ -1776,3 +1776,253 @@ function platforms_include_instagram(platforms: string[]): string {
   }
   return "";
 }
+
+// ── Horror Mode ──────────────────────────────────────────────────────
+
+function buildHorrorSchema() {
+  return {
+    type: "OBJECT",
+    properties: {
+      title: { type: "STRING" },
+      bestHook: { type: "STRING" },
+      hooks: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            type: { type: "STRING" },
+            hook: { type: "STRING" },
+          },
+          required: ["type", "hook"],
+        },
+      },
+      hookVariations: { type: "ARRAY", items: { type: "STRING" } },
+      angleVariations: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            type: { type: "STRING" },
+            hook: { type: "STRING" },
+          },
+          required: ["type", "hook"],
+        },
+      },
+      script: { type: "STRING" },
+      textOverlays: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            text: { type: "STRING" },
+            timing: { type: "STRING" },
+          },
+          required: ["text", "timing"],
+        },
+      },
+      imagePrompts: { type: "ARRAY", items: { type: "STRING" } },
+      thumbnails: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            image: { type: "STRING" },
+            text: { type: "STRING" },
+          },
+          required: ["image", "text"],
+        },
+      },
+      audioDirective: { type: "STRING" },
+      animationNotes: { type: "STRING" },
+      editingPlan: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            scene: { type: "NUMBER" },
+            visual: { type: "STRING" },
+            onScreenText: { type: "STRING" },
+            mood: { type: "STRING" },
+          },
+          required: ["scene", "visual"],
+        },
+      },
+      youtube: {
+        type: "OBJECT",
+        properties: {
+          title: { type: "STRING" },
+          description: { type: "STRING" },
+          tags: { type: "ARRAY", items: { type: "STRING" } },
+        },
+        required: ["title", "description", "tags"],
+      },
+      tiktok: {
+        type: "OBJECT",
+        properties: {
+          caption: { type: "STRING" },
+          hashtags: { type: "ARRAY", items: { type: "STRING" } },
+        },
+        required: ["caption", "hashtags"],
+      },
+      music: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            type: { type: "STRING" },
+            source: { type: "STRING" },
+            why: { type: "STRING" },
+          },
+          required: ["type", "source", "why"],
+        },
+      },
+      seriesPotential: { type: "STRING" },
+      viralAnalysis: {
+        type: "OBJECT",
+        properties: {
+          score: { type: "NUMBER" },
+          categories: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                name: { type: "STRING" },
+                score: { type: "NUMBER" },
+              },
+              required: ["name", "score"],
+            },
+          },
+          strengths: { type: "ARRAY", items: { type: "STRING" } },
+          weaknesses: { type: "ARRAY", items: { type: "STRING" } },
+        },
+        required: ["score", "categories", "strengths", "weaknesses"],
+      },
+    },
+    required: [
+      "title", "bestHook", "hooks", "hookVariations", "angleVariations",
+      "script", "textOverlays", "imagePrompts", "thumbnails",
+      "audioDirective", "animationNotes", "editingPlan",
+      "youtube", "tiktok", "music", "seriesPotential", "viralAnalysis",
+    ],
+  };
+}
+
+function buildHorrorPrompt(topic: string, language: string, scriptLength: string, targetAudience: string, autoFixForced: boolean): string {
+  const topicInstruction = topic
+    ? `Topic/Setting: ${topic}\nUse the provided country and phenomenon as the basis for the urban legend.`
+    : `Choose a RANDOM country and a unique local phenomenon/location/object as the basis for the urban legend. Be creative and varied — never default to the same country twice.`;
+
+  return \`You are the world's most specialized viral short-form content architect for psychological horror channels.
+
+You do not tell stories. You engineer psychological traps.
+
+CHANNEL DNA:
+- Theme: Forbidden knowledge, psychological horror, localized urban legends, impossible existential realities
+- Tone: Ominous. Authoritative. Uncanny calm. Never theatrical
+- Core Philosophy: The viewer must feel they are receiving a suppressed documentary warning, NOT watching fiction
+- Format: 30-40 seconds / 80-110 words maximum
+
+Language: \${language}
+\${language === "Turkish" ? "Write in natural, fluent Turkish. Do NOT translate from English." : ""}
+Target Audience: \${targetAudience}
+
+\${topicInstruction}
+
+THE PSYCHOLOGY ENGINE:
+1. Never explain the origin of the threat
+2. Never resolve the danger
+3. Break the 4th wall in the final line
+4. Use 1-6 word sentences ONLY
+5. Each line must be a realization, a rule, or a warning
+
+MANDATORY SCRIPT STRUCTURE (7 STEPS):
+Step 1 - AGGRESSIVE HOOK: Begin EXACTLY with "Did you know... in [COUNTRY]"
+Step 2 - HIDDEN TRUTH: Reveal a chilling local secret as established fact
+Step 3 - THE RULE: State an illogical survival rule locals follow
+Step 4 - SOMETHING IS WRONG: The rule was broken. One sharp sentence.
+Step 5 - ESCALATION: Compress time. Make danger feel immediate.
+Step 6 - DISTURBING SHIFT: One uncanny element (choose one):
+  - Duplicate self / doppelganger
+  - Wrong reflection
+  - Voice mimicry
+  - Something already inside
+  - Identity swap
+  - Shadows acting independently
+Step 7 - FINAL WARNING: Speak DIRECTLY to the viewer. Issue a chilling command. No resolution. No comfort.
+
+SCRIPT RULES:
+- Word count: 80-110 words ONLY
+- Sentence length: 1-6 words maximum
+- Filler words: ZERO
+- Every line must raise tension
+- One impossible element required
+- One psychological twist required
+- Ending: Unresolved
+- Script must be pure voiceover text — NO asterisks, NO stage directions, NO bracketed cues
+
+TEXT OVERLAYS (5 MANDATORY):
+Generate exactly 5 text overlays for CapCut.
+- 1-3 words each, uppercase
+- Bold Impact font on thick solid RED banner
+- Include timing (e.g. "at 0:08")
+- Examples: WRONG FACE / DON'T LOOK / STILL THERE / BEHIND YOU / TOO LATE / NOT HUMAN / ALREADY INSIDE
+
+IMAGE STYLE (SEMI-REALISTIC 2D):
+Every image prompt must begin with: "A graphic novel illustration of..."
+Safe language rules:
+- NEVER: terrified, horror, screaming, blood, dying, dead
+- ALWAYS USE: deeply unsettled, dark and eerie, wide eyes catching light, an unseen presence, motionless
+
+MANDATORY IMAGE STYLE SUFFIX (add to EVERY image prompt):
+"Art style: semi-realistic cel-shaded illustration. Characters have thick bold black outlines with flat color fills and 2-3 discrete hard-edged shadow levels, no smooth gradients on characters. Background: atmospheric gradient shading with dense volumetric fog and light beams cutting through darkness. Lighting: single chiaroscuro light source, 70-80% of frame in deep pitch-black shadow. Color palette: deep blacks, charcoal grays, cold navy blues, single vivid blood-red accent only. Composition: vertical 9:16, subject slightly off-center, large dark negative space above subject. Mood: eerie, uncanny valley. NOT photorealistic. NOT 3D. NOT anime."
+
+THUMBNAIL PROMPT:
+Begin with: "A dark semi-realistic cel-shaded illustration, extreme close-up portrait of an adult, face centered in vertical 9:16 frame."
+Include: Kubrick Stare, one side in complete shadow, wide eyes catching cold light, unnervingly still expression.
+Add full style suffix.
+After prompt add: "CANVA BANNER: Thick solid red rectangle across center. White IMPACT font, 1-3 words. Options: NOT HUMAN / DON'T LOOK / IT'S YOU / STILL HERE"
+
+AUDIO DIRECTIVES:
+Voice: Deep, slow, subtly threatening male
+ElevenLabs Settings: Stability: 45% / Clarity/Similarity: 85% / Style Exaggeration: 15% / Speed: 0.9x
+
+ANIMATION NOTES (CAPCUT):
+- Scene 1-2: Slow zoom in (Ken Burns)
+- Scene 3: Glitch cut at supernatural twist moment
+- Scene 4-5: Static + very slow zoom out
+- Text overlays: flash 0.8-1 second max
+- Color grade: Saturation -30% / Contrast +40% / Cold blue tint
+- Final frame: freeze 1 second, hard cut to black
+
+TITLE FORMAT: [Entity Name] | [Country] Urban Legend
+
+CONTENT VARIATION RULES:
+Every video MUST change all four:
+- Country (never repeat)
+- Scenario (never repeat)
+- Character (vary age, gender, relationship)
+- Threat type (rotate through all 6 elements in Step 6)
+
+\${autoFixForced ? "AUTO-FIX MODE IS FORCED. Rewrite with maximum tension. Viral score MUST be at least 8.5." : ""}
+
+OUTPUT FORMAT (produce in this exact order):
+1. title: TITLE in format [Entity Name] | [Country] Urban Legend
+2. bestHook: The strongest hook line
+3. hooks: 5 hooks as {type, hook} objects
+4. hookVariations: 5 hook rewrites
+5. angleVariations: 3 alternative angles as {type, hook}
+6. script: FULL SCRIPT (line by line, following 7 steps, pure voiceover text)
+7. textOverlays: 5 text overlays with timing as {text, timing}
+8. imagePrompts: 5 image prompts with full style suffix each
+9. thumbnails: 2 thumbnail ideas with banner note
+10. audioDirective: Audio directive text
+11. animationNotes: Animation notes text
+12. editingPlan: scenes with visual, onScreenText, mood
+13. youtube: title, description, tags
+14. tiktok: caption, hashtags
+15. music: 3 music suggestions as {type, source, why}
+16. seriesPotential: series potential text
+17. viralAnalysis: score, categories, strengths, weaknesses
+
+Return only valid JSON. No explanation. No markdown.\`;
+}
