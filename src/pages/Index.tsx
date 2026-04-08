@@ -866,16 +866,22 @@ Viral Score: ${viralScore}/10
     setAutoFixImproved(false);
     setAutoFixScoreDiff(0);
     try {
-      const prevResult = isProMode ? proResult : generalResult;
+      const prevResult = (isProMode || isHorrorMode) ? proResult : generalResult;
       const prevScore = prevResult?.viralAnalysis?.score || 0;
 
       // Save original before overwriting
       if (!autoFixUsed) {
-        if (isProMode && proResult) setOriginalProResult({ ...proResult });
-        if (!isProMode && generalResult) setOriginalGeneralResult({ ...generalResult });
+        if ((isProMode || isHorrorMode) && proResult) setOriginalProResult({ ...proResult });
+        if (!isProMode && !isHorrorMode && generalResult) setOriginalGeneralResult({ ...generalResult });
       }
 
-      const body = isProMode
+      const body = isHorrorMode
+        ? {
+            mode: "horror", topic, platforms, platform, scriptLength,
+            language: locale, targetAudience, imageFormat: "9:16",
+            autoFixForced: true,
+          }
+        : isProMode
         ? {
             mode: "pro", topic, platforms, contentType, style, scriptLength, goal,
             hookIntensity: 2, imageFormat: "9:16", imagePromptCount,
@@ -896,7 +902,7 @@ Viral Score: ${viralScore}/10
 
       const newScore = data?.viralAnalysis?.score || 0;
 
-      if (isProMode) {
+      if (isProMode || isHorrorMode) {
         setProResult(normalizeResult(data) as ProResult);
         setGeneralResult(null);
       } else {
