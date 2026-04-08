@@ -296,7 +296,7 @@ const NICHE_PRESETS: NichePreset[] = [
   },
 ];
 
-type Mode = "general" | "pro";
+type Mode = "general" | "pro" | "horror";
 
 // ── Types ───────────────────────────────────────────────────────────
 
