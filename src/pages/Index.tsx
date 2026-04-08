@@ -1576,7 +1576,7 @@ Viral Score: ${viralScore}/10
                   <div className="flex items-center gap-3">
                     <div className="text-center">
                       <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Platform</p>
-                      <p className="text-xs font-semibold text-foreground">{(isProMode ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
+                      <p className="text-xs font-semibold text-foreground">{((isProMode || isHorrorMode) ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
                     </div>
                     {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
                       <div className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5">
