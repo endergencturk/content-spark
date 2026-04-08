@@ -950,7 +950,7 @@ Viral Score: ${viralScore}/10
       <AppSidebar
         locale={locale}
         activeNav="create"
-        remaining={isProMode ? undefined : remaining}
+        remaining={(isProMode || isHorrorMode) ? undefined : remaining}
         isAtLimit={isAtLimit}
         onHistoryClick={() => setHistoryOpen(true)}
       />
