@@ -1041,14 +1041,14 @@ Viral Score: ${viralScore}/10
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
           <>
-          {/* Channel Profile Onboarding */}
-          <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />
+          {/* Channel Profile Onboarding (not in horror mode) */}
+          {!isHorrorMode && <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />}
 
-          {/* Weekly Content Plan */}
-          <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />
+          {/* Weekly Content Plan (not in horror mode) */}
+          {!isHorrorMode && <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />}
 
           {/* USAGE BANNER (Free mode only) */}
-          {!isProMode && (
+          {!isProMode && !isHorrorMode && (
             <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} locale={locale} />
           )}
 
