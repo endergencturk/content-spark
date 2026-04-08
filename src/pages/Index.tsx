@@ -1237,7 +1237,8 @@ Viral Score: ${viralScore}/10
               </div>
             </div>
 
-            {/* ⚙️ Advanced Settings (collapsible) */}
+            {/* ⚙️ Advanced Settings (collapsible, hidden in horror mode) */}
+            {!isHorrorMode && (
             <div className="rounded-2xl border border-border/40 overflow-hidden">
               <button
                 onClick={() => setAdvancedOpen(!advancedOpen)}
