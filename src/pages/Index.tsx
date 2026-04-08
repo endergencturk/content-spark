@@ -582,8 +582,9 @@ export default function Index() {
   }, [deviceId, topic]);
 
   const generateContent = useCallback(async (skipDuplicateCheck = false) => {
-    if (!topic.trim()) return;
-    if (!isProMode && isAtLimit) {
+    const effectiveTopic = isHorrorMode && !topic.trim() ? "__horror_random__" : topic.trim();
+    if (!effectiveTopic) return;
+    if (!isProMode && !isHorrorMode && isAtLimit) {
       toast.error(t("usage.noCredits", locale));
       return;
     }
@@ -607,9 +608,15 @@ export default function Index() {
     setOriginalProResult(null);
     setShowOriginal(false);
     try {
-      const body = isProMode
+      const body = isHorrorMode
         ? {
-            mode: "pro", topic, platforms, contentType, style, scriptLength, goal, hookIntensity,
+            mode: "horror", topic: effectiveTopic === "__horror_random__" ? "" : effectiveTopic,
+            platforms, platform, scriptLength, language: locale,
+            targetAudience, imageFormat: "9:16",
+          }
+        : isProMode
+        ? {
+            mode: "pro", topic: effectiveTopic, platforms, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale,
@@ -617,7 +624,7 @@ export default function Index() {
             hookStyle,
           }
         : {
-            mode: "general", topic, platform, contentType, style, scriptLength, goal, hookIntensity,
+            mode: "general", topic: effectiveTopic, platform, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", outputStyle: settings.outputStyle,
             language: locale,
             targetAudience,
