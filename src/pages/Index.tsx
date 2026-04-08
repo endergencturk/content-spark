@@ -1427,7 +1427,7 @@ Viral Score: ${viralScore}/10
               />
             </div>
 
-            {!isProMode && !isAtLimit && (
+            {!isProMode && !isHorrorMode && !isAtLimit && (
               <p className="text-center text-[11px] text-muted-foreground">
                 {t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
                 {nextRefillLabel ? ` · ${t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)}` : ""}
