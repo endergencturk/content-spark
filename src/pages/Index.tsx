@@ -661,7 +661,7 @@ export default function Index() {
         toast.warning("⚠️ Script longer than target — consider trimming", { duration: 5000 });
       }
 
-      if (isProMode) {
+      if (isHorrorMode || isProMode) {
         setProResult(normalizeResult(data) as ProResult);
         setGeneralResult(null);
       } else {
@@ -675,13 +675,13 @@ export default function Index() {
       try {
         await supabase.from("generations").insert({
           device_id: deviceId,
-          topic: topic.trim(),
-          platforms: isProMode ? platforms : [platform],
+          topic: (effectiveTopic === "__horror_random__" ? data?.title || "Horror Mode" : effectiveTopic),
+          platforms: (isProMode || isHorrorMode) ? platforms : [platform],
           duration: scriptLength,
-          style,
-          content_type: contentType,
-          goal,
-          plan_type: isProMode ? "pro" : "free",
+          style: isHorrorMode ? "horror" : style,
+          content_type: isHorrorMode ? "horror" : contentType,
+          goal: isHorrorMode ? "viral" : goal,
+          plan_type: isHorrorMode ? "horror" : isProMode ? "pro" : "free",
           output_json: data,
           language: locale,
         } as any);
