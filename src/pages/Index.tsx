@@ -1098,7 +1098,8 @@ Viral Score: ${viralScore}/10
             </div>
             </div>{/* end platform+audience grid */}
 
-            {/* 3. Hook Style */}
+            {/* 3. Hook Style (hidden in horror mode) */}
+            {!isHorrorMode && (
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.hookStyle", locale)}</p>
               <div className="flex gap-2 flex-wrap">
@@ -1113,8 +1114,10 @@ Viral Score: ${viralScore}/10
                 ))}
               </div>
             </div>
+            )}
 
-            {/* 4. Niche Presets */}
+            {/* 4. Niche Presets (hidden in horror mode) */}
+            {!isHorrorMode && (
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                 {t("preset.title", locale)}
@@ -1155,13 +1158,14 @@ Viral Score: ${viralScore}/10
                 </div>
               )}
             </div>
+            )}
 
             {/* 3. Topic */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("input.topic", locale)}</p>
 
-              {/* Topic Suggestions (hidden when preset topics are showing) */}
-              {presetTopics.length === 0 && (
+              {/* Topic Suggestions (hidden in horror mode and when preset topics are showing) */}
+              {!isHorrorMode && presetTopics.length === 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/70 flex items-center gap-1">
@@ -1197,11 +1201,17 @@ Viral Score: ${viralScore}/10
               <Input
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder={locale === "tr" ? "ör. Brian Shaffer gizemi, pasif gelir mitleri..." : "e.g. Brian Shaffer mystery, passive income myths..."}
+                placeholder={isHorrorMode
+                  ? "e.g. Japan, mirrors / Brazil, forest / Korea, elevators"
+                  : locale === "tr" ? "ör. Brian Shaffer gizemi, pasif gelir mitleri..." : "e.g. Brian Shaffer mystery, passive income myths..."}
                 className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
                 onKeyDown={(e) => e.key === "Enter" && generateContent()}
               />
-
+              {isHorrorMode && (
+                <p className="text-[10px] text-muted-foreground">
+                  Enter a country + phenomenon, or leave blank for AI to choose randomly
+                </p>
+              )}
 
             </div>
 
