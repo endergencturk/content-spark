@@ -801,14 +801,14 @@ export default function Index() {
   }, [isProMode, generalResult, proResult, copyToClipboard, buildFullPackText]);
 
   const downloadTxt = useCallback(() => {
-    const result = isProMode ? proResult : generalResult;
+    const result = (isProMode || isHorrorMode) ? proResult : generalResult;
     if (!result) return;
-    const all = buildFullPackText(result, isProMode);
+    const all = buildFullPackText(result, isProMode || isHorrorMode);
     const slug = topic.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40) || "content";
 
     const now = new Date();
     const dateStr = now.toISOString().replace("T", " ").slice(0, 19);
-    const platformLabels = (isProMode ? platforms : [platform]).map((p: string) => {
+    const platformLabels = ((isProMode || isHorrorMode) ? platforms : [platform]).map((p: string) => {
       if (p === "tiktok") return "TikTok";
       if (p === "youtube-shorts") return "YouTube Shorts";
       if (p === "instagram-reels") return "Instagram Reels";
@@ -816,24 +816,39 @@ export default function Index() {
     }).join(", ");
     const viralScore = result.viralAnalysis?.score || "N/A";
 
+    const horrorSections = isHorrorMode ? `
+Mode: Horror Mode
+` : "";
+
     const metadata = `=== CONTENT PACK INFO ===
 Topic: ${topic.trim()}
 Platform: ${platformLabels}
 Target Audience: ${targetAudience}
-Hook Style: ${hookStyle}
-Duration: ${scriptLength}s
+${isHorrorMode ? "Mode: Horror Mode\n" : `Hook Style: ${hookStyle}\n`}Duration: ${scriptLength}s
 Voice Speed: ${settings.voiceSpeed}
-Style: ${style}
-Content Type: ${contentType}
-Goal: ${goal}
-Auto-Fix Used: ${autoFixUsed ? "Yes" : "No"}
+${isHorrorMode ? "" : `Style: ${style}\nContent Type: ${contentType}\nGoal: ${goal}\n`}Auto-Fix Used: ${autoFixUsed ? "Yes" : "No"}
 Generated: ${dateStr}
 Viral Score: ${viralScore}/10
 =========================
 
 `;
 
-    const blob = new Blob([metadata + all], { type: "text/plain;charset=utf-8" });
+    // Horror mode extras from output_json
+    let horrorExtras = "";
+    if (isHorrorMode) {
+      const data = result as any;
+      if (data.textOverlays?.length) {
+        horrorExtras += `\n\n📌 TEXT OVERLAYS:\n${data.textOverlays.map((o: any, i: number) => `${i + 1}. ${typeof o === "string" ? o : `${o.text} (${o.timing})`}`).join("\n")}`;
+      }
+      if (data.audioDirective) {
+        horrorExtras += `\n\n🎙️ AUDIO DIRECTIVES:\n${typeof data.audioDirective === "string" ? data.audioDirective : JSON.stringify(data.audioDirective, null, 2)}`;
+      }
+      if (data.animationNotes) {
+        horrorExtras += `\n\n🎬 ANIMATION NOTES:\n${typeof data.animationNotes === "string" ? data.animationNotes : JSON.stringify(data.animationNotes, null, 2)}`;
+      }
+    }
+
+    const blob = new Blob([metadata + all + horrorExtras], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -843,7 +858,7 @@ Viral Score: ${viralScore}/10
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast.success(t("toast.downloaded", locale));
-  }, [isProMode, generalResult, proResult, topic, buildFullPackText, locale, platforms, platform, targetAudience, hookStyle, scriptLength, style, contentType, goal, autoFixUsed]);
+  }, [isProMode, isHorrorMode, generalResult, proResult, topic, buildFullPackText, locale, platforms, platform, targetAudience, hookStyle, scriptLength, style, contentType, goal, autoFixUsed]);
 
   const autoFix = useCallback(async () => {
     if (!topic.trim()) return;
