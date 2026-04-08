@@ -704,7 +704,12 @@ export default function Index() {
 
   const handleHistoryReopen = useCallback((item: any) => {
     setTopic(item.topic);
-    if (item.plan_type === "pro") {
+    if (item.plan_type === "horror") {
+      setMode("horror");
+      setPlatforms(item.platforms || ["tiktok"]);
+      setProResult(normalizeResult(item.output_json) as ProResult);
+      setGeneralResult(null);
+    } else if (item.plan_type === "pro") {
       setMode("pro");
       setPlatforms(item.platforms || ["tiktok"]);
       setProResult(normalizeResult(item.output_json) as ProResult);
