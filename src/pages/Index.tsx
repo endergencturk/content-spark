@@ -925,7 +925,7 @@ Viral Score: ${viralScore}/10
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult, autoFixUsed]);
+  }, [isProMode, isHorrorMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult, autoFixUsed]);
 
   const handleProfileSave = useCallback((profile: ChannelProfileData) => {
     if (profile.audience) setTargetAudience(profile.audience);
