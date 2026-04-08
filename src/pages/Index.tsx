@@ -1393,18 +1393,21 @@ Viral Score: ${viralScore}/10
                 </div>
               )}
             </div>
+            )}
             {/* Generate + Bulk Pack buttons */}
             <div className="flex gap-3 pt-2">
               <Button
                 id="generate-btn"
-                className="h-14 text-base rounded-2xl font-bold flex-1 shadow-lg hover:shadow-xl transition-all"
-                disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
+                className={`h-14 text-base rounded-2xl font-bold flex-1 shadow-lg hover:shadow-xl transition-all ${isHorrorMode ? "bg-red-900 hover:bg-red-800 text-red-100" : ""}`}
+                disabled={(isHorrorMode ? false : !topic.trim()) || loading || (!isProMode && !isHorrorMode && isAtLimit)}
                 onClick={() => generateContent()}
               >
-                {loading && topic.trim() ? (
+                {loading ? (
                   <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
-                ) : !isProMode && isAtLimit ? (
+                ) : !isProMode && !isHorrorMode && isAtLimit ? (
                   <><Lock className="h-5 w-5" />{t("btn.noCredits", locale)}</>
+                ) : isHorrorMode ? (
+                  <><Skull className="h-5 w-5" />Generate Horror</>
                 ) : (
                   <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
                 )}
