@@ -276,6 +276,43 @@ Return as JSON with "hookA" and "hookB" string fields.`;
       });
     }
 
+    // ── HORROR MODE ───────────────────────────────────────────────────
+    if (mode === "horror") {
+      const horrorTopic = topic && topic.trim() ? topic.trim() : "";
+      const lang = language === "tr" ? "Turkish" : "English";
+      const horrorPrompt = buildHorrorPrompt(horrorTopic, lang, scriptLength || "30", targetAudience || "global", !!body.autoFixForced);
+
+      const horrorSchema = buildHorrorSchema();
+
+      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+      const geminiBody = {
+        contents: [{ parts: [{ text: horrorPrompt }] }],
+        generationConfig: {
+          temperature: 0.85,
+          maxOutputTokens: 8192,
+          responseMimeType: "application/json",
+          responseSchema: horrorSchema,
+        },
+      };
+
+      const response = await fetchWithRetry(geminiUrl, GEMINI_API_KEY, geminiBody);
+      if (!response || !response.ok) {
+        return new Response(
+          JSON.stringify({ error: "Model temporarily busy. Please try again in a moment." }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const result = await response.json();
+      const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error("Gemini returned empty response");
+
+      const parsed = JSON.parse(text);
+      return new Response(JSON.stringify(parsed), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // ── GENERATION MODE ─────────────────────────────────────────────
     const selectedPlatforms: string[] =
       platforms && Array.isArray(platforms) && platforms.length > 0
