@@ -729,7 +729,10 @@ export default function Index() {
 
   const handleHistoryRegenerate = useCallback((item: any) => {
     setTopic(item.topic);
-    if (item.plan_type === "pro") {
+    if (item.plan_type === "horror") {
+      setMode("horror");
+      setPlatforms(item.platforms || ["tiktok"]);
+    } else if (item.plan_type === "pro") {
       setMode("pro");
       setPlatforms(item.platforms || ["tiktok"]);
     } else {
