@@ -1643,10 +1643,10 @@ Viral Score: ${viralScore}/10
               <p className="text-xs font-bold uppercase tracking-widest text-primary px-1">{t("result.autoFixedVersion", locale)}</p>
             )}
 
-            {!isProMode && generalResult && !showOriginal && (
+            {!isProMode && !isHorrorMode && generalResult && !showOriginal && (
               <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
             )}
-            {isProMode && proResult && !showOriginal && (
+            {(isProMode || isHorrorMode) && proResult && !showOriginal && (
               <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
             )}
 
