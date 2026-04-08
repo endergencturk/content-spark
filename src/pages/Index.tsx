@@ -794,11 +794,11 @@ export default function Index() {
   }, [targetAudience]);
 
   const copyAll = useCallback(() => {
-    const result = isProMode ? proResult : generalResult;
+    const result = (isProMode || isHorrorMode) ? proResult : generalResult;
     if (!result) return;
-    const all = buildFullPackText(result, isProMode);
+    const all = buildFullPackText(result, isProMode || isHorrorMode);
     copyToClipboard("all", all);
-  }, [isProMode, generalResult, proResult, copyToClipboard, buildFullPackText]);
+  }, [isProMode, isHorrorMode, generalResult, proResult, copyToClipboard, buildFullPackText]);
 
   const downloadTxt = useCallback(() => {
     const result = (isProMode || isHorrorMode) ? proResult : generalResult;
