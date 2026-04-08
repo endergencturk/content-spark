@@ -980,7 +980,7 @@ Viral Score: ${viralScore}/10
             <button
               onClick={() => setMode("general")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                !isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                mode === "general" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
               <Zap className="h-4 w-4" />{t("mode.free", locale)}
@@ -993,7 +993,22 @@ Viral Score: ${viralScore}/10
             >
               <Crown className="h-4 w-4" />{t("mode.pro", locale)}
             </button>
+            <button
+              onClick={() => setMode("horror")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                isHorrorMode ? "bg-red-900 text-red-100 shadow-sm shadow-red-900/30" : "text-muted-foreground"
+              }`}
+            >
+              <Skull className="h-4 w-4" />🎭 Horror
+            </button>
           </div>
+
+          {/* Horror Mode badge */}
+          {isHorrorMode && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-950/30 border border-red-800/40">
+              <span className="text-xs font-bold text-red-400 uppercase tracking-widest">Urban Legend Format</span>
+            </div>
+          )}
 
           {/* GENERATE / RESULTS TABS */}
           <div className="flex gap-2 p-1 rounded-2xl bg-muted/40 border border-border/30">
