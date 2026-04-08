@@ -750,7 +750,7 @@ export default function Index() {
     }, 100);
   }, []);
 
-  const hasResults = isProMode ? proResult !== null : generalResult !== null;
+  const hasResults = (isProMode || isHorrorMode) ? proResult !== null : generalResult !== null;
 
   const buildFullPackText = useCallback((result: GeneralResult | ProResult, isPro: boolean): string => {
     const formatHook = (h: any, i: number) => {
