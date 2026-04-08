@@ -296,7 +296,7 @@ const NICHE_PRESETS: NichePreset[] = [
   },
 ];
 
-type Mode = "general" | "pro";
+type Mode = "general" | "pro" | "horror";
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -438,6 +438,7 @@ export default function Index() {
   const [showOriginal, setShowOriginal] = useState(false);
   const [autoFixUsed, setAutoFixUsed] = useState(false);
   const isProMode = mode === "pro";
+  const isHorrorMode = mode === "horror";
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -581,8 +582,9 @@ export default function Index() {
   }, [deviceId, topic]);
 
   const generateContent = useCallback(async (skipDuplicateCheck = false) => {
-    if (!topic.trim()) return;
-    if (!isProMode && isAtLimit) {
+    const effectiveTopic = isHorrorMode && !topic.trim() ? "__horror_random__" : topic.trim();
+    if (!effectiveTopic) return;
+    if (!isProMode && !isHorrorMode && isAtLimit) {
       toast.error(t("usage.noCredits", locale));
       return;
     }
@@ -606,9 +608,15 @@ export default function Index() {
     setOriginalProResult(null);
     setShowOriginal(false);
     try {
-      const body = isProMode
+      const body = isHorrorMode
         ? {
-            mode: "pro", topic, platforms, contentType, style, scriptLength, goal, hookIntensity,
+            mode: "horror", topic: effectiveTopic === "__horror_random__" ? "" : effectiveTopic,
+            platforms, platform, scriptLength, language: locale,
+            targetAudience, imageFormat: "9:16",
+          }
+        : isProMode
+        ? {
+            mode: "pro", topic: effectiveTopic, platforms, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale,
@@ -616,7 +624,7 @@ export default function Index() {
             hookStyle,
           }
         : {
-            mode: "general", topic, platform, contentType, style, scriptLength, goal, hookIntensity,
+            mode: "general", topic: effectiveTopic, platform, contentType, style, scriptLength, goal, hookIntensity,
             imageFormat: "9:16", outputStyle: settings.outputStyle,
             language: locale,
             targetAudience,
@@ -653,7 +661,7 @@ export default function Index() {
         toast.warning("⚠️ Script longer than target — consider trimming", { duration: 5000 });
       }
 
-      if (isProMode) {
+      if (isHorrorMode || isProMode) {
         setProResult(normalizeResult(data) as ProResult);
         setGeneralResult(null);
       } else {
@@ -667,13 +675,13 @@ export default function Index() {
       try {
         await supabase.from("generations").insert({
           device_id: deviceId,
-          topic: topic.trim(),
-          platforms: isProMode ? platforms : [platform],
+          topic: (effectiveTopic === "__horror_random__" ? data?.title || "Horror Mode" : effectiveTopic),
+          platforms: (isProMode || isHorrorMode) ? platforms : [platform],
           duration: scriptLength,
-          style,
-          content_type: contentType,
-          goal,
-          plan_type: isProMode ? "pro" : "free",
+          style: isHorrorMode ? "horror" : style,
+          content_type: isHorrorMode ? "horror" : contentType,
+          goal: isHorrorMode ? "viral" : goal,
+          plan_type: isHorrorMode ? "horror" : isProMode ? "pro" : "free",
           output_json: data,
           language: locale,
         } as any);
@@ -692,11 +700,16 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId, targetAudience, hookStyle, checkDuplicate]);
+  }, [isProMode, isHorrorMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId, targetAudience, hookStyle, checkDuplicate]);
 
   const handleHistoryReopen = useCallback((item: any) => {
     setTopic(item.topic);
-    if (item.plan_type === "pro") {
+    if (item.plan_type === "horror") {
+      setMode("horror");
+      setPlatforms(item.platforms || ["tiktok"]);
+      setProResult(normalizeResult(item.output_json) as ProResult);
+      setGeneralResult(null);
+    } else if (item.plan_type === "pro") {
       setMode("pro");
       setPlatforms(item.platforms || ["tiktok"]);
       setProResult(normalizeResult(item.output_json) as ProResult);
@@ -716,7 +729,10 @@ export default function Index() {
 
   const handleHistoryRegenerate = useCallback((item: any) => {
     setTopic(item.topic);
-    if (item.plan_type === "pro") {
+    if (item.plan_type === "horror") {
+      setMode("horror");
+      setPlatforms(item.platforms || ["tiktok"]);
+    } else if (item.plan_type === "pro") {
       setMode("pro");
       setPlatforms(item.platforms || ["tiktok"]);
     } else {
@@ -734,7 +750,7 @@ export default function Index() {
     }, 100);
   }, []);
 
-  const hasResults = isProMode ? proResult !== null : generalResult !== null;
+  const hasResults = (isProMode || isHorrorMode) ? proResult !== null : generalResult !== null;
 
   const buildFullPackText = useCallback((result: GeneralResult | ProResult, isPro: boolean): string => {
     const formatHook = (h: any, i: number) => {
@@ -778,21 +794,21 @@ export default function Index() {
   }, [targetAudience]);
 
   const copyAll = useCallback(() => {
-    const result = isProMode ? proResult : generalResult;
+    const result = (isProMode || isHorrorMode) ? proResult : generalResult;
     if (!result) return;
-    const all = buildFullPackText(result, isProMode);
+    const all = buildFullPackText(result, isProMode || isHorrorMode);
     copyToClipboard("all", all);
-  }, [isProMode, generalResult, proResult, copyToClipboard, buildFullPackText]);
+  }, [isProMode, isHorrorMode, generalResult, proResult, copyToClipboard, buildFullPackText]);
 
   const downloadTxt = useCallback(() => {
-    const result = isProMode ? proResult : generalResult;
+    const result = (isProMode || isHorrorMode) ? proResult : generalResult;
     if (!result) return;
-    const all = buildFullPackText(result, isProMode);
+    const all = buildFullPackText(result, isProMode || isHorrorMode);
     const slug = topic.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40) || "content";
 
     const now = new Date();
     const dateStr = now.toISOString().replace("T", " ").slice(0, 19);
-    const platformLabels = (isProMode ? platforms : [platform]).map((p: string) => {
+    const platformLabels = ((isProMode || isHorrorMode) ? platforms : [platform]).map((p: string) => {
       if (p === "tiktok") return "TikTok";
       if (p === "youtube-shorts") return "YouTube Shorts";
       if (p === "instagram-reels") return "Instagram Reels";
@@ -800,24 +816,39 @@ export default function Index() {
     }).join(", ");
     const viralScore = result.viralAnalysis?.score || "N/A";
 
+    const horrorSections = isHorrorMode ? `
+Mode: Horror Mode
+` : "";
+
     const metadata = `=== CONTENT PACK INFO ===
 Topic: ${topic.trim()}
 Platform: ${platformLabels}
 Target Audience: ${targetAudience}
-Hook Style: ${hookStyle}
-Duration: ${scriptLength}s
+${isHorrorMode ? "Mode: Horror Mode\n" : `Hook Style: ${hookStyle}\n`}Duration: ${scriptLength}s
 Voice Speed: ${settings.voiceSpeed}
-Style: ${style}
-Content Type: ${contentType}
-Goal: ${goal}
-Auto-Fix Used: ${autoFixUsed ? "Yes" : "No"}
+${isHorrorMode ? "" : `Style: ${style}\nContent Type: ${contentType}\nGoal: ${goal}\n`}Auto-Fix Used: ${autoFixUsed ? "Yes" : "No"}
 Generated: ${dateStr}
 Viral Score: ${viralScore}/10
 =========================
 
 `;
 
-    const blob = new Blob([metadata + all], { type: "text/plain;charset=utf-8" });
+    // Horror mode extras from output_json
+    let horrorExtras = "";
+    if (isHorrorMode) {
+      const data = result as any;
+      if (data.textOverlays?.length) {
+        horrorExtras += `\n\n📌 TEXT OVERLAYS:\n${data.textOverlays.map((o: any, i: number) => `${i + 1}. ${typeof o === "string" ? o : `${o.text} (${o.timing})`}`).join("\n")}`;
+      }
+      if (data.audioDirective) {
+        horrorExtras += `\n\n🎙️ AUDIO DIRECTIVES:\n${typeof data.audioDirective === "string" ? data.audioDirective : JSON.stringify(data.audioDirective, null, 2)}`;
+      }
+      if (data.animationNotes) {
+        horrorExtras += `\n\n🎬 ANIMATION NOTES:\n${typeof data.animationNotes === "string" ? data.animationNotes : JSON.stringify(data.animationNotes, null, 2)}`;
+      }
+    }
+
+    const blob = new Blob([metadata + all + horrorExtras], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -827,7 +858,7 @@ Viral Score: ${viralScore}/10
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast.success(t("toast.downloaded", locale));
-  }, [isProMode, generalResult, proResult, topic, buildFullPackText, locale, platforms, platform, targetAudience, hookStyle, scriptLength, style, contentType, goal, autoFixUsed]);
+  }, [isProMode, isHorrorMode, generalResult, proResult, topic, buildFullPackText, locale, platforms, platform, targetAudience, hookStyle, scriptLength, style, contentType, goal, autoFixUsed]);
 
   const autoFix = useCallback(async () => {
     if (!topic.trim()) return;
@@ -835,16 +866,22 @@ Viral Score: ${viralScore}/10
     setAutoFixImproved(false);
     setAutoFixScoreDiff(0);
     try {
-      const prevResult = isProMode ? proResult : generalResult;
+      const prevResult = (isProMode || isHorrorMode) ? proResult : generalResult;
       const prevScore = prevResult?.viralAnalysis?.score || 0;
 
       // Save original before overwriting
       if (!autoFixUsed) {
-        if (isProMode && proResult) setOriginalProResult({ ...proResult });
-        if (!isProMode && generalResult) setOriginalGeneralResult({ ...generalResult });
+        if ((isProMode || isHorrorMode) && proResult) setOriginalProResult({ ...proResult });
+        if (!isProMode && !isHorrorMode && generalResult) setOriginalGeneralResult({ ...generalResult });
       }
 
-      const body = isProMode
+      const body = isHorrorMode
+        ? {
+            mode: "horror", topic, platforms, platform, scriptLength,
+            language: locale, targetAudience, imageFormat: "9:16",
+            autoFixForced: true,
+          }
+        : isProMode
         ? {
             mode: "pro", topic, platforms, contentType, style, scriptLength, goal,
             hookIntensity: 2, imageFormat: "9:16", imagePromptCount,
@@ -865,7 +902,7 @@ Viral Score: ${viralScore}/10
 
       const newScore = data?.viralAnalysis?.score || 0;
 
-      if (isProMode) {
+      if (isProMode || isHorrorMode) {
         setProResult(normalizeResult(data) as ProResult);
         setGeneralResult(null);
       } else {
@@ -888,7 +925,7 @@ Viral Score: ${viralScore}/10
     } finally {
       setLoading(false);
     }
-  }, [isProMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult, autoFixUsed]);
+  }, [isProMode, isHorrorMode, topic, platform, platforms, contentType, style, scriptLength, goal, imagePromptCount, customDescription, settings.outputStyle, locale, targetAudience, hookStyle, proResult, generalResult, autoFixUsed]);
 
   const handleProfileSave = useCallback((profile: ChannelProfileData) => {
     if (profile.audience) setTargetAudience(profile.audience);
@@ -913,7 +950,7 @@ Viral Score: ${viralScore}/10
       <AppSidebar
         locale={locale}
         activeNav="create"
-        remaining={isProMode ? undefined : remaining}
+        remaining={(isProMode || isHorrorMode) ? undefined : remaining}
         isAtLimit={isAtLimit}
         onHistoryClick={() => setHistoryOpen(true)}
       />
@@ -964,7 +1001,7 @@ Viral Score: ${viralScore}/10
             <button
               onClick={() => setMode("general")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                !isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                mode === "general" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
               }`}
             >
               <Zap className="h-4 w-4" />{t("mode.free", locale)}
@@ -977,7 +1014,22 @@ Viral Score: ${viralScore}/10
             >
               <Crown className="h-4 w-4" />{t("mode.pro", locale)}
             </button>
+            <button
+              onClick={() => setMode("horror")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                isHorrorMode ? "bg-red-900 text-red-100 shadow-sm shadow-red-900/30" : "text-muted-foreground"
+              }`}
+            >
+              <Skull className="h-4 w-4" />🎭 Horror
+            </button>
           </div>
+
+          {/* Horror Mode badge */}
+          {isHorrorMode && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-950/30 border border-red-800/40">
+              <span className="text-xs font-bold text-red-400 uppercase tracking-widest">Urban Legend Format</span>
+            </div>
+          )}
 
           {/* GENERATE / RESULTS TABS */}
           <div className="flex gap-2 p-1 rounded-2xl bg-muted/40 border border-border/30">
@@ -1010,14 +1062,14 @@ Viral Score: ${viralScore}/10
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
           <>
-          {/* Channel Profile Onboarding */}
-          <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />
+          {/* Channel Profile Onboarding (not in horror mode) */}
+          {!isHorrorMode && <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />}
 
-          {/* Weekly Content Plan */}
-          <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />
+          {/* Weekly Content Plan (not in horror mode) */}
+          {!isHorrorMode && <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />}
 
           {/* USAGE BANNER (Free mode only) */}
-          {!isProMode && (
+          {!isProMode && !isHorrorMode && (
             <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} locale={locale} />
           )}
 
@@ -1067,7 +1119,8 @@ Viral Score: ${viralScore}/10
             </div>
             </div>{/* end platform+audience grid */}
 
-            {/* 3. Hook Style */}
+            {/* 3. Hook Style (hidden in horror mode) */}
+            {!isHorrorMode && (
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.hookStyle", locale)}</p>
               <div className="flex gap-2 flex-wrap">
@@ -1082,8 +1135,10 @@ Viral Score: ${viralScore}/10
                 ))}
               </div>
             </div>
+            )}
 
-            {/* 4. Niche Presets */}
+            {/* 4. Niche Presets (hidden in horror mode) */}
+            {!isHorrorMode && (
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                 {t("preset.title", locale)}
@@ -1124,13 +1179,14 @@ Viral Score: ${viralScore}/10
                 </div>
               )}
             </div>
+            )}
 
             {/* 3. Topic */}
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("input.topic", locale)}</p>
 
-              {/* Topic Suggestions (hidden when preset topics are showing) */}
-              {presetTopics.length === 0 && (
+              {/* Topic Suggestions (hidden in horror mode and when preset topics are showing) */}
+              {!isHorrorMode && presetTopics.length === 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/70 flex items-center gap-1">
@@ -1166,11 +1222,17 @@ Viral Score: ${viralScore}/10
               <Input
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder={locale === "tr" ? "ör. Brian Shaffer gizemi, pasif gelir mitleri..." : "e.g. Brian Shaffer mystery, passive income myths..."}
+                placeholder={isHorrorMode
+                  ? "e.g. Japan, mirrors / Brazil, forest / Korea, elevators"
+                  : locale === "tr" ? "ör. Brian Shaffer gizemi, pasif gelir mitleri..." : "e.g. Brian Shaffer mystery, passive income myths..."}
                 className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
                 onKeyDown={(e) => e.key === "Enter" && generateContent()}
               />
-
+              {isHorrorMode && (
+                <p className="text-[10px] text-muted-foreground">
+                  Enter a country + phenomenon, or leave blank for AI to choose randomly
+                </p>
+              )}
 
             </div>
 
@@ -1196,7 +1258,8 @@ Viral Score: ${viralScore}/10
               </div>
             </div>
 
-            {/* ⚙️ Advanced Settings (collapsible) */}
+            {/* ⚙️ Advanced Settings (collapsible, hidden in horror mode) */}
+            {!isHorrorMode && (
             <div className="rounded-2xl border border-border/40 overflow-hidden">
               <button
                 onClick={() => setAdvancedOpen(!advancedOpen)}
@@ -1351,18 +1414,21 @@ Viral Score: ${viralScore}/10
                 </div>
               )}
             </div>
+            )}
             {/* Generate + Bulk Pack buttons */}
             <div className="flex gap-3 pt-2">
               <Button
                 id="generate-btn"
-                className="h-14 text-base rounded-2xl font-bold flex-1 shadow-lg hover:shadow-xl transition-all"
-                disabled={!topic.trim() || loading || (!isProMode && isAtLimit)}
+                className={`h-14 text-base rounded-2xl font-bold flex-1 shadow-lg hover:shadow-xl transition-all ${isHorrorMode ? "bg-red-900 hover:bg-red-800 text-red-100" : ""}`}
+                disabled={(isHorrorMode ? false : !topic.trim()) || loading || (!isProMode && !isHorrorMode && isAtLimit)}
                 onClick={() => generateContent()}
               >
-                {loading && topic.trim() ? (
+                {loading ? (
                   <><Loader2 className="h-5 w-5 animate-spin" />{t("btn.generating", locale)}</>
-                ) : !isProMode && isAtLimit ? (
+                ) : !isProMode && !isHorrorMode && isAtLimit ? (
                   <><Lock className="h-5 w-5" />{t("btn.noCredits", locale)}</>
+                ) : isHorrorMode ? (
+                  <><Skull className="h-5 w-5" />Generate Horror</>
                 ) : (
                   <><Sparkles className="h-5 w-5" />{isProMode ? t("btn.generatePro", locale) : t("btn.generate", locale)}</>
                 )}
@@ -1382,7 +1448,7 @@ Viral Score: ${viralScore}/10
               />
             </div>
 
-            {!isProMode && !isAtLimit && (
+            {!isProMode && !isHorrorMode && !isAtLimit && (
               <p className="text-center text-[11px] text-muted-foreground">
                 {t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
                 {nextRefillLabel ? ` · ${t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)}` : ""}
@@ -1510,7 +1576,7 @@ Viral Score: ${viralScore}/10
                   <div className="flex items-center gap-3">
                     <div className="text-center">
                       <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Platform</p>
-                      <p className="text-xs font-semibold text-foreground">{(isProMode ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
+                      <p className="text-xs font-semibold text-foreground">{((isProMode || isHorrorMode) ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
                     </div>
                     {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
                       <div className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5">
@@ -1598,10 +1664,10 @@ Viral Score: ${viralScore}/10
               <p className="text-xs font-bold uppercase tracking-widest text-primary px-1">{t("result.autoFixedVersion", locale)}</p>
             )}
 
-            {!isProMode && generalResult && !showOriginal && (
+            {!isProMode && !isHorrorMode && generalResult && !showOriginal && (
               <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
             )}
-            {isProMode && proResult && !showOriginal && (
+            {(isProMode || isHorrorMode) && proResult && !showOriginal && (
               <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
             )}
 
@@ -1630,10 +1696,10 @@ Viral Score: ${viralScore}/10
                     ? ` (Score: ${(originalGeneralResult?.viralAnalysis?.score || originalProResult?.viralAnalysis?.score)}/10)`
                     : ""}
                 </p>
-                {!isProMode && originalGeneralResult && (
+                {!isProMode && !isHorrorMode && originalGeneralResult && (
                   <GeneralResults result={originalGeneralResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
                 )}
-                {isProMode && originalProResult && (
+                {(isProMode || isHorrorMode) && originalProResult && (
                   <ProResults result={originalProResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
                 )}
               </>

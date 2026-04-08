@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { Sparkles } from "lucide-react";
 import { t, type Locale } from "@/lib/i18n";
 
-type Mode = "general" | "pro";
+type Mode = "general" | "pro" | "horror";
 
 export const LoadingState = memo(function LoadingState({ mode, locale = "en" }: { mode: Mode; locale?: Locale }) {
   return (
