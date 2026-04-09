@@ -762,7 +762,7 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, isHorrorMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId, targetAudience, hookStyle, checkDuplicate]);
+  }, [isProMode, isHorrorMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId, targetAudience, hookStyle, checkDuplicate, horrorThreatType, saveCountryUsed]);
 
   const handleHistoryReopen = useCallback((item: any) => {
     setTopic(item.topic);
