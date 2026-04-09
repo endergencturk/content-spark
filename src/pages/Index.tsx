@@ -8,7 +8,7 @@ import {
   Image, Clock, Flame, Crown, Hash, Youtube, Mic,
   Lock, TrendingUp, Shuffle, Lightbulb, Zap, Instagram,
   Search, Dumbbell, DollarSign, Brain, Skull, BookOpen,
-  ChevronDown, ChevronUp, PenTool, LayoutGrid,
+  ChevronDown, ChevronUp, PenTool, LayoutGrid, Dice1, AlertTriangle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -131,6 +131,24 @@ const PLATFORM_OPTIONS = [
 ];
 
 const LENGTH_OPTIONS = ["15", "30", "60"];
+
+const HORROR_THREAT_TYPES = [
+  { value: "ai-chooses", label: "🎲 AI Chooses" },
+  { value: "wrong-reflection", label: "🪞 Wrong Reflection" },
+  { value: "doppelganger", label: "👤 Doppelganger" },
+  { value: "voice-mimicry", label: "🔊 Voice Mimicry" },
+  { value: "something-inside", label: "🏠 Something Inside" },
+  { value: "identity-swap", label: "🔄 Identity Swap" },
+  { value: "shadow-entity", label: "🌑 Shadow Entity" },
+];
+
+const HORROR_RANDOM_COMBOS = [
+  "Japan, mirrors", "Brazil, forest", "Korea, elevators", "Mexico, roads", "Russia, lakes",
+  "India, temples", "Norway, fjords", "Egypt, tombs", "Turkey, tunnels", "Philippines, islands",
+  "Scotland, castles", "Peru, mountains", "Indonesia, caves", "Greece, ruins", "Thailand, markets",
+  "Iceland, glaciers", "Colombia, rivers", "Romania, villages", "Vietnam, bridges", "Morocco, deserts",
+  "Chile, mines", "Poland, forests", "Argentina, trains", "Nepal, monasteries", "Ireland, cliffs",
+];
 
 const TARGET_AUDIENCE_OPTIONS = [
   { value: "global", labelKey: "audience.global" },
