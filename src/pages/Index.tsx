@@ -886,7 +886,7 @@ Mode: Horror Mode
 Topic: ${topic.trim()}
 Platform: ${platformLabels}
 Target Audience: ${targetAudience}
-${isHorrorMode ? "Mode: Horror Mode\n" : `Hook Style: ${hookStyle}\n`}Duration: ${scriptLength}s
+${isHorrorMode ? `Mode: Horror Mode\nThreat Type: ${HORROR_THREAT_TYPES.find(t => t.value === horrorThreatType)?.label || "AI Chooses"}\nCountry: ${topic.split(",")[0]?.trim() || "AI Random"}\n` : `Hook Style: ${hookStyle}\n`}Duration: ${scriptLength}s
 Voice Speed: ${settings.voiceSpeed}
 ${isHorrorMode ? "" : `Style: ${style}\nContent Type: ${contentType}\nGoal: ${goal}\n`}Auto-Fix Used: ${autoFixUsed ? "Yes" : "No"}
 Generated: ${dateStr}
