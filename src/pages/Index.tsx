@@ -1174,7 +1174,24 @@ Viral Score: ${viralScore}/10
             </div>
             </div>{/* end platform+audience grid */}
 
-            {/* 3. Hook Style (hidden in horror mode) */}
+            {/* Threat Type selector (Horror Mode only) */}
+            {isHorrorMode && (
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">👁 Threat Type</p>
+              <div className="flex gap-2 flex-wrap">
+                {HORROR_THREAT_TYPES.map((tt) => (
+                  <Pill
+                    key={tt.value}
+                    selected={horrorThreatType === tt.value}
+                    onClick={() => setHorrorThreatType(tt.value)}
+                  >
+                    {tt.label}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+            )}
+
             {!isHorrorMode && (
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.hookStyle", locale)}</p>
