@@ -457,6 +457,9 @@ export default function Index() {
   const [autoFixUsed, setAutoFixUsed] = useState(false);
   const isProMode = mode === "pro";
   const isHorrorMode = mode === "horror";
+  const [horrorThreatType, setHorrorThreatType] = useState("ai-chooses");
+  const [horrorUsedCombos, setHorrorUsedCombos] = useState<Set<string>>(new Set());
+  const [countryWarning, setCountryWarning] = useState<string | null>(null);
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
   const [advancedOpen, setAdvancedOpen] = useState(false);
