@@ -1291,19 +1291,40 @@ Viral Score: ${viralScore}/10
                 </div>
               )}
 
-              <Input
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder={isHorrorMode
-                  ? "e.g. Japan, mirrors / Brazil, forest / Korea, elevators"
-                  : locale === "tr" ? "ör. Brian Shaffer gizemi, pasif gelir mitleri..." : "e.g. Brian Shaffer mystery, passive income myths..."}
-                className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
-                onKeyDown={(e) => e.key === "Enter" && generateContent()}
-              />
+              <div className="flex gap-2">
+                <Input
+                  value={topic}
+                  onChange={(e) => {
+                    setTopic(e.target.value);
+                    if (isHorrorMode) checkCountryUsed(e.target.value);
+                  }}
+                  placeholder={isHorrorMode
+                    ? "e.g. Japan, mirrors / Brazil, forest / Korea, elevators"
+                    : locale === "tr" ? "ör. Brian Shaffer gizemi, pasif gelir mitleri..." : "e.g. Brian Shaffer mystery, passive income myths..."}
+                  className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4 flex-1"
+                  onKeyDown={(e) => e.key === "Enter" && generateContent()}
+                />
+                {isHorrorMode && (
+                  <Button
+                    variant="outline"
+                    className="h-12 px-4 rounded-2xl border-red-800/40 text-red-400 hover:bg-red-950/30"
+                    onClick={randomHorrorCombo}
+                  >
+                    🎲 Random
+                  </Button>
+                )}
+              </div>
               {isHorrorMode && (
                 <p className="text-[10px] text-muted-foreground">
                   Enter a country + phenomenon, or leave blank for AI to choose randomly
                 </p>
+              )}
+              {isHorrorMode && countryWarning && (
+                <div className="flex items-center gap-2 text-xs text-yellow-500 bg-yellow-500/10 rounded-xl px-3 py-2 border border-yellow-500/20">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  <span>⚠️ You've used {countryWarning} before. Consider a new location.</span>
+                  <button onClick={() => setCountryWarning(null)} className="ml-auto text-yellow-400 hover:text-yellow-300 text-[10px] font-medium">Dismiss</button>
+                </div>
               )}
 
             </div>
@@ -1312,8 +1333,8 @@ Viral Score: ${viralScore}/10
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.length", locale)}</p>
               <div className="flex gap-2">
-                {LENGTH_OPTIONS.map((len) => {
-                  const isLocked = !isProMode && len === "60";
+                {(isHorrorMode ? LENGTH_OPTIONS.filter(l => l !== "60") : LENGTH_OPTIONS).map((len) => {
+                  const isLocked = !isProMode && !isHorrorMode && len === "60";
                   return (
                     <Pill
                       key={len}
