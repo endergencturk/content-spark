@@ -8,7 +8,7 @@ import {
   Image, Clock, Flame, Crown, Hash, Youtube, Mic,
   Lock, TrendingUp, Shuffle, Lightbulb, Zap, Instagram,
   Search, Dumbbell, DollarSign, Brain, Skull, BookOpen,
-  ChevronDown, ChevronUp, PenTool, LayoutGrid,
+  ChevronDown, ChevronUp, PenTool, LayoutGrid, Dice1, AlertTriangle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -131,6 +131,24 @@ const PLATFORM_OPTIONS = [
 ];
 
 const LENGTH_OPTIONS = ["15", "30", "60"];
+
+const HORROR_THREAT_TYPES = [
+  { value: "ai-chooses", label: "🎲 AI Chooses" },
+  { value: "wrong-reflection", label: "🪞 Wrong Reflection" },
+  { value: "doppelganger", label: "👤 Doppelganger" },
+  { value: "voice-mimicry", label: "🔊 Voice Mimicry" },
+  { value: "something-inside", label: "🏠 Something Inside" },
+  { value: "identity-swap", label: "🔄 Identity Swap" },
+  { value: "shadow-entity", label: "🌑 Shadow Entity" },
+];
+
+const HORROR_RANDOM_COMBOS = [
+  "Japan, mirrors", "Brazil, forest", "Korea, elevators", "Mexico, roads", "Russia, lakes",
+  "India, temples", "Norway, fjords", "Egypt, tombs", "Turkey, tunnels", "Philippines, islands",
+  "Scotland, castles", "Peru, mountains", "Indonesia, caves", "Greece, ruins", "Thailand, markets",
+  "Iceland, glaciers", "Colombia, rivers", "Romania, villages", "Vietnam, bridges", "Morocco, deserts",
+  "Chile, mines", "Poland, forests", "Argentina, trains", "Nepal, monasteries", "Ireland, cliffs",
+];
 
 const TARGET_AUDIENCE_OPTIONS = [
   { value: "global", labelKey: "audience.global" },
@@ -439,6 +457,9 @@ export default function Index() {
   const [autoFixUsed, setAutoFixUsed] = useState(false);
   const isProMode = mode === "pro";
   const isHorrorMode = mode === "horror";
+  const [horrorThreatType, setHorrorThreatType] = useState("ai-chooses");
+  const [horrorUsedCombos, setHorrorUsedCombos] = useState<Set<string>>(new Set());
+  const [countryWarning, setCountryWarning] = useState<string | null>(null);
   const suggestCount = isProMode ? 6 : 3;
   const [suggestions, setSuggestions] = useState(() => getTopicSuggestions(suggestCount, contentType, style));
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -460,6 +481,40 @@ export default function Index() {
       }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Country tracker for horror mode
+  const checkCountryUsed = useCallback((topicVal: string) => {
+    const country = topicVal.split(",")[0]?.trim().toLowerCase();
+    if (!country) { setCountryWarning(null); return; }
+    try {
+      const used: string[] = JSON.parse(localStorage.getItem("horror-used-countries") || "[]");
+      if (used.includes(country)) {
+        setCountryWarning(country.charAt(0).toUpperCase() + country.slice(1));
+      } else {
+        setCountryWarning(null);
+      }
+    } catch { setCountryWarning(null); }
+  }, []);
+
+  const saveCountryUsed = useCallback((topicVal: string) => {
+    const country = topicVal.split(",")[0]?.trim().toLowerCase();
+    if (!country) return;
+    try {
+      const used: string[] = JSON.parse(localStorage.getItem("horror-used-countries") || "[]");
+      if (!used.includes(country)) {
+        localStorage.setItem("horror-used-countries", JSON.stringify([...used, country]));
+      }
+    } catch {}
+  }, []);
+
+  const randomHorrorCombo = useCallback(() => {
+    const available = HORROR_RANDOM_COMBOS.filter(c => !horrorUsedCombos.has(c));
+    const pool = available.length > 0 ? available : HORROR_RANDOM_COMBOS;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    setHorrorUsedCombos(prev => new Set([...prev, pick]));
+    setTopic(pick);
+    checkCountryUsed(pick);
+  }, [horrorUsedCombos, checkCountryUsed]);
 
   const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
   const [discoveryFilter, setDiscoveryFilter] = useState("All");
@@ -613,6 +668,7 @@ export default function Index() {
             mode: "horror", topic: effectiveTopic === "__horror_random__" ? "" : effectiveTopic,
             platforms, platform, scriptLength, language: locale,
             targetAudience, imageFormat: "9:16",
+            threatType: horrorThreatType !== "ai-chooses" ? horrorThreatType : undefined,
           }
         : isProMode
         ? {
@@ -672,6 +728,12 @@ export default function Index() {
       setActiveTab("results");
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 
+      // Save country for horror tracking
+      if (isHorrorMode) {
+        const savedTopic = effectiveTopic === "__horror_random__" ? (data?.title || "") : effectiveTopic;
+        saveCountryUsed(savedTopic);
+      }
+
       try {
         await supabase.from("generations").insert({
           device_id: deviceId,
@@ -700,7 +762,7 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  }, [isProMode, isHorrorMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId, targetAudience, hookStyle, checkDuplicate]);
+  }, [isProMode, isHorrorMode, topic, platform, platforms, contentType, style, scriptLength, goal, hookIntensity, imagePromptCount, customDescription, settings.outputStyle, isAtLimit, increment, locale, deviceId, targetAudience, hookStyle, checkDuplicate, horrorThreatType, saveCountryUsed]);
 
   const handleHistoryReopen = useCallback((item: any) => {
     setTopic(item.topic);
@@ -824,7 +886,7 @@ Mode: Horror Mode
 Topic: ${topic.trim()}
 Platform: ${platformLabels}
 Target Audience: ${targetAudience}
-${isHorrorMode ? "Mode: Horror Mode\n" : `Hook Style: ${hookStyle}\n`}Duration: ${scriptLength}s
+${isHorrorMode ? `Mode: Horror Mode\nThreat Type: ${HORROR_THREAT_TYPES.find(t => t.value === horrorThreatType)?.label || "AI Chooses"}\nCountry: ${topic.split(",")[0]?.trim() || "AI Random"}\n` : `Hook Style: ${hookStyle}\n`}Duration: ${scriptLength}s
 Voice Speed: ${settings.voiceSpeed}
 ${isHorrorMode ? "" : `Style: ${style}\nContent Type: ${contentType}\nGoal: ${goal}\n`}Auto-Fix Used: ${autoFixUsed ? "Yes" : "No"}
 Generated: ${dateStr}
@@ -1082,14 +1144,14 @@ Viral Score: ${viralScore}/10
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.platform", locale)}</p>
               <div className="flex gap-2">
                 {PLATFORM_OPTIONS.map((o) => {
-                  const sel = isProMode ? platforms.includes(o.value) : platform === o.value;
+                  const sel = (isProMode || isHorrorMode) ? platforms.includes(o.value) : platform === o.value;
                   return (
                     <button
                       key={o.value}
-                      onClick={() => isProMode ? togglePlatform(o.value) : setPlatform(o.value)}
+                      onClick={() => (isProMode || isHorrorMode) ? togglePlatform(o.value) : setPlatform(o.value)}
                       className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-medium transition-all ${
                         sel
-                          ? "bg-primary text-primary-foreground shadow-sm"
+                          ? isHorrorMode ? "bg-red-900 text-red-100 shadow-sm" : "bg-primary text-primary-foreground shadow-sm"
                           : "bg-muted/60 text-muted-foreground hover:text-foreground"
                       }`}
                     >
@@ -1099,7 +1161,7 @@ Viral Score: ${viralScore}/10
                   );
                 })}
               </div>
-              {isProMode && <p className="text-[10px] text-muted-foreground text-center">{t("selector.platform.multi", locale)}</p>}
+              {(isProMode || isHorrorMode) && <p className="text-[10px] text-muted-foreground text-center">{t("selector.platform.multi", locale)}</p>}
             </div>
 
             {/* 2. Target Audience */}
@@ -1119,7 +1181,24 @@ Viral Score: ${viralScore}/10
             </div>
             </div>{/* end platform+audience grid */}
 
-            {/* 3. Hook Style (hidden in horror mode) */}
+            {/* Threat Type selector (Horror Mode only) */}
+            {isHorrorMode && (
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">👁 Threat Type</p>
+              <div className="flex gap-2 flex-wrap">
+                {HORROR_THREAT_TYPES.map((tt) => (
+                  <Pill
+                    key={tt.value}
+                    selected={horrorThreatType === tt.value}
+                    onClick={() => setHorrorThreatType(tt.value)}
+                  >
+                    {tt.label}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+            )}
+
             {!isHorrorMode && (
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.hookStyle", locale)}</p>
@@ -1219,19 +1298,40 @@ Viral Score: ${viralScore}/10
                 </div>
               )}
 
-              <Input
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder={isHorrorMode
-                  ? "e.g. Japan, mirrors / Brazil, forest / Korea, elevators"
-                  : locale === "tr" ? "ör. Brian Shaffer gizemi, pasif gelir mitleri..." : "e.g. Brian Shaffer mystery, passive income myths..."}
-                className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4"
-                onKeyDown={(e) => e.key === "Enter" && generateContent()}
-              />
+              <div className="flex gap-2">
+                <Input
+                  value={topic}
+                  onChange={(e) => {
+                    setTopic(e.target.value);
+                    if (isHorrorMode) checkCountryUsed(e.target.value);
+                  }}
+                  placeholder={isHorrorMode
+                    ? "e.g. Japan, mirrors / Brazil, forest / Korea, elevators"
+                    : locale === "tr" ? "ör. Brian Shaffer gizemi, pasif gelir mitleri..." : "e.g. Brian Shaffer mystery, passive income myths..."}
+                  className="h-12 rounded-2xl text-base border-border/60 bg-muted/30 px-4 flex-1"
+                  onKeyDown={(e) => e.key === "Enter" && generateContent()}
+                />
+                {isHorrorMode && (
+                  <Button
+                    variant="outline"
+                    className="h-12 px-4 rounded-2xl border-red-800/40 text-red-400 hover:bg-red-950/30"
+                    onClick={randomHorrorCombo}
+                  >
+                    🎲 Random
+                  </Button>
+                )}
+              </div>
               {isHorrorMode && (
                 <p className="text-[10px] text-muted-foreground">
                   Enter a country + phenomenon, or leave blank for AI to choose randomly
                 </p>
+              )}
+              {isHorrorMode && countryWarning && (
+                <div className="flex items-center gap-2 text-xs text-yellow-500 bg-yellow-500/10 rounded-xl px-3 py-2 border border-yellow-500/20">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  <span>⚠️ You've used {countryWarning} before. Consider a new location.</span>
+                  <button onClick={() => setCountryWarning(null)} className="ml-auto text-yellow-400 hover:text-yellow-300 text-[10px] font-medium">Dismiss</button>
+                </div>
               )}
 
             </div>
@@ -1240,8 +1340,8 @@ Viral Score: ${viralScore}/10
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.length", locale)}</p>
               <div className="flex gap-2">
-                {LENGTH_OPTIONS.map((len) => {
-                  const isLocked = !isProMode && len === "60";
+                {(isHorrorMode ? LENGTH_OPTIONS.filter(l => l !== "60") : LENGTH_OPTIONS).map((len) => {
+                  const isLocked = !isProMode && !isHorrorMode && len === "60";
                   return (
                     <Pill
                       key={len}
