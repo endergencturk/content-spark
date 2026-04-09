@@ -668,6 +668,7 @@ export default function Index() {
             mode: "horror", topic: effectiveTopic === "__horror_random__" ? "" : effectiveTopic,
             platforms, platform, scriptLength, language: locale,
             targetAudience, imageFormat: "9:16",
+            threatType: horrorThreatType !== "ai-chooses" ? horrorThreatType : undefined,
           }
         : isProMode
         ? {
