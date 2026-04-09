@@ -1137,14 +1137,14 @@ Viral Score: ${viralScore}/10
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.platform", locale)}</p>
               <div className="flex gap-2">
                 {PLATFORM_OPTIONS.map((o) => {
-                  const sel = isProMode ? platforms.includes(o.value) : platform === o.value;
+                  const sel = (isProMode || isHorrorMode) ? platforms.includes(o.value) : platform === o.value;
                   return (
                     <button
                       key={o.value}
-                      onClick={() => isProMode ? togglePlatform(o.value) : setPlatform(o.value)}
+                      onClick={() => (isProMode || isHorrorMode) ? togglePlatform(o.value) : setPlatform(o.value)}
                       className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-medium transition-all ${
                         sel
-                          ? "bg-primary text-primary-foreground shadow-sm"
+                          ? isHorrorMode ? "bg-red-900 text-red-100 shadow-sm" : "bg-primary text-primary-foreground shadow-sm"
                           : "bg-muted/60 text-muted-foreground hover:text-foreground"
                       }`}
                     >
@@ -1154,7 +1154,7 @@ Viral Score: ${viralScore}/10
                   );
                 })}
               </div>
-              {isProMode && <p className="text-[10px] text-muted-foreground text-center">{t("selector.platform.multi", locale)}</p>}
+              {(isProMode || isHorrorMode) && <p className="text-[10px] text-muted-foreground text-center">{t("selector.platform.multi", locale)}</p>}
             </div>
 
             {/* 2. Target Audience */}
