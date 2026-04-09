@@ -728,6 +728,12 @@ export default function Index() {
       setActiveTab("results");
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 
+      // Save country for horror tracking
+      if (isHorrorMode) {
+        const savedTopic = effectiveTopic === "__horror_random__" ? (data?.title || "") : effectiveTopic;
+        saveCountryUsed(savedTopic);
+      }
+
       try {
         await supabase.from("generations").insert({
           device_id: deviceId,
