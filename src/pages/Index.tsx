@@ -482,7 +482,41 @@ export default function Index() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+  // Country tracker for horror mode
+  const checkCountryUsed = useCallback((topicVal: string) => {
+    const country = topicVal.split(",")[0]?.trim().toLowerCase();
+    if (!country) { setCountryWarning(null); return; }
+    try {
+      const used: string[] = JSON.parse(localStorage.getItem("horror-used-countries") || "[]");
+      if (used.includes(country)) {
+        setCountryWarning(country.charAt(0).toUpperCase() + country.slice(1));
+      } else {
+        setCountryWarning(null);
+      }
+    } catch { setCountryWarning(null); }
+  }, []);
+
+  const saveCountryUsed = useCallback((topicVal: string) => {
+    const country = topicVal.split(",")[0]?.trim().toLowerCase();
+    if (!country) return;
+    try {
+      const used: string[] = JSON.parse(localStorage.getItem("horror-used-countries") || "[]");
+      if (!used.includes(country)) {
+        localStorage.setItem("horror-used-countries", JSON.stringify([...used, country]));
+      }
+    } catch {}
+  }, []);
+
+  const randomHorrorCombo = useCallback(() => {
+    const available = HORROR_RANDOM_COMBOS.filter(c => !horrorUsedCombos.has(c));
+    const pool = available.length > 0 ? available : HORROR_RANDOM_COMBOS;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    setHorrorUsedCombos(prev => new Set([...prev, pick]));
+    setTopic(pick);
+    checkCountryUsed(pick);
+  }, [horrorUsedCombos, checkCountryUsed]);
+
+
   const [discoveryFilter, setDiscoveryFilter] = useState("All");
   const [duplicateWarning, setDuplicateWarning] = useState<DuplicateWarning | null>(null);
 
