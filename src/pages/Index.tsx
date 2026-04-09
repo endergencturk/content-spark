@@ -516,7 +516,7 @@ export default function Index() {
     checkCountryUsed(pick);
   }, [horrorUsedCombos, checkCountryUsed]);
 
-
+  const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
   const [discoveryFilter, setDiscoveryFilter] = useState("All");
   const [duplicateWarning, setDuplicateWarning] = useState<DuplicateWarning | null>(null);
 
