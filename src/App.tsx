@@ -11,6 +11,8 @@ import Landing from "./pages/Landing.tsx";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Admin from "./pages/Admin.tsx";
+import Pricing from "./pages/Pricing.tsx";
+import CheckoutSuccess from "./pages/CheckoutSuccess.tsx";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/app" element={<Index />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/checkout/success" element={<CheckoutSuccess />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
