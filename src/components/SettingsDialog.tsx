@@ -83,7 +83,7 @@ export const SettingsDialog = memo(function SettingsDialog({
             </div>
 
             {isPro && willCancel && periodEnd && (
-              <p className="text-xs text-amber-600 dark:text-amber-400">
+              <p className="text-xs text-destructive">
                 Cancels on {periodEnd.toLocaleDateString()}. You'll have Pro access until then.
               </p>
             )}
