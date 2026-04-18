@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import ScrollToTop from "@/components/ScrollToTop";
 import Landing from "./pages/Landing.tsx";
 import Index from "./pages/Index.tsx";
@@ -21,6 +22,7 @@ const App = () => (
     <SettingsProvider>
       <AuthProvider>
         <TooltipProvider>
+          <PaymentTestModeBanner />
           <Toaster />
           <Sonner />
           <AuthModal />

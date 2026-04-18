@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { toast } from "sonner";
 
 const FREE_FEATURES = [
@@ -62,8 +61,6 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PaymentTestModeBanner />
-
       <header className="border-b border-border/40">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
