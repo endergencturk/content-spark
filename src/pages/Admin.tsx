@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, BarChart3, Users, TrendingUp, Flame, ShieldCheck, ArrowLeft, ExternalLink, Video, FileText, Monitor } from "lucide-react";
+import { Sparkles, BarChart3, Users, TrendingUp, Flame, ShieldCheck, ArrowLeft, ExternalLink, Video, FileText, Monitor, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+
+type Member = {
+  user_id: string;
+  email: string | null;
+  display_name: string | null;
+  plan_type: string;
+  created_at: string;
+};
 
 /* ──── Password gate ──── */
 function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
