@@ -86,6 +86,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          display_name: string | null
           id: string
           plan_type: string
           updated_at: string
@@ -93,6 +94,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          display_name?: string | null
           id?: string
           plan_type?: string
           updated_at?: string
@@ -100,6 +102,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          display_name?: string | null
           id?: string
           plan_type?: string
           updated_at?: string
@@ -160,6 +163,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_members: {
+        Args: never
+        Returns: {
+          created_at: string
+          display_name: string
+          email: string
+          plan_type: string
+          user_id: string
+        }[]
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
