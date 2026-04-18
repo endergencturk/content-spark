@@ -35,6 +35,9 @@ function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
         setError("Invalid credentials. Access denied.");
       } else {
         sessionStorage.setItem("admin_auth", "1");
+        // Store creds in sessionStorage so we can call admin-list-members
+        sessionStorage.setItem("admin_u", username);
+        sessionStorage.setItem("admin_p", pw);
         onSuccess();
       }
     } catch {
