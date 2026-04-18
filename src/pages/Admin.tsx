@@ -161,11 +161,32 @@ function Dashboard() {
 
       setStats({ total, avgScore, topNiches, uniqueDevices, topPlatforms, topContentTypes, topTopics, recentCount });
     }
+
+    async function loadMembers() {
+      const username = sessionStorage.getItem("admin_u");
+      const password = sessionStorage.getItem("admin_p");
+      if (!username || !password) {
+        setMembers([]);
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke("admin-list-members", {
+        body: { username, password },
+      });
+      if (error || !data?.members) {
+        setMembers([]);
+      } else {
+        setMembers(data.members as Member[]);
+      }
+    }
+
     load();
+    loadMembers();
   }, []);
 
   const handleLogout = () => {
     sessionStorage.removeItem("admin_auth");
+    sessionStorage.removeItem("admin_u");
+    sessionStorage.removeItem("admin_p");
     window.location.reload();
   };
 
