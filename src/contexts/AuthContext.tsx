@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getPaddleEnv } from "@/lib/paddle";
 import type { User, Session } from "@supabase/supabase-js";
 
 export type PlanType = "guest" | "free" | "pro";
@@ -40,17 +41,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authPromptReason, setAuthPromptReason] = useState("");
 
+  // Resolve plan from BOTH profiles.plan_type AND active subscriptions for current env.
+  // - profiles.plan_type='pro' covers VIBERS invite-code users (no subscription row).
+  // - subscriptions covers Paddle-paying users in current env (incl. sandbox for testing).
   const fetchPlan = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("plan_type")
-      .eq("user_id", userId)
-      .single();
-    if (data?.plan_type === "pro") {
-      setPlanType("pro");
-    } else {
-      setPlanType("free");
-    }
+    const env = getPaddleEnv();
+
+    const [profileRes, subRes] = await Promise.all([
+      supabase.from("profiles").select("plan_type").eq("user_id", userId).maybeSingle(),
+      supabase
+        .from("subscriptions")
+        .select("status, current_period_end")
+        .eq("user_id", userId)
+        .eq("environment", env)
+        .maybeSingle(),
+    ]);
+
+    const profilePro = profileRes.data?.plan_type === "pro";
+    const sub = subRes.data;
+    const subActive =
+      !!sub &&
+      ["active", "trialing"].includes(sub.status) &&
+      (!sub.current_period_end || new Date(sub.current_period_end) > new Date());
+
+    setPlanType(profilePro || subActive ? "pro" : "free");
   }, []);
 
   useEffect(() => {
@@ -59,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Defer profile fetch to avoid Supabase deadlock
+          // Defer to avoid Supabase deadlock
           setTimeout(() => fetchPlan(session.user.id), 0);
         } else {
           setPlanType("guest");
@@ -82,6 +96,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [fetchPlan]);
 
+  // Realtime: refetch plan whenever this user's subscription row changes
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`auth-sub-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "subscriptions",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => fetchPlan(user.id)
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "profiles",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => fetchPlan(user.id)
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchPlan]);
+
   const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message };
@@ -90,7 +136,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, inviteCode?: string) => {
-    // Validate invite code if provided
     if (inviteCode && inviteCode.trim()) {
       const { data: codeData } = await supabase
         .from("invite_codes")
@@ -107,9 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: signUpData, error } = await supabase.auth.signUp({ email, password });
     if (error) return { error: error.message };
 
-    // If invite code is valid, upgrade to pro
     if (inviteCode && inviteCode.trim() && signUpData.user) {
-      // Wait briefly for the trigger to create the profile
       await new Promise((r) => setTimeout(r, 1000));
       await supabase
         .from("profiles")
@@ -128,10 +171,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const requireAuth = useCallback((reason = "this feature") => {
-    if (user) return false; // Already authenticated
+    if (user) return false;
     setAuthPromptReason(reason);
     setShowAuthModal(true);
-    return true; // Auth was required, modal shown
+    return true;
   }, [user]);
 
   return (
