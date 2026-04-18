@@ -98,6 +98,7 @@ function Dashboard() {
     topTopics: { topic: string; count: number }[];
     recentCount: number;
   } | null>(null);
+  const [members, setMembers] = useState<Member[] | null>(null);
 
   useEffect(() => {
     async function load() {
