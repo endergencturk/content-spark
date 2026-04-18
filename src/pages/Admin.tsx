@@ -311,6 +311,52 @@ function Dashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Members */}
+            <Card className="rounded-2xl mb-8">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <UserCircle2 className="h-4 w-4 text-primary" /> Members
+                  {members && <span className="text-xs font-normal text-muted-foreground">({members.length})</span>}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {!members ? (
+                  <p className="text-sm text-muted-foreground">Loading members…</p>
+                ) : members.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No members yet.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Nickname</TableHead>
+                          <TableHead>Plan</TableHead>
+                          <TableHead className="text-right">Joined</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {members.map((m) => (
+                          <TableRow key={m.user_id}>
+                            <TableCell className="font-medium text-foreground">{m.email || "—"}</TableCell>
+                            <TableCell className="text-muted-foreground">{m.display_name || "—"}</TableCell>
+                            <TableCell>
+                              <Badge variant={m.plan_type === "pro" ? "default" : "secondary"} className="capitalize">
+                                {m.plan_type}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right text-xs text-muted-foreground">
+                              {new Date(m.created_at).toLocaleDateString()}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </>
         )}
       </div>
