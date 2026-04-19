@@ -2,12 +2,20 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
-export type PlanType = "guest" | "free" | "pro";
+export type PlanType = "guest" | "trial" | "trial_expired" | "pro";
 
 interface AuthContextValue {
   user: User | null;
   session: Session | null;
   planType: PlanType;
+  /** True when the user has full Pro access (active trial, paid Pro, or invite code). */
+  hasProAccess: boolean;
+  /** ISO timestamp when the free Pro trial ends. */
+  trialEndsAt: string | null;
+  /** Whole days left in trial (0 if expired/none). */
+  trialDaysLeft: number;
+  /** Hours left in trial (used when < 1 day). */
+  trialHoursLeft: number;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, inviteCode?: string) => Promise<{ error?: string }>;
@@ -16,12 +24,18 @@ interface AuthContextValue {
   setShowAuthModal: (show: boolean) => void;
   authPromptReason: string;
   requireAuth: (reason?: string) => boolean;
+  showUpgradeDialog: boolean;
+  setShowUpgradeDialog: (show: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   session: null,
   planType: "guest",
+  hasProAccess: false,
+  trialEndsAt: null,
+  trialDaysLeft: 0,
+  trialHoursLeft: 0,
   loading: true,
   signIn: async () => ({}),
   signUp: async () => ({}),
@@ -30,6 +44,8 @@ const AuthContext = createContext<AuthContextValue>({
   setShowAuthModal: () => {},
   authPromptReason: "",
   requireAuth: () => false,
+  showUpgradeDialog: false,
+  setShowUpgradeDialog: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
