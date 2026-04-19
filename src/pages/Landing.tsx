@@ -105,6 +105,7 @@ function LandingNav() {
 
 /* ───── Hero ───── */
 function Hero() {
+  const { user, setShowAuthModal } = useAuth();
   return (
     <section className="relative overflow-hidden py-20 sm:py-28 lg:py-36">
       {/* bg glow */}
@@ -128,11 +129,21 @@ function Hero() {
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <Link to="/app">
-                <Button size="lg" className="rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto">
-                  <Zap className="h-4 w-4 mr-1" /> Try Free
+              {user ? (
+                <Link to="/app">
+                  <Button size="lg" className="rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto">
+                    <Zap className="h-4 w-4 mr-1" /> Open the app
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  size="lg"
+                  className="rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto"
+                  onClick={() => setShowAuthModal(true)}
+                >
+                  <Zap className="h-4 w-4 mr-1" /> Sign up free
                 </Button>
-              </Link>
+              )}
               <Button
                 variant="outline"
                 size="lg"
@@ -450,61 +461,49 @@ function Testimonials() {
 
 /* ───── Pricing ───── */
 function Pricing() {
-  const { setShowAuthModal } = useAuth();
+  const { user, setShowAuthModal } = useAuth();
 
   return (
     <section id="pricing" className="py-20 sm:py-28">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground text-center">Simple, Transparent Pricing</h2>
-        <p className="mt-3 text-center text-muted-foreground">Start free. Upgrade when you're ready.</p>
+      <div className="mx-auto max-w-2xl px-4 sm:px-6 text-center">
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">100% Free — All Features Unlocked</h2>
+        <p className="mt-3 text-muted-foreground">Just create a free account. No credit card. No paywalls. No limits.</p>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2">
-          {/* Free */}
-          <div className="rounded-2xl border border-border/50 bg-card p-8">
-            <h3 className="text-lg font-bold text-foreground">Free</h3>
-            <p className="mt-1 text-4xl font-extrabold text-foreground">$0<span className="text-base font-medium text-muted-foreground">/month</span></p>
-            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
-              {["3 generations / day", "TikTok + Shorts", "3 hooks per generation", "5 image prompts", "Basic SEO tags"].map((f) => (
-                <li key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" />{f}</li>
-              ))}
-            </ul>
-            <Link to="/app" className="block mt-8">
-              <Button variant="outline" className="w-full rounded-xl font-semibold">Start Free</Button>
-            </Link>
-          </div>
-
-          {/* Pro */}
+        <div className="mt-12 mx-auto max-w-md">
           <div className="relative rounded-2xl border-2 border-primary bg-card p-8 shadow-[var(--shadow-warm)]">
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground">
-              Early Access
+              Free Forever
             </span>
-            <h3 className="text-lg font-bold text-foreground">Pro</h3>
-            <p className="mt-1 text-4xl font-extrabold text-foreground">$15<span className="text-base font-medium text-muted-foreground">/month</span></p>
-            <p className="mt-1 text-xs text-muted-foreground">Early access — billing coming soon</p>
-            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
+            <h3 className="text-lg font-bold text-foreground">Full Access</h3>
+            <p className="mt-1 text-4xl font-extrabold text-foreground">$0</p>
+            <p className="mt-1 text-xs text-muted-foreground">Sign in required · No payment, ever</p>
+            <ul className="mt-6 space-y-3 text-sm text-muted-foreground text-left">
               {[
                 "Unlimited generations",
-                "All platforms",
-                "8 hooks + A/B testing",
-                "10 image prompts",
-                "Weekly content plan",
-                "Bulk pack generation",
-                "Voice speed control",
-                "Priority support",
+                "All platforms (TikTok, Shorts, Reels)",
+                "All hook styles + A/B testing",
+                "Bulk pack & weekly content plan",
+                "Editing plan + image prompts",
+                "SEO metadata + posting times",
+                "History & favorites",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" />{f}</li>
               ))}
             </ul>
-            <Button
-              className="w-full mt-8 rounded-xl font-semibold shadow-[var(--shadow-warm)]"
-              onClick={() => setShowAuthModal(true)}
-            >
-              <Crown className="h-4 w-4 mr-2" />
-              Request Access
-            </Button>
-            <p className="mt-3 text-center text-[11px] text-muted-foreground">
-              Have an invite code? Enter it during sign up to unlock Pro.
-            </p>
+            {user ? (
+              <Link to="/app" className="block mt-8">
+                <Button className="w-full rounded-xl font-semibold shadow-[var(--shadow-warm)]">
+                  Open the app
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                className="w-full mt-8 rounded-xl font-semibold shadow-[var(--shadow-warm)]"
+                onClick={() => setShowAuthModal(true)}
+              >
+                Create free account
+              </Button>
+            )}
           </div>
         </div>
       </div>
