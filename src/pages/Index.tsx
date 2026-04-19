@@ -375,7 +375,7 @@ export default function Index() {
   const isMobile = useIsMobile();
   const { settings } = useSettings();
   const locale = settings.language;
-  const { user, planType, requireAuth, loading: authLoading, setShowAuthModal } = useAuth();
+  const { user, planType, hasProAccess, trialDaysLeft, trialHoursLeft, requireAuth, loading: authLoading, setShowAuthModal, setShowUpgradeDialog } = useAuth();
 
   // Usage limits removed — every signed-in user has full access.
   const remaining = Infinity;
@@ -1005,6 +1005,50 @@ Viral Score: ${viralScore}/10
             href="/"
             className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
+            {locale === "tr" ? "← Ana sayfaya dön" : "← Back to home"}
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  // Trial-expired gate
+  if (!authLoading && user && planType === "trial_expired") {
+    const userEmail = user.email ?? "";
+    const subject = encodeURIComponent("Pro Upgrade Request — Content Spark");
+    const body = encodeURIComponent(`Hi,\n\nI'd like to upgrade to the Pro plan ($19/mo).\n\nAccount email: ${userEmail}\n\nThanks!`);
+    const mailto = `mailto:hello@contentspark.app?subject=${subject}&body=${body}`;
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
+            <Crown className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+              {locale === "tr" ? "3 günlük deneme süreniz doldu" : "Your 3-day trial has ended"}
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {locale === "tr"
+                ? "Content Spark Pro'yu kullanmaya devam etmek için aboneliğinizi etkinleştirin. Ödeme henüz otomatik değil — bizimle iletişime geçin, 24 saat içinde size dönelim."
+                : "To keep using Content Spark Pro, activate your subscription. Payments aren't automated yet — contact us and we'll set you up within 24h."}
+            </p>
+          </div>
+          <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-5">
+            <div className="flex items-baseline justify-center gap-1">
+              <span className="text-4xl font-extrabold text-foreground">$19</span>
+              <span className="text-sm text-muted-foreground">/{locale === "tr" ? "ay" : "month"}</span>
+            </div>
+            <p className="text-center text-xs text-muted-foreground mt-1">
+              {locale === "tr" ? "Pro plan — tüm özellikler" : "Pro plan — full access"}
+            </p>
+          </div>
+          <Button asChild size="lg" className="w-full h-12 rounded-2xl text-base font-bold shadow-[var(--shadow-warm)]">
+            <a href={mailto}>
+              {locale === "tr" ? "Yükseltmek için iletişime geçin" : "Contact us to upgrade"}
+            </a>
+          </Button>
+          <a href="/" className="block text-xs text-muted-foreground hover:text-foreground transition-colors">
             {locale === "tr" ? "← Ana sayfaya dön" : "← Back to home"}
           </a>
         </div>
