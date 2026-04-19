@@ -24,8 +24,17 @@ export const SettingsDialog = memo(function SettingsDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const { settings, updateSettings } = useSettings();
-  const { user } = useAuth();
+  const { user, planType, trialDaysLeft, trialHoursLeft, setShowUpgradeDialog } = useAuth();
   const locale = settings.language;
+
+  const planLabel =
+    planType === "pro"
+      ? (locale === "tr" ? "Pro — tüm özellikler aktif" : "Pro — all features active")
+      : planType === "trial"
+        ? trialDaysLeft > 1
+          ? (locale === "tr" ? `Pro Deneme — ${trialDaysLeft} gün kaldı` : `Pro Trial — ${trialDaysLeft} days left`)
+          : (locale === "tr" ? `Pro Deneme — ${trialHoursLeft} saat kaldı` : `Pro Trial — ${trialHoursLeft} hours left`)
+        : (locale === "tr" ? "Deneme süresi doldu" : "Trial expired");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,18 +43,24 @@ export const SettingsDialog = memo(function SettingsDialog({
           <DialogTitle className="text-lg font-bold">{t("settings.title", locale)}</DialogTitle>
         </DialogHeader>
 
-        {/* Account section — single tier, every signed-in user has full access */}
+        {/* Account / plan section */}
         {user && (
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center">
               <Crown className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground">
-                {locale === "tr" ? "Tüm özellikler aktif" : "All features active"}
-              </p>
+              <p className="text-sm font-semibold text-foreground">{planLabel}</p>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
+            {planType !== "pro" && (
+              <button
+                onClick={() => { onOpenChange(false); setShowUpgradeDialog(true); }}
+                className="text-xs font-semibold text-primary hover:underline shrink-0"
+              >
+                {locale === "tr" ? "Yükselt" : "Upgrade"}
+              </button>
+            )}
           </div>
         )}
 

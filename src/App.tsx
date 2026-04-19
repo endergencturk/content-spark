@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
+import { GlobalUpgradeDialog } from "@/components/GlobalUpgradeDialog";
 import ScrollToTop from "@/components/ScrollToTop";
 import Landing from "./pages/Landing.tsx";
 import Index from "./pages/Index.tsx";
@@ -22,6 +23,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <AuthModal />
+          <GlobalUpgradeDialog />
           <BrowserRouter>
             <ScrollToTop />
             <Routes>

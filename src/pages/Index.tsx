@@ -375,7 +375,7 @@ export default function Index() {
   const isMobile = useIsMobile();
   const { settings } = useSettings();
   const locale = settings.language;
-  const { user, planType, requireAuth, loading: authLoading, setShowAuthModal } = useAuth();
+  const { user, planType, hasProAccess, trialDaysLeft, trialHoursLeft, requireAuth, loading: authLoading, setShowAuthModal, setShowUpgradeDialog } = useAuth();
 
   // Usage limits removed — every signed-in user has full access.
   const remaining = Infinity;
@@ -1012,6 +1012,50 @@ Viral Score: ${viralScore}/10
     );
   }
 
+  // Trial-expired gate
+  if (!authLoading && user && planType === "trial_expired") {
+    const userEmail = user.email ?? "";
+    const subject = encodeURIComponent("Pro Upgrade Request — Content Spark");
+    const body = encodeURIComponent(`Hi,\n\nI'd like to upgrade to the Pro plan ($19/mo).\n\nAccount email: ${userEmail}\n\nThanks!`);
+    const mailto = `mailto:hello@contentspark.app?subject=${subject}&body=${body}`;
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
+            <Crown className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+              {locale === "tr" ? "3 günlük deneme süreniz doldu" : "Your 3-day trial has ended"}
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {locale === "tr"
+                ? "Content Spark Pro'yu kullanmaya devam etmek için aboneliğinizi etkinleştirin. Ödeme henüz otomatik değil — bizimle iletişime geçin, 24 saat içinde size dönelim."
+                : "To keep using Content Spark Pro, activate your subscription. Payments aren't automated yet — contact us and we'll set you up within 24h."}
+            </p>
+          </div>
+          <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-5">
+            <div className="flex items-baseline justify-center gap-1">
+              <span className="text-4xl font-extrabold text-foreground">$19</span>
+              <span className="text-sm text-muted-foreground">/{locale === "tr" ? "ay" : "month"}</span>
+            </div>
+            <p className="text-center text-xs text-muted-foreground mt-1">
+              {locale === "tr" ? "Pro plan — tüm özellikler" : "Pro plan — full access"}
+            </p>
+          </div>
+          <Button asChild size="lg" className="w-full h-12 rounded-2xl text-base font-bold shadow-[var(--shadow-warm)]">
+            <a href={mailto}>
+              {locale === "tr" ? "Yükseltmek için iletişime geçin" : "Contact us to upgrade"}
+            </a>
+          </Button>
+          <a href="/" className="block text-xs text-muted-foreground hover:text-foreground transition-colors">
+            {locale === "tr" ? "← Ana sayfaya dön" : "← Back to home"}
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Left Sidebar */}
@@ -1024,6 +1068,33 @@ Viral Score: ${viralScore}/10
       {/* Main content area */}
       <div className="flex-1 min-w-0 flex flex-col">
       <Navbar onEditProfile={() => setProfileForceOpen(true)} />
+
+      {/* Trial countdown banner — visible only during the 3-day Pro trial */}
+      {planType === "trial" && (
+        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2.5">
+          <div className="mx-auto max-w-6xl flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2 text-sm">
+              <Crown className="h-4 w-4 text-primary shrink-0" />
+              <span className="font-medium text-foreground">
+                {locale === "tr" ? "Pro Deneme Aktif" : "Pro Trial Active"}
+              </span>
+              <span className="text-muted-foreground">
+                {trialDaysLeft > 1
+                  ? (locale === "tr" ? `${trialDaysLeft} gün kaldı` : `${trialDaysLeft} days left`)
+                  : trialHoursLeft > 1
+                    ? (locale === "tr" ? `${trialHoursLeft} saat kaldı` : `${trialHoursLeft} hours left`)
+                    : (locale === "tr" ? "Yakında bitiyor" : "Ending soon")}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowUpgradeDialog(true)}
+              className="text-xs font-semibold text-primary hover:underline"
+            >
+              {locale === "tr" ? "Pro'ya yükselt →" : "Upgrade to Pro →"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Mobile: keep floating trending panel */}
       {isMobile && (
