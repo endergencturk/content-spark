@@ -295,8 +295,8 @@ const TOGGLE_OPTIONS: { key: ComparisonKey; label: string }[] = [
 ];
 
 function ExampleOutput() {
+  const { user, setShowAuthModal } = useAuth();
   const [active, setActive] = useState<ComparisonKey>("original");
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const data = COMPARISON_DATA[active];
 
   const scoreColor =
@@ -388,24 +388,24 @@ function ExampleOutput() {
         </div>
 
         {/* CTAs */}
-        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-          <Link to="/app">
-            <Button size="lg" className="rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto">
-              <Zap className="h-4 w-4 mr-1" /> Try Free
+        <div className="mt-8 flex justify-center">
+          {user ? (
+            <Link to="/app">
+              <Button size="lg" className="rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto">
+                <Zap className="h-4 w-4 mr-1" /> Open the app
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              size="lg"
+              className="rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto"
+              onClick={() => setShowAuthModal(true)}
+            >
+              <Zap className="h-4 w-4 mr-1" /> Sign up free
             </Button>
-          </Link>
-          <Button
-            variant="outline"
-            size="lg"
-            className="rounded-2xl text-base font-medium px-8"
-            onClick={() => setUpgradeOpen(true)}
-          >
-            <Crown className="h-4 w-4 mr-1" /> Unlock Pro Quality
-          </Button>
+          )}
         </div>
       </div>
-
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </section>
   );
 }
