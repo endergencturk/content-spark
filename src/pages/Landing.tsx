@@ -463,47 +463,82 @@ function Testimonials() {
 function Pricing() {
   const { user, setShowAuthModal } = useAuth();
 
+  const contactSubject = encodeURIComponent("Pro Upgrade Request — Content Spark");
+  const contactBody = encodeURIComponent(
+    `Hi,\n\nI'd like to upgrade to the Pro plan ($19/mo).\n\nAccount email: ${user?.email ?? ""}\n\nThanks!`
+  );
+  const contactMailto = `mailto:hello@contentspark.app?subject=${contactSubject}&body=${contactBody}`;
+
   return (
     <section id="pricing" className="py-20 sm:py-28">
-      <div className="mx-auto max-w-2xl px-4 sm:px-6 text-center">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">100% Free — All Features Unlocked</h2>
-        <p className="mt-3 text-muted-foreground">Just create a free account. No credit card. No paywalls. No limits.</p>
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 text-center">
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">Start with a 3-day free trial</h2>
+        <p className="mt-3 text-muted-foreground">Full Pro access for 3 days. No credit card required to start.</p>
 
-        <div className="mt-12 mx-auto max-w-md">
-          <div className="relative rounded-2xl border-2 border-primary bg-card p-8 shadow-[var(--shadow-warm)]">
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground">
-              Free Forever
-            </span>
-            <h3 className="text-lg font-bold text-foreground">Full Access</h3>
+        <div className="mt-12 grid gap-6 md:grid-cols-2 max-w-3xl mx-auto">
+          {/* Trial card */}
+          <div className="relative rounded-2xl border border-border bg-card p-8 text-left">
+            <h3 className="text-lg font-bold text-foreground">Free Trial</h3>
             <p className="mt-1 text-4xl font-extrabold text-foreground">$0</p>
-            <p className="mt-1 text-xs text-muted-foreground">Sign in required · No payment, ever</p>
-            <ul className="mt-6 space-y-3 text-sm text-muted-foreground text-left">
+            <p className="mt-1 text-xs text-muted-foreground">3 days · Full Pro access</p>
+            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
               {[
+                "All Pro features unlocked",
                 "Unlimited generations",
-                "All platforms (TikTok, Shorts, Reels)",
-                "All hook styles + A/B testing",
-                "Bulk pack & weekly content plan",
-                "Editing plan + image prompts",
-                "SEO metadata + posting times",
-                "History & favorites",
+                "All platforms & hook styles",
+                "Bulk pack & weekly plan",
+                "No credit card required",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" />{f}</li>
               ))}
             </ul>
             {user ? (
               <Link to="/app" className="block mt-8">
-                <Button className="w-full rounded-xl font-semibold shadow-[var(--shadow-warm)]">
-                  Open the app
-                </Button>
+                <Button variant="outline" className="w-full rounded-xl font-semibold">Open the app</Button>
               </Link>
             ) : (
               <Button
-                className="w-full mt-8 rounded-xl font-semibold shadow-[var(--shadow-warm)]"
+                variant="outline"
+                className="w-full mt-8 rounded-xl font-semibold"
                 onClick={() => setShowAuthModal(true)}
               >
-                Create free account
+                Start free trial
               </Button>
             )}
+          </div>
+
+          {/* Pro card — featured */}
+          <div className="relative rounded-2xl border-2 border-primary bg-card p-8 text-left shadow-[var(--shadow-warm)]">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground">
+              Most Popular
+            </span>
+            <div className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-bold text-foreground">Pro</h3>
+            </div>
+            <p className="mt-1">
+              <span className="text-4xl font-extrabold text-foreground">$19</span>
+              <span className="text-sm text-muted-foreground">/month</span>
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">Continue after your trial ends</p>
+            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
+              {[
+                "Everything in Free Trial",
+                "Unlimited Pro generations",
+                "Bulk pack & weekly content plan",
+                "A/B hook testing",
+                "Priority support",
+                "Cancel anytime",
+              ].map((f) => (
+                <li key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" />{f}</li>
+              ))}
+            </ul>
+            <Button asChild className="w-full mt-8 rounded-xl font-semibold shadow-[var(--shadow-warm)]">
+              <a href={contactMailto}>Contact us to upgrade</a>
+            </Button>
+            <p className="mt-3 text-[11px] text-muted-foreground text-center">
+              Payments aren&apos;t automated yet — contact us and we&apos;ll activate within 24h.
+            </p>
           </div>
         </div>
       </div>

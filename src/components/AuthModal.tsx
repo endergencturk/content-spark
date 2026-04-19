@@ -47,8 +47,8 @@ export function AuthModal() {
           setError(result.error);
         } else {
           toast.success(
-            inviteCode ? "🎉 Pro account created!" : "Account created! Check your email to confirm.",
-            { duration: 5000 }
+            "🎉 Account created! You have 3 days of free Pro access.",
+            { duration: 6000 }
           );
           reset();
         }
