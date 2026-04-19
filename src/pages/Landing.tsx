@@ -4,7 +4,6 @@ import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRigh
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
-import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { useRouteThemeSync } from "@/contexts/SettingsContext";
 
 /* ───── smooth-scroll helper ───── */
