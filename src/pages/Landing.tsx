@@ -82,11 +82,21 @@ function LandingNav() {
               Sign In
             </Button>
           )}
-          <Link to="/app">
-            <Button size="sm" className="rounded-xl font-semibold shadow-[var(--shadow-warm)]">
-              Try Free
+          {user ? (
+            <Link to="/app">
+              <Button size="sm" className="rounded-xl font-semibold shadow-[var(--shadow-warm)]">
+                Open app
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              size="sm"
+              className="rounded-xl font-semibold shadow-[var(--shadow-warm)]"
+              onClick={() => setShowAuthModal(true)}
+            >
+              Sign up free
             </Button>
-          </Link>
+          )}
         </div>
       </div>
     </nav>
