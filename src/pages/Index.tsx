@@ -976,14 +976,48 @@ Viral Score: ${viralScore}/10
     }
   }, []);
 
+  // Auth gate: signed-out users see a sign-in prompt instead of the app
+  if (!authLoading && !user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/15 flex items-center justify-center">
+            <Sparkles className="h-8 w-8 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+              {locale === "tr" ? "Devam etmek için giriş yapın" : "Sign in to continue"}
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {locale === "tr"
+                ? "Content Spark tüm özellikleriyle ücretsizdir. Devam etmek için lütfen giriş yapın veya hesap oluşturun."
+                : "Content Spark is 100% free with full access. Please sign in or create a free account to continue."}
+            </p>
+          </div>
+          <Button
+            size="lg"
+            className="w-full h-12 rounded-2xl text-base font-bold shadow-[var(--shadow-warm)]"
+            onClick={() => setShowAuthModal(true)}
+          >
+            {locale === "tr" ? "Giriş yap / Kayıt ol" : "Sign in / Sign up"}
+          </Button>
+          <a
+            href="/"
+            className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {locale === "tr" ? "← Ana sayfaya dön" : "← Back to home"}
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Left Sidebar */}
       <AppSidebar
         locale={locale}
         activeNav="create"
-        remaining={(isProMode || isHorrorMode) ? undefined : remaining}
-        isAtLimit={isAtLimit}
         onHistoryClick={() => setHistoryOpen(true)}
       />
 
