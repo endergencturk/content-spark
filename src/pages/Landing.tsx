@@ -513,16 +513,27 @@ function Pricing() {
 
 /* ───── Final CTA ───── */
 function FinalCTA() {
+  const { user, setShowAuthModal } = useAuth();
   return (
     <section className="py-20 sm:py-28 bg-muted/30">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 text-center">
         <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">Ready to go viral?</h2>
-        <p className="mt-4 text-muted-foreground text-lg">Start generating content for free. No credit card required.</p>
-        <Link to="/app" className="inline-block mt-8">
-          <Button size="lg" className="rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)]">
-            <Zap className="h-4 w-4 mr-1" /> Start Free Now
+        <p className="mt-4 text-muted-foreground text-lg">Sign up free and start generating viral content. No credit card required.</p>
+        {user ? (
+          <Link to="/app" className="inline-block mt-8">
+            <Button size="lg" className="rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)]">
+              <Zap className="h-4 w-4 mr-1" /> Open the app
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            size="lg"
+            className="mt-8 rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)]"
+            onClick={() => setShowAuthModal(true)}
+          >
+            <Zap className="h-4 w-4 mr-1" /> Sign up free
           </Button>
-        </Link>
+        )}
       </div>
     </section>
   );
