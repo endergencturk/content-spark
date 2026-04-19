@@ -1100,10 +1100,7 @@ Viral Score: ${viralScore}/10
           {/* Weekly Content Plan (not in horror mode) */}
           {!isHorrorMode && <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />}
 
-          {/* USAGE BANNER (Free mode only) */}
-          {!isProMode && !isHorrorMode && (
-            <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} locale={locale} />
-          )}
+          {/* Usage limits removed — every signed-in user has full access */}
 
           {/* INPUT AREA */}
           <div className="space-y-5">
