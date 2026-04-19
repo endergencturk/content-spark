@@ -17,8 +17,6 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { t, type Locale } from "@/lib/i18n";
-import { UpsellBanner } from "@/components/UpsellBanner";
-import { useUsageLimit } from "@/hooks/useUsageLimit";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
@@ -368,47 +366,7 @@ const Pill = memo(function Pill({
   );
 });
 
-// ── Usage limit banner ──────────────────────────────────────────────
-
-const UsageBanner = memo(function UsageBanner({
-  remaining, isAtLimit, nextRefillLabel, locale = "en",
-}: { remaining: number; isAtLimit: boolean; nextRefillLabel: string; locale?: Locale }) {
-  return (
-    <div className={`rounded-2xl p-4 flex items-start gap-3 ${
-      isAtLimit
-        ? "bg-destructive/10 border border-destructive/20"
-        : "bg-muted/60 border border-border/50"
-    }`}>
-      <div className={`shrink-0 h-8 w-8 rounded-xl flex items-center justify-center ${
-        isAtLimit ? "bg-destructive/15" : "bg-primary/10"
-      }`}>
-        {isAtLimit
-          ? <Lock className="h-4 w-4 text-destructive" />
-          : <Zap className="h-4 w-4 text-primary" />
-        }
-      </div>
-      <div className="flex-1 space-y-1.5">
-        <p className="text-sm font-semibold text-foreground">
-          {isAtLimit
-            ? t("usage.noCredits", locale)
-            : t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
-        </p>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          {isAtLimit
-            ? t("usage.upgradeMsg", locale)
-            : nextRefillLabel
-              ? t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)
-              : t("usage.refillInfo", locale)}
-        </p>
-        {isAtLimit && (
-          <p className="text-xs text-muted-foreground mt-1">
-            {t("usage.switchPro", locale)}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-});
+// (Usage limit banner removed — single tier, every signed-in user has full access.)
 
 // ── Main page ───────────────────────────────────────────────────────
 
@@ -417,8 +375,20 @@ export default function Index() {
   const isMobile = useIsMobile();
   const { settings } = useSettings();
   const locale = settings.language;
-  const { planType, requireAuth } = useAuth();
-  const { remaining, isAtLimit, increment, nextRefillLabel } = useUsageLimit();
+  const { user, planType, requireAuth, loading: authLoading, setShowAuthModal } = useAuth();
+
+  // Usage limits removed — every signed-in user has full access.
+  const remaining = Infinity;
+  const isAtLimit = false;
+  const nextRefillLabel = "";
+  const increment = useCallback(() => {}, []);
+
+  // Gate the entire app behind authentication.
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setShowAuthModal(true);
+    }
+  }, [authLoading, user, setShowAuthModal]);
 
   const [deviceId] = useState<string>(() => {
     const key = "viralengine-device-id";
