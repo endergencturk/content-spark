@@ -107,11 +107,12 @@ Return exactly 8 ideas as JSON.`;
         required: ["ideas"],
       };
 
-      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
       const geminiBody = {
         contents: [{ parts: [{ text: discoveryPrompt }] }],
         generationConfig: {
           temperature: 0.9,
+          maxOutputTokens: 2048,
           responseMimeType: "application/json",
           responseSchema: discoverySchema,
         },
@@ -184,11 +185,12 @@ Return exactly 7 ideas as JSON array in "ideas" key.`;
         required: ["ideas"],
       };
 
-      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
       const geminiBody = {
         contents: [{ parts: [{ text: weekPrompt }] }],
         generationConfig: {
           temperature: 0.9,
+          maxOutputTokens: 2048,
           responseMimeType: "application/json",
           responseSchema: weekSchema,
         },
@@ -249,11 +251,12 @@ Return as JSON with "hookA" and "hookB" string fields.`;
         required: ["hookA", "hookB"],
       };
 
-      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+      const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
       const geminiBody = {
         contents: [{ parts: [{ text: abPrompt }] }],
         generationConfig: {
           temperature: 0.95,
+          maxOutputTokens: 1024,
           responseMimeType: "application/json",
           responseSchema: abSchema,
         },
@@ -353,7 +356,7 @@ Return as JSON with "hookA" and "hookB" string fields.`;
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: mode === "pro" ? 0.8 : 0.7,
-        maxOutputTokens: 8192,
+        maxOutputTokens: mode === "pro" ? 6144 : 4096,
         responseMimeType: "application/json",
         responseSchema: schema,
       },
@@ -386,15 +389,16 @@ Return as JSON with "hookA" and "hookB" string fields.`;
 });
 
 // ── Fetch with retry + Lovable AI fallback ──────────────────────────
+// Optimized for speed: shorter timeouts, fewer retries, faster fallback.
 
 async function fetchWithRetry(url: string, apiKey: string, body: any): Promise<Response | null> {
   let response: Response | null = null;
-  const delays = [1500, 3000, 5000]; // 3 attempts, then fallback quickly
+  const delays = [600, 1200]; // 2 attempts only — fall back fast
 
   for (let attempt = 0; attempt < delays.length; attempt++) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
+      const timeout = setTimeout(() => controller.abort(), 18000); // was 30s
       response = await fetch(url, {
         method: "POST",
         headers: {
@@ -436,7 +440,7 @@ async function fetchWithRetry(url: string, apiKey: string, body: any): Promise<R
     try {
       const prompt = body.contents?.[0]?.parts?.[0]?.text || "";
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 55000);
+      const timeout = setTimeout(() => controller.abort(), 30000);
       const fallbackResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -457,7 +461,6 @@ async function fetchWithRetry(url: string, apiKey: string, body: any): Promise<R
       if (fallbackResp.ok) {
         const fallbackData = await fallbackResp.json();
         const content = fallbackData.choices?.[0]?.message?.content || "";
-        // Wrap in a Gemini-compatible response shape
         const wrappedBody = JSON.stringify({
           candidates: [{ content: { parts: [{ text: content.replace(/^```json\s*|```\s*$/g, "").trim() }] } }],
         });

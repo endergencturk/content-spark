@@ -17,8 +17,6 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { t, type Locale } from "@/lib/i18n";
-import { UpsellBanner } from "@/components/UpsellBanner";
-import { useUsageLimit } from "@/hooks/useUsageLimit";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { getTopicSuggestions, getRandomTopic } from "@/lib/topicSuggestions";
 import { GeneralResults, type GeneralResult } from "@/components/GeneralResults";
@@ -368,47 +366,7 @@ const Pill = memo(function Pill({
   );
 });
 
-// ── Usage limit banner ──────────────────────────────────────────────
-
-const UsageBanner = memo(function UsageBanner({
-  remaining, isAtLimit, nextRefillLabel, locale = "en",
-}: { remaining: number; isAtLimit: boolean; nextRefillLabel: string; locale?: Locale }) {
-  return (
-    <div className={`rounded-2xl p-4 flex items-start gap-3 ${
-      isAtLimit
-        ? "bg-destructive/10 border border-destructive/20"
-        : "bg-muted/60 border border-border/50"
-    }`}>
-      <div className={`shrink-0 h-8 w-8 rounded-xl flex items-center justify-center ${
-        isAtLimit ? "bg-destructive/15" : "bg-primary/10"
-      }`}>
-        {isAtLimit
-          ? <Lock className="h-4 w-4 text-destructive" />
-          : <Zap className="h-4 w-4 text-primary" />
-        }
-      </div>
-      <div className="flex-1 space-y-1.5">
-        <p className="text-sm font-semibold text-foreground">
-          {isAtLimit
-            ? t("usage.noCredits", locale)
-            : t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
-        </p>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          {isAtLimit
-            ? t("usage.upgradeMsg", locale)
-            : nextRefillLabel
-              ? t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)
-              : t("usage.refillInfo", locale)}
-        </p>
-        {isAtLimit && (
-          <p className="text-xs text-muted-foreground mt-1">
-            {t("usage.switchPro", locale)}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-});
+// (Usage limit banner removed — single tier, every signed-in user has full access.)
 
 // ── Main page ───────────────────────────────────────────────────────
 
@@ -417,8 +375,20 @@ export default function Index() {
   const isMobile = useIsMobile();
   const { settings } = useSettings();
   const locale = settings.language;
-  const { planType, requireAuth } = useAuth();
-  const { remaining, isAtLimit, increment, nextRefillLabel } = useUsageLimit();
+  const { user, planType, requireAuth, loading: authLoading, setShowAuthModal } = useAuth();
+
+  // Usage limits removed — every signed-in user has full access.
+  const remaining = Infinity;
+  const isAtLimit = false;
+  const nextRefillLabel = "";
+  const increment = useCallback(() => {}, []);
+
+  // Gate the entire app behind authentication.
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setShowAuthModal(true);
+    }
+  }, [authLoading, user, setShowAuthModal]);
 
   const [deviceId] = useState<string>(() => {
     const key = "viralengine-device-id";
@@ -1006,14 +976,48 @@ Viral Score: ${viralScore}/10
     }
   }, []);
 
+  // Auth gate: signed-out users see a sign-in prompt instead of the app
+  if (!authLoading && !user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/15 flex items-center justify-center">
+            <Sparkles className="h-8 w-8 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+              {locale === "tr" ? "Devam etmek için giriş yapın" : "Sign in to continue"}
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {locale === "tr"
+                ? "Content Spark tüm özellikleriyle ücretsizdir. Devam etmek için lütfen giriş yapın veya hesap oluşturun."
+                : "Content Spark is 100% free with full access. Please sign in or create a free account to continue."}
+            </p>
+          </div>
+          <Button
+            size="lg"
+            className="w-full h-12 rounded-2xl text-base font-bold shadow-[var(--shadow-warm)]"
+            onClick={() => setShowAuthModal(true)}
+          >
+            {locale === "tr" ? "Giriş yap / Kayıt ol" : "Sign in / Sign up"}
+          </Button>
+          <a
+            href="/"
+            className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {locale === "tr" ? "← Ana sayfaya dön" : "← Back to home"}
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Left Sidebar */}
       <AppSidebar
         locale={locale}
         activeNav="create"
-        remaining={(isProMode || isHorrorMode) ? undefined : remaining}
-        isAtLimit={isAtLimit}
         onHistoryClick={() => setHistoryOpen(true)}
       />
 
@@ -1130,10 +1134,7 @@ Viral Score: ${viralScore}/10
           {/* Weekly Content Plan (not in horror mode) */}
           {!isHorrorMode && <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />}
 
-          {/* USAGE BANNER (Free mode only) */}
-          {!isProMode && !isHorrorMode && (
-            <UsageBanner remaining={remaining} isAtLimit={isAtLimit} nextRefillLabel={nextRefillLabel} locale={locale} />
-          )}
+          {/* Usage limits removed — every signed-in user has full access */}
 
           {/* INPUT AREA */}
           <div className="space-y-5">
@@ -1548,12 +1549,6 @@ Viral Score: ${viralScore}/10
               />
             </div>
 
-            {!isProMode && !isHorrorMode && !isAtLimit && (
-              <p className="text-center text-[11px] text-muted-foreground">
-                {t("usage.remaining", locale).replace("{count}", String(remaining)).replace("{s}", remaining === 1 ? "" : "s")}
-                {nextRefillLabel ? ` · ${t("usage.nextRefill", locale).replace("{time}", nextRefillLabel)}` : ""}
-              </p>
-            )}
           </div>
 
           {/* Duplicate Warning Banner */}

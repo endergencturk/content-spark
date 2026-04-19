@@ -4,7 +4,6 @@ import { Copy, Trophy, Crown, Youtube, Hash, Image, Music, TrendingUp, Clock, La
 const safeArray = (val: any): string[] =>
   Array.isArray(val) ? val : typeof val === "string" ? val.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
 import { t, type Locale } from "@/lib/i18n";
-import { UpsellBanner } from "@/components/UpsellBanner";
 import { BlurredPreview } from "@/components/BlurredPreview";
 import { ScriptEditor } from "@/components/ScriptEditor";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
@@ -104,13 +103,11 @@ export const GeneralResults = memo(function GeneralResults({
             </div>
           );
         })}
-        <UpsellBanner message={t("upsell.hooks", locale)} onUpgrade={() => {}} locale={locale} />
       </section>
 
       {/* Script */}
       <section className="space-y-2.5">
         <ScriptEditor initialScript={result.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="script" locale={locale} voiceSpeed={voiceSpeed as any} />
-        <UpsellBanner message={t("upsell.script", locale)} onUpgrade={() => {}} locale={locale} />
       </section>
 
       {/* Editing Plan */}
