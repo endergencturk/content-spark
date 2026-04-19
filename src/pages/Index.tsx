@@ -1069,6 +1069,33 @@ Viral Score: ${viralScore}/10
       <div className="flex-1 min-w-0 flex flex-col">
       <Navbar onEditProfile={() => setProfileForceOpen(true)} />
 
+      {/* Trial countdown banner — visible only during the 3-day Pro trial */}
+      {planType === "trial" && (
+        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2.5">
+          <div className="mx-auto max-w-6xl flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2 text-sm">
+              <Crown className="h-4 w-4 text-primary shrink-0" />
+              <span className="font-medium text-foreground">
+                {locale === "tr" ? "Pro Deneme Aktif" : "Pro Trial Active"}
+              </span>
+              <span className="text-muted-foreground">
+                {trialDaysLeft > 1
+                  ? (locale === "tr" ? `${trialDaysLeft} gün kaldı` : `${trialDaysLeft} days left`)
+                  : trialHoursLeft > 1
+                    ? (locale === "tr" ? `${trialHoursLeft} saat kaldı` : `${trialHoursLeft} hours left`)
+                    : (locale === "tr" ? "Yakında bitiyor" : "Ending soon")}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowUpgradeDialog(true)}
+              className="text-xs font-semibold text-primary hover:underline"
+            >
+              {locale === "tr" ? "Pro'ya yükselt →" : "Upgrade to Pro →"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Mobile: keep floating trending panel */}
       {isMobile && (
         <TrendingPanel
