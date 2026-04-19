@@ -89,6 +89,7 @@ export type Database = {
           display_name: string | null
           id: string
           plan_type: string
+          trial_ends_at: string | null
           updated_at: string
           user_id: string
         }
@@ -97,6 +98,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           plan_type?: string
+          trial_ends_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -105,6 +107,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           plan_type?: string
+          trial_ends_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -170,6 +173,7 @@ export type Database = {
           display_name: string
           email: string
           plan_type: string
+          trial_ends_at: string
           user_id: string
         }[]
       }
