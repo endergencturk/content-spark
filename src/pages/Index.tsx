@@ -706,6 +706,7 @@ export default function Index() {
 
       try {
         await supabase.from("generations").insert({
+          user_id: user?.id,
           device_id: deviceId,
           topic: (effectiveTopic === "__horror_random__" ? data?.title || "Horror Mode" : effectiveTopic),
           platforms: (isProMode || isHorrorMode) ? platforms : [platform],
