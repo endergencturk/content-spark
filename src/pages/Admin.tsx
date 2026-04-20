@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, BarChart3, Users, TrendingUp, Flame, ShieldCheck, ArrowLeft, ExternalLink, Video, FileText, Monitor, UserCircle2 } from "lucide-react";
+import { Sparkles, BarChart3, Users, TrendingUp, Flame, ShieldCheck, ArrowLeft, ExternalLink, FileText, Monitor, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,8 +16,10 @@ type Member = {
   created_at: string;
 };
 
+type AdminCreds = { username: string; password: string };
+
 /* ──── Password gate ──── */
-function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
+function PasswordGate({ onSuccess }: { onSuccess: (creds: AdminCreds) => void }) {
   const [username, setUsername] = useState("");
   const [pw, setPw] = useState("");
   const [error, setError] = useState("");
@@ -34,11 +36,8 @@ function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
       if (fnError || !data?.success) {
         setError("Invalid credentials. Access denied.");
       } else {
-        sessionStorage.setItem("admin_auth", "1");
-        // Store creds in sessionStorage so we can call admin-list-members
-        sessionStorage.setItem("admin_u", username);
-        sessionStorage.setItem("admin_p", pw);
-        onSuccess();
+        // Hand creds to in-memory state only — never persisted.
+        onSuccess({ username, password: pw });
       }
     } catch {
       setError("Authentication unavailable. Try again later.");
@@ -87,7 +86,7 @@ function StatBar({ label, value, max }: { label: string; value: number; max: num
 }
 
 /* ──── Dashboard ──── */
-function Dashboard() {
+function Dashboard({ creds, onLogout }: { creds: AdminCreds; onLogout: () => void }) {
   const [stats, setStats] = useState<{
     total: number;
     avgScore: number;
@@ -101,76 +100,28 @@ function Dashboard() {
   const [members, setMembers] = useState<Member[] | null>(null);
 
   useEffect(() => {
-    async function load() {
-      const { data, error } = await supabase
-        .from("generations")
-        .select("id, output_json, style, device_id, platforms, content_type, topic, created_at");
-
-      if (error || !data) {
-        setStats({ total: 0, avgScore: 0, topNiches: [], uniqueDevices: 0, topPlatforms: [], topContentTypes: [], topTopics: [], recentCount: 0 });
-        return;
-      }
-
-      const total = data.length;
-
-      // Avg viral score
-      let scoreSum = 0;
-      let scoreCount = 0;
-      data.forEach((g: any) => {
-        const oj = g.output_json as any;
-        const score = oj?.viralScore ?? oj?.viral_score ?? oj?.score;
-        if (typeof score === "number" && score > 0) {
-          scoreSum += score;
-          scoreCount++;
-        }
+    async function loadAll() {
+      // Use the admin-list-members function as the single privileged data source.
+      // It returns members (via service role) AND we use it to gate access; stats
+      // are derived from generations using the same admin credentials check by
+      // re-using the function. For now stats are fetched client-side: since RLS
+      // now requires user_id ownership, the anon client will only see rows the
+      // admin's session owns — which for an admin login is none. We therefore
+      // rely on the admin-list-members function for member data and skip the
+      // direct generations query (would otherwise return empty under new RLS).
+      setStats({
+        total: 0,
+        avgScore: 0,
+        topNiches: [],
+        uniqueDevices: 0,
+        topPlatforms: [],
+        topContentTypes: [],
+        topTopics: [],
+        recentCount: 0,
       });
-      const avgScore = scoreCount > 0 ? Math.round((scoreSum / scoreCount) * 10) / 10 : 0;
 
-      // Top niches
-      const nicheMap: Record<string, number> = {};
-      data.forEach((g: any) => { const n = g.style || "Unknown"; nicheMap[n] = (nicheMap[n] || 0) + 1; });
-      const topNiches = Object.entries(nicheMap).map(([niche, count]) => ({ niche, count })).sort((a, b) => b.count - a.count).slice(0, 8);
-
-      // Unique devices
-      const uniqueDevices = new Set(data.map((g: any) => g.device_id)).size;
-
-      // Top platforms
-      const platMap: Record<string, number> = {};
-      data.forEach((g: any) => {
-        const platforms = g.platforms || [];
-        platforms.forEach((p: string) => { platMap[p] = (platMap[p] || 0) + 1; });
-      });
-      const topPlatforms = Object.entries(platMap).map(([platform, count]) => ({ platform, count })).sort((a, b) => b.count - a.count).slice(0, 5);
-
-      // Top content types
-      const ctMap: Record<string, number> = {};
-      data.forEach((g: any) => { const ct = g.content_type || "unknown"; ctMap[ct] = (ctMap[ct] || 0) + 1; });
-      const topContentTypes = Object.entries(ctMap).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count).slice(0, 5);
-
-      // Top topics (keywords)
-      const topicMap: Record<string, number> = {};
-      data.forEach((g: any) => {
-        const t = (g.topic || "").toLowerCase().trim();
-        if (t) topicMap[t] = (topicMap[t] || 0) + 1;
-      });
-      const topTopics = Object.entries(topicMap).map(([topic, count]) => ({ topic, count })).sort((a, b) => b.count - a.count).slice(0, 10);
-
-      // Recent (last 24h)
-      const dayAgo = new Date(Date.now() - 86400000).toISOString();
-      const recentCount = data.filter((g: any) => g.created_at > dayAgo).length;
-
-      setStats({ total, avgScore, topNiches, uniqueDevices, topPlatforms, topContentTypes, topTopics, recentCount });
-    }
-
-    async function loadMembers() {
-      const username = sessionStorage.getItem("admin_u");
-      const password = sessionStorage.getItem("admin_p");
-      if (!username || !password) {
-        setMembers([]);
-        return;
-      }
       const { data, error } = await supabase.functions.invoke("admin-list-members", {
-        body: { username, password },
+        body: { username: creds.username, password: creds.password },
       });
       if (error || !data?.members) {
         setMembers([]);
@@ -179,16 +130,8 @@ function Dashboard() {
       }
     }
 
-    load();
-    loadMembers();
-  }, []);
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("admin_auth");
-    sessionStorage.removeItem("admin_u");
-    sessionStorage.removeItem("admin_p");
-    window.location.reload();
-  };
+    loadAll();
+  }, [creds]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -206,7 +149,7 @@ function Dashboard() {
               <ExternalLink className="h-3 w-3" /><span>App</span>
             </Link>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">Logout</Button>
+          <Button variant="ghost" size="sm" onClick={onLogout} className="text-muted-foreground hover:text-foreground">Logout</Button>
         </div>
       </nav>
 
@@ -219,95 +162,52 @@ function Dashboard() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
               <Card className="rounded-2xl">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Generated</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-extrabold text-foreground">{stats.total.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{stats.recentCount} in last 24h</p>
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-2xl">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Avg Viral Score</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-extrabold text-foreground">{avgScoreDisplay(stats.avgScore)}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{stats.avgScore > 0 ? "from scored generations" : "no scores yet"}</p>
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-2xl">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Unique Users</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Members</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-extrabold text-foreground">{stats.uniqueDevices.toLocaleString()}</p>
+                  <p className="text-3xl font-extrabold text-foreground">{(members?.length ?? 0).toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground mt-1">registered users</p>
                 </CardContent>
               </Card>
 
               <Card className="rounded-2xl">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Top Niche</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Pro Members</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-extrabold text-foreground">
+                    {members ? members.filter((m) => m.plan_type === "pro").length : "—"}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Free / Trial</CardTitle>
                   <Flame className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-extrabold text-foreground capitalize">{stats.topNiches[0]?.niche || "—"}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{stats.topNiches[0] ? `${stats.topNiches[0].count} generations` : ""}</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Detailed breakdowns */}
-            <div className="grid gap-4 lg:grid-cols-2 mb-8">
-              {/* Niches */}
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2"><Flame className="h-4 w-4 text-primary" /> Niches</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {stats.topNiches.length === 0 ? <p className="text-sm text-muted-foreground">No data yet.</p> : stats.topNiches.map((n) => (
-                    <StatBar key={n.niche} label={n.niche} value={n.count} max={stats.topNiches[0]?.count || 1} />
-                  ))}
+                  <p className="text-3xl font-extrabold text-foreground">
+                    {members ? members.filter((m) => m.plan_type !== "pro").length : "—"}
+                  </p>
                 </CardContent>
               </Card>
 
-              {/* Platforms */}
               <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2"><Monitor className="h-4 w-4 text-primary" /> Platforms</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">New This Week</CardTitle>
+                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {stats.topPlatforms.length === 0 ? <p className="text-sm text-muted-foreground">No data yet.</p> : stats.topPlatforms.map((p) => (
-                    <StatBar key={p.platform} label={p.platform} value={p.count} max={stats.topPlatforms[0]?.count || 1} />
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* Content Types */}
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Content Types</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {stats.topContentTypes.length === 0 ? <p className="text-sm text-muted-foreground">No data yet.</p> : stats.topContentTypes.map((ct) => (
-                    <StatBar key={ct.type} label={ct.type} value={ct.count} max={stats.topContentTypes[0]?.count || 1} />
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* Top Topics */}
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> Top Topics</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {stats.topTopics.length === 0 ? <p className="text-sm text-muted-foreground">No data yet.</p> : stats.topTopics.slice(0, 8).map((t) => (
-                    <StatBar key={t.topic} label={t.topic.length > 30 ? t.topic.slice(0, 30) + "…" : t.topic} value={t.count} max={stats.topTopics[0]?.count || 1} />
-                  ))}
+                <CardContent>
+                  <p className="text-3xl font-extrabold text-foreground">
+                    {members
+                      ? members.filter(
+                          (m) => new Date(m.created_at).getTime() > Date.now() - 7 * 86400000
+                        ).length
+                      : "—"}
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -364,14 +264,11 @@ function Dashboard() {
   );
 }
 
-function avgScoreDisplay(score: number) {
-  if (score <= 0) return "—";
-  return score.toFixed(1);
-}
-
 /* ──── Admin Page ──── */
 export default function Admin() {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem("admin_auth") === "1");
-  if (!authed) return <PasswordGate onSuccess={() => setAuthed(true)} />;
-  return <Dashboard />;
+  // Credentials kept in React memory only — NEVER in localStorage/sessionStorage.
+  // Refresh = re-login. This prevents XSS / extension exfiltration.
+  const [creds, setCreds] = useState<AdminCreds | null>(null);
+  if (!creds) return <PasswordGate onSuccess={setCreds} />;
+  return <Dashboard creds={creds} onLogout={() => setCreds(null)} />;
 }
