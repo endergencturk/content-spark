@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -74,6 +74,11 @@ export function AuthModal() {
             </div>
             {tab === "login" ? "Sign In" : "Create Account"}
           </DialogTitle>
+          <DialogDescription>
+            {tab === "login"
+              ? "Sign in to access the app and your saved generations."
+              : "Create an account to start your 3-day Pro trial and use the app."}
+          </DialogDescription>
         </DialogHeader>
 
         {authPromptReason && (

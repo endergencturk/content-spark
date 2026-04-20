@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Crown } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useSettings, VOICE_SPEED_CONFIG, type VoiceSpeed } from "@/contexts/SettingsContext";
@@ -41,6 +41,9 @@ export const SettingsDialog = memo(function SettingsDialog({
       <DialogContent className="sm:max-w-md rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">{t("settings.title", locale)}</DialogTitle>
+          <DialogDescription>
+            Manage your language, defaults, theme, and current access status.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Account / plan section */}
