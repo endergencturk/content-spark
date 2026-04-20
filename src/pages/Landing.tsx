@@ -621,7 +621,6 @@ export default function Landing() {
       <Pricing />
       <FinalCTA />
       <Footer />
-      <AuthModal />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Crown, Check, Mail, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -54,6 +54,9 @@ export function UpgradeContactDialog({ open, onOpenChange, blocking = false }: P
           <DialogTitle className="text-center text-xl font-bold">
             {blocking ? "Your free trial has ended" : "Upgrade to Pro"}
           </DialogTitle>
+          <DialogDescription className="text-center">
+            Continue with full access by contacting the team for manual Pro activation.
+          </DialogDescription>
         </DialogHeader>
 
         {trialBadge && (
