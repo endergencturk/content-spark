@@ -77,12 +77,16 @@ export const ProResults = memo(function ProResults({
   result, platforms, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30", voiceSpeed = "0.9",
 }: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string; voiceSpeed?: string }) {
   const [showPack, setShowPack] = useState(false);
-  const hookVariations = safeList(result.hookVariations);
-  const typedHooks = Array.isArray(result.hooks) ? result.hooks : [];
-  const angleVariations = safeList(result.angleVariations);
-  const editingPlan = safeList(result.editingPlan);
-  const imagePrompts = safeList(result.imagePrompts);
-  const music = safeList(result.music);
+  // Defensive: result may be partially populated for Horror mode or malformed AI responses
+  const safeResult = result || ({} as ProResult);
+  const youtube = safeResult.youtube || { title: "", description: "", tags: [] as string[] };
+  const tiktok = safeResult.tiktok || { caption: "", hashtags: [] as string[] };
+  const hookVariations = safeList(safeResult.hookVariations);
+  const typedHooks = Array.isArray(safeResult.hooks) ? safeResult.hooks : [];
+  const angleVariations = safeList(safeResult.angleVariations);
+  const editingPlan = safeList(safeResult.editingPlan);
+  const imagePrompts = safeList(safeResult.imagePrompts);
+  const music = safeList(safeResult.music);
 
   return (
     <div className="space-y-6">

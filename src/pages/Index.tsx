@@ -25,6 +25,7 @@ import { TrendingPanel } from "@/components/TrendingPanel";
 import { WeeklyPlan } from "@/components/WeeklyPlan";
 import { ABHookTester } from "@/components/ABHookTester";
 import { BulkPackDialog } from "@/components/BulkPackDialog";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
@@ -1847,12 +1848,14 @@ Viral Score: ${viralScore}/10
               <p className="text-xs font-bold uppercase tracking-widest text-primary px-1">{t("result.autoFixedVersion", locale)}</p>
             )}
 
-            {!isProMode && !isHorrorMode && generalResult && !showOriginal && (
-              <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
-            )}
-            {(isProMode || isHorrorMode) && proResult && !showOriginal && (
-              <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
-            )}
+            <ErrorBoundary compact resetKey={`${proResult ? "p" : "g"}-${(generalResult || proResult)?.bestHook || ""}`}>
+              {!isProMode && !isHorrorMode && generalResult && !showOriginal && (
+                <GeneralResults result={generalResult} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
+              )}
+              {(isProMode || isHorrorMode) && proResult && !showOriginal && (
+                <ProResults result={proResult} platforms={platforms} copied={copied} onCopy={copyToClipboard} locale={locale} targetAudience={targetAudience} scriptLength={scriptLength} voiceSpeed={settings.voiceSpeed} />
+              )}
+            </ErrorBoundary>
 
             {/* A/B Hook Tester */}
             {hasResults && (
