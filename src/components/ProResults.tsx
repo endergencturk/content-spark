@@ -97,42 +97,42 @@ export const ProResults = memo(function ProResults({
             <Trophy className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("result.bestHook", locale)}</p>
-            <p className="text-base font-semibold text-foreground leading-relaxed">{result.bestHook}</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("safeResult.bestHook", locale)}</p>
+            <p className="text-base font-semibold text-foreground leading-relaxed">{safeResult.bestHook}</p>
           </div>
-          <CopyBtn text={result.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
+          <CopyBtn text={safeResult.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
       </div>
 
       {/* Script */}
       <section className="space-y-2.5">
-        <ScriptEditor initialScript={result.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="pro-script" locale={locale} voiceSpeed={voiceSpeed as any} />
+        <ScriptEditor initialScript={safeResult.script} scriptLength={scriptLength} copied={copied} onCopy={onCopy} copyLabel="pro-script" locale={locale} voiceSpeed={voiceSpeed as any} />
       </section>
 
       {/* SEO — YouTube */}
       <section className="space-y-2">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <Youtube className="h-3.5 w-3.5 text-primary" />{t("result.youtube", locale)}
+            <Youtube className="h-3.5 w-3.5 text-primary" />{t("youtube", locale)}
           </h3>
-          <CopyBtn text={`${result.youtube.title}\n${result.youtube.description}\n${safeArray(result.youtube.tags).join(", ")}`} label="yt" copied={copied} onCopy={onCopy} locale={locale} />
+          <CopyBtn text={`${youtube.title}\n${youtube.description}\n${safeArray(youtube.tags).join(", ")}`} label="yt" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
           <div>
             <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.title", locale)}</p>
-            <p className="text-sm font-semibold text-foreground">{result.youtube.title}</p>
+            <p className="text-sm font-semibold text-foreground">{youtube.title}</p>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-0.5">{t("result.description", locale)}</p>
-            <p className="text-sm text-foreground">{result.youtube.description}</p>
+            <p className="text-sm text-foreground">{youtube.description}</p>
           </div>
           <div>
             <div className="flex items-center justify-between mb-0.5">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("result.tags", locale)}</p>
-              <CopyBtn text={safeArray(result.youtube.tags).join(", ")} label="yt-tags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyTags", locale)} />
+              <CopyBtn text={safeArray(youtube.tags).join(", ")} label="yt-tags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyTags", locale)} />
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {safeArray(result.youtube.tags).map((tag, i) => (
+              {safeArray(youtube.tags).map((tag, i) => (
                 <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{tag}</span>
               ))}
             </div>
@@ -144,18 +144,18 @@ export const ProResults = memo(function ProResults({
       <section className="space-y-2">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-            <Hash className="h-3.5 w-3.5 text-primary" />{t("result.tiktok", locale)}
+            <Hash className="h-3.5 w-3.5 text-primary" />{t("tiktok", locale)}
           </h3>
-          <CopyBtn text={`${result.tiktok.caption}\n${safeArray(result.tiktok.hashtags).join(" ")}`} label="tt" copied={copied} onCopy={onCopy} locale={locale} />
+          <CopyBtn text={`${tiktok.caption}\n${safeArray(tiktok.hashtags).join(" ")}`} label="tt" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
         <div className="bg-muted/40 rounded-2xl p-4 space-y-2">
-          <p className="text-sm text-foreground leading-relaxed">{result.tiktok.caption}</p>
+          <p className="text-sm text-foreground leading-relaxed">{tiktok.caption}</p>
           <div className="flex items-center justify-between mb-0.5">
             <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Hashtags</span>
-            <CopyBtn text={safeArray(result.tiktok.hashtags).map(h => h.startsWith("#") ? h : `#${h}`).join(" ")} label="tt-hashtags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyHashtags", locale)} />
+            <CopyBtn text={safeArray(tiktok.hashtags).map(h => h.startsWith("#") ? h : `#${h}`).join(" ")} label="tt-hashtags-pro" copied={copied} onCopy={onCopy} locale={locale} customLabel={t("btn.copyHashtags", locale)} />
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {safeArray(result.tiktok.hashtags).map((ht, i) => (
+            {safeArray(tiktok.hashtags).map((ht, i) => (
               <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{ht}</span>
             ))}
           </div>
@@ -163,16 +163,16 @@ export const ProResults = memo(function ProResults({
       </section>
 
       {/* Instagram */}
-      {platforms.includes("instagram-reels") && result.instagramCaption && (
+      {platforms.includes("instagram-reels") && safeResult.instagramCaption && (
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
               <Instagram className="h-3.5 w-3.5 text-primary" />{t("result.instagram", locale)}
             </h3>
-            <CopyBtn text={result.instagramCaption} label="instagram" copied={copied} onCopy={onCopy} locale={locale} />
+            <CopyBtn text={safeResult.instagramCaption} label="instagram" copied={copied} onCopy={onCopy} locale={locale} />
           </div>
           <div className="bg-muted/40 rounded-2xl p-4">
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.instagramCaption}</p>
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{safeResult.instagramCaption}</p>
           </div>
         </section>
       )}
@@ -305,14 +305,14 @@ export const ProResults = memo(function ProResults({
               </AccordionContent>
             </AccordionItem>
 
-            {result.voiceStyle && (
+            {safeResult.voiceStyle && (
               <AccordionItem value="voice" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />{t("result.voiceStyle", locale)}</span>
+                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />{t("safeResult.voiceStyle", locale)}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="bg-muted/40 rounded-xl p-3">
-                    <p className="text-sm font-medium text-foreground">{result.voiceStyle}</p>
+                    <p className="text-sm font-medium text-foreground">{safeResult.voiceStyle}</p>
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -345,29 +345,29 @@ export const ProResults = memo(function ProResults({
       )}
 
       {/* Series Potential */}
-      {result.seriesPotential && (
+      {safeResult.seriesPotential && (
         <section className="space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.seriesPotential", locale)}
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("safeResult.seriesPotential", locale)}
           </h3>
           <div className="bg-muted/40 rounded-2xl px-4 py-3">
-            <p className="text-sm text-foreground leading-relaxed">{result.seriesPotential}</p>
+            <p className="text-sm text-foreground leading-relaxed">{safeResult.seriesPotential}</p>
           </div>
         </section>
       )}
 
       {/* Viral Analysis */}
-      {result.viralAnalysis && (
-        <ViralAnalysisCard analysis={result.viralAnalysis} locale={locale} />
+      {safeResult.viralAnalysis && (
+        <ViralAnalysisCard analysis={safeResult.viralAnalysis} locale={locale} />
       )}
 
       {/* Thumbnail Ideas */}
-      {result.thumbnails && result.thumbnails.length > 0 && (
+      {safeResult.thumbnails && safeResult.thumbnails.length > 0 && (
         <section className="space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <Layout className="h-3.5 w-3.5 text-primary" />{t("result.thumbnails", locale)}
+            <Layout className="h-3.5 w-3.5 text-primary" />{t("safeResult.thumbnails", locale)}
           </h3>
-          {result.thumbnails.map((thumb, i) => (
+          {safeResult.thumbnails.map((thumb, i) => (
             <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-2">
               <p className="text-xs font-bold text-primary">THUMBNAIL {i + 1}</p>
               <div>
