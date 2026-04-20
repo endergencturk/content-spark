@@ -97,7 +97,7 @@ export const ProResults = memo(function ProResults({
             <Trophy className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("safeResult.bestHook", locale)}</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1.5">⭐ {t("result.bestHook", locale)}</p>
             <p className="text-base font-semibold text-foreground leading-relaxed">{safeResult.bestHook}</p>
           </div>
           <CopyBtn text={safeResult.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
@@ -308,7 +308,7 @@ export const ProResults = memo(function ProResults({
             {safeResult.voiceStyle && (
               <AccordionItem value="voice" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />{t("safeResult.voiceStyle", locale)}</span>
+                  <span className="flex items-center gap-2"><Mic className="h-4 w-4 text-primary" />{t("result.voiceStyle", locale)}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="bg-muted/40 rounded-xl p-3">
@@ -348,7 +348,7 @@ export const ProResults = memo(function ProResults({
       {safeResult.seriesPotential && (
         <section className="space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("safeResult.seriesPotential", locale)}
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />{t("result.seriesPotential", locale)}
           </h3>
           <div className="bg-muted/40 rounded-2xl px-4 py-3">
             <p className="text-sm text-foreground leading-relaxed">{safeResult.seriesPotential}</p>
@@ -365,7 +365,7 @@ export const ProResults = memo(function ProResults({
       {safeResult.thumbnails && safeResult.thumbnails.length > 0 && (
         <section className="space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
-            <Layout className="h-3.5 w-3.5 text-primary" />{t("safeResult.thumbnails", locale)}
+            <Layout className="h-3.5 w-3.5 text-primary" />{t("result.thumbnails", locale)}
           </h3>
           {safeResult.thumbnails.map((thumb, i) => (
             <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-2">
