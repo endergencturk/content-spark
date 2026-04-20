@@ -6,6 +6,7 @@ import {
 
 const safeArray = (val: any): string[] =>
   Array.isArray(val) ? val : typeof val === "string" ? val.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
+const safeList = <T,>(val: T[] | undefined | null): T[] => Array.isArray(val) ? val : [];
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { t, type Locale } from "@/lib/i18n";
 import { ScriptEditor } from "@/components/ScriptEditor";
@@ -76,6 +77,12 @@ export const ProResults = memo(function ProResults({
   result, platforms, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30", voiceSpeed = "0.9",
 }: { result: ProResult; platforms: string[]; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string; voiceSpeed?: string }) {
   const [showPack, setShowPack] = useState(false);
+  const hookVariations = safeList(result.hookVariations);
+  const typedHooks = safeList(result.hooks);
+  const angleVariations = safeList(result.angleVariations);
+  const editingPlan = safeList(result.editingPlan);
+  const imagePrompts = safeList(result.imagePrompts);
+  const music = safeList(result.music);
 
   return (
     <div className="space-y-6">
@@ -186,14 +193,14 @@ export const ProResults = memo(function ProResults({
           </div>
 
           <Accordion type="multiple" defaultValue={["hooks"]} className="space-y-2.5">
-            {result.hookVariations?.length > 0 && (
+            {hookVariations.length > 0 && (
               <AccordionItem value="hooks" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />{t("result.hookVariations", locale)} ({result.hookVariations.length})</span>
+                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />{t("result.hookVariations", locale)} ({hookVariations.length})</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2">
-                    {result.hookVariations.map((v, i) => (
+                    {hookVariations.map((v, i) => (
                       <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-xl p-3">
                         <p className="text-sm text-foreground leading-relaxed">
                           <span className="text-xs font-bold text-primary mr-1.5">V{i + 1}</span>{v}
@@ -207,14 +214,14 @@ export const ProResults = memo(function ProResults({
             )}
 
             {/* Typed Hooks (5 psychological angles) */}
-            {result.hooks && result.hooks.length > 0 && (
+            {typedHooks.length > 0 && (
               <AccordionItem value="typed-hooks" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />{t("result.hooks", locale)} ({result.hooks.length})</span>
+                  <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" />{t("result.hooks", locale)} ({typedHooks.length})</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2">
-                    {result.hooks.map((hook, i) => {
+                    {typedHooks.map((hook, i) => {
                       const isTyped = typeof hook === "object" && hook !== null;
                       const hookText = isTyped ? (hook as TypedHook).hook : (hook as string);
                       const hookType = isTyped ? (hook as TypedHook).type : undefined;
@@ -235,14 +242,14 @@ export const ProResults = memo(function ProResults({
             )}
 
             {/* Angle Variations */}
-            {result.angleVariations && result.angleVariations.length > 0 && (
+            {angleVariations.length > 0 && (
               <AccordionItem value="angles" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                  <span className="flex items-center gap-2"><Shuffle className="h-4 w-4 text-primary" />{t("result.angleVariations", locale)} ({result.angleVariations.length})</span>
+                  <span className="flex items-center gap-2"><Shuffle className="h-4 w-4 text-primary" />{t("result.angleVariations", locale)} ({angleVariations.length})</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2">
-                    {result.angleVariations.map((angle, i) => (
+                    {angleVariations.map((angle, i) => (
                       <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-xl p-3">
                         <p className="text-sm text-foreground leading-relaxed">
                           <span className="text-[10px] uppercase tracking-widest font-bold text-primary mr-1.5">[{angle.type}]</span>
@@ -256,14 +263,14 @@ export const ProResults = memo(function ProResults({
               </AccordionItem>
             )}
 
-            {result.editingPlan?.length > 0 && (
+            {editingPlan.length > 0 && (
               <AccordionItem value="editing" className="border border-border/50 rounded-2xl overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
                   <span className="flex items-center gap-2"><Film className="h-4 w-4 text-primary" />{t("result.editingPlan", locale)}</span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-2.5">
-                    {result.editingPlan.map((scene, i) => (
+                    {editingPlan.map((scene, i) => (
                       <div key={i} className="bg-muted/40 rounded-xl p-3 space-y-1">
                         <p className="text-xs font-bold text-primary">Scene {scene.scene ?? i + 1}</p>
                         <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{String(scene.visual || '').replace(/^Scene\s*\d*[:\-–—]?\s*/i, '')}</p>
@@ -278,11 +285,11 @@ export const ProResults = memo(function ProResults({
 
             <AccordionItem value="images" className="border border-border/50 rounded-2xl overflow-hidden">
               <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
-                <span className="flex items-center gap-2"><Image className="h-4 w-4 text-primary" />{t("result.imagePrompts", locale)} ({result.imagePrompts.length})</span>
+                 <span className="flex items-center gap-2"><Image className="h-4 w-4 text-primary" />{t("result.imagePrompts", locale)} ({imagePrompts.length})</span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
                 <div className="space-y-2">
-                  {result.imagePrompts.map((p, i) => (
+                   {imagePrompts.map((p, i) => (
                     <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-xl p-3">
                       <p className="text-xs text-muted-foreground leading-relaxed">
                         <span className="text-foreground font-semibold mr-1">{i + 1}.</span>{p}
@@ -312,13 +319,13 @@ export const ProResults = memo(function ProResults({
       )}
 
       {/* Music Suggestions */}
-      {result.music && result.music.length > 0 && (
+      {music.length > 0 && (
         <section className="space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
             <Music className="h-3.5 w-3.5 text-primary" />{t("result.music", locale)}
           </h3>
           <div className="space-y-1.5">
-            {result.music.map((m, i) => (
+            {music.map((m, i) => (
               <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5 space-y-1">
                 <p className="text-sm font-medium text-foreground">{typeof m === 'string' ? m : m.type}</p>
                 {typeof m !== 'string' && (

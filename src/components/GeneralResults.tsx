@@ -3,6 +3,7 @@ import { Copy, Trophy, Crown, Youtube, Hash, Image, Music, TrendingUp, Clock, La
 
 const safeArray = (val: any): string[] =>
   Array.isArray(val) ? val : typeof val === "string" ? val.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
+const safeList = <T,>(val: T[] | undefined | null): T[] => Array.isArray(val) ? val : [];
 import { t, type Locale } from "@/lib/i18n";
 import { BlurredPreview } from "@/components/BlurredPreview";
 import { ScriptEditor } from "@/components/ScriptEditor";
@@ -68,6 +69,13 @@ const CopyBtn = memo(function CopyBtn({
 export const GeneralResults = memo(function GeneralResults({
   result, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30", voiceSpeed = "0.9",
 }: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string; voiceSpeed?: string }) {
+  const hooks = safeList(result.hooks);
+  const editingPlan = safeList(result.editingPlan);
+  const imagePrompts = safeList(result.imagePrompts);
+  const thumbnails = safeList(result.thumbnails);
+  const music = safeList(result.music);
+  const angleVariations = safeList(result.angleVariations);
+
   return (
     <div className="space-y-5">
       {/* ⭐ Best Hook - full width */}
@@ -88,7 +96,7 @@ export const GeneralResults = memo(function GeneralResults({
       {/* Hooks */}
       <section className="space-y-2.5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.hooks", locale)}</h3>
-        {result.hooks.map((hook, i) => {
+        {hooks.map((hook, i) => {
           const isTyped = typeof hook === "object" && hook !== null;
           const hookText = isTyped ? (hook as TypedHook).hook : (hook as string);
           const hookType = isTyped ? (hook as TypedHook).type : undefined;
@@ -111,10 +119,10 @@ export const GeneralResults = memo(function GeneralResults({
       </section>
 
       {/* Editing Plan */}
-      {result.editingPlan?.length > 0 && (
+      {editingPlan.length > 0 && (
         <section className="space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.editingPlan", locale)}</h3>
-          {result.editingPlan.map((scene, i) => (
+          {editingPlan.map((scene, i) => (
             <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-1">
               <p className="text-xs font-bold text-primary">Scene {scene.scene ?? i + 1}</p>
               <p className="text-sm text-foreground"><span className="text-muted-foreground text-[10px] uppercase mr-1">Visual:</span>{String(scene.visual || '').replace(/^Scene\s*\d*[:\-–—]?\s*/i, '')}</p>
@@ -187,7 +195,7 @@ export const GeneralResults = memo(function GeneralResults({
       {/* Image Prompts */}
       <section className="space-y-2.5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">{t("result.imagePrompts", locale)}</h3>
-        {result.imagePrompts.map((p, i) => (
+        {imagePrompts.map((p, i) => (
           <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
             <p className="text-xs text-muted-foreground leading-relaxed">
               <span className="text-foreground font-semibold mr-1">{i + 1}.</span>{p}
@@ -198,12 +206,12 @@ export const GeneralResults = memo(function GeneralResults({
       </section>
 
       {/* Thumbnail Ideas */}
-      {result.thumbnails && result.thumbnails.length > 0 && (
+      {thumbnails.length > 0 && (
         <section className="space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
             <Layout className="h-3.5 w-3.5 text-primary" />{t("result.thumbnails", locale)}
           </h3>
-          {result.thumbnails.map((thumb, i) => (
+          {thumbnails.map((thumb, i) => (
             <div key={i} className="bg-muted/40 rounded-2xl p-4 space-y-2">
               <p className="text-xs font-bold text-primary">THUMBNAIL {i + 1}</p>
               <div>
@@ -222,13 +230,13 @@ export const GeneralResults = memo(function GeneralResults({
       </div>{/* end image/thumbnail grid */}
 
       {/* Music Suggestions */}
-      {result.music && result.music.length > 0 && (
+      {music.length > 0 && (
         <section className="space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
             <Music className="h-3.5 w-3.5 text-primary" />{t("result.music", locale)}
           </h3>
           <div className="space-y-1.5">
-            {result.music.map((m, i) => (
+            {music.map((m, i) => (
               <div key={i} className="bg-muted/40 rounded-2xl px-4 py-2.5 space-y-1">
                 <p className="text-sm font-medium text-foreground">{typeof m === 'string' ? m : m.type}</p>
                 {typeof m !== 'string' && (
@@ -259,12 +267,12 @@ export const GeneralResults = memo(function GeneralResults({
       )}
 
       {/* Angle Variations */}
-      {result.angleVariations && result.angleVariations.length > 0 && (
+      {angleVariations.length > 0 && (
         <section className="space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
             <Shuffle className="h-3.5 w-3.5 text-primary" />{t("result.angleVariations", locale)}
           </h3>
-          {result.angleVariations.map((angle, i) => (
+          {angleVariations.map((angle, i) => (
             <div key={i} className="flex items-start justify-between gap-3 bg-muted/40 rounded-2xl p-4">
               <p className="text-sm text-foreground leading-relaxed">
                 <span className="text-[10px] uppercase tracking-widest font-bold text-primary mr-1.5">[{angle.type}]</span>
