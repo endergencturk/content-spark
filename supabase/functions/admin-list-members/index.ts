@@ -18,7 +18,7 @@ serve(async (req) => {
     const adminPw = Deno.env.get("ADMIN_PASSWORD");
 
     if (!adminUser || !adminPw) {
-      return new Response(JSON.stringify({ error: "Admin not configured" }), {
+      return new Response(JSON.stringify({ error: "Service unavailable" }), {
         status: 503,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -43,7 +43,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: String(e) }), {
+    // Log full error server-side, return generic message to client
+    console.error("admin-list-members error:", e);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
