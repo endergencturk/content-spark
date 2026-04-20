@@ -29,6 +29,7 @@ export type Database = {
           platforms: string[]
           style: string
           topic: string
+          user_id: string | null
         }
         Insert: {
           content_type?: string
@@ -44,6 +45,7 @@ export type Database = {
           platforms?: string[]
           style?: string
           topic: string
+          user_id?: string | null
         }
         Update: {
           content_type?: string
@@ -59,6 +61,7 @@ export type Database = {
           platforms?: string[]
           style?: string
           topic?: string
+          user_id?: string | null
         }
         Relationships: []
       }
