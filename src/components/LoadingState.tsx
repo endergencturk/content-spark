@@ -5,6 +5,12 @@ import { t, type Locale } from "@/lib/i18n";
 type Mode = "general" | "pro" | "horror";
 
 export const LoadingState = memo(function LoadingState({ mode, locale = "en" }: { mode: Mode; locale?: Locale }) {
+  const title = mode === "horror"
+    ? (locale === "tr" ? "Horror pack hazırlanıyor..." : "Building your horror pack...")
+    : mode === "pro"
+      ? t("loading.pro", locale)
+      : t("loading.general", locale);
+
   return (
     <div className="flex flex-col items-center justify-center py-16 space-y-4">
       <div className="relative h-12 w-12">
@@ -14,9 +20,7 @@ export const LoadingState = memo(function LoadingState({ mode, locale = "en" }: 
         </div>
       </div>
       <div className="text-center space-y-1">
-        <p className="text-sm font-semibold text-foreground">
-          {mode === "pro" ? t("loading.pro", locale) : t("loading.general", locale)}
-        </p>
+        <p className="text-sm font-semibold text-foreground">{title}</p>
         <p className="text-xs text-muted-foreground">{t("loading.time", locale)}</p>
       </div>
     </div>

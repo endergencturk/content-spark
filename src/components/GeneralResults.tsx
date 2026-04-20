@@ -69,7 +69,7 @@ const CopyBtn = memo(function CopyBtn({
 export const GeneralResults = memo(function GeneralResults({
   result, copied, onCopy, locale = "en", targetAudience = "global", scriptLength = "30", voiceSpeed = "0.9",
 }: { result: GeneralResult; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; targetAudience?: string; scriptLength?: string; voiceSpeed?: string }) {
-  const hooks = safeList(result.hooks);
+  const hooks = Array.isArray(result.hooks) ? result.hooks : [];
   const editingPlan = safeList(result.editingPlan);
   const imagePrompts = safeList(result.imagePrompts);
   const thumbnails = safeList(result.thumbnails);

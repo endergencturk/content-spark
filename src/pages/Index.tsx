@@ -68,6 +68,21 @@ function normalizeResult(data: any): any {
   if (out.tiktok?.hashtags && !Array.isArray(out.tiktok.hashtags)) {
     out.tiktok = { ...out.tiktok, hashtags: String(out.tiktok.hashtags).split(",").map((s: string) => s.trim()) };
   }
+  out.youtube = {
+    title: String(out.youtube?.title || ""),
+    description: String(out.youtube?.description || ""),
+    tags: Array.isArray(out.youtube?.tags) ? out.youtube.tags : [],
+  };
+  out.tiktok = {
+    caption: String(out.tiktok?.caption || ""),
+    hashtags: Array.isArray(out.tiktok?.hashtags) ? out.tiktok.hashtags : [],
+  };
+  if (!Array.isArray(out.hooks)) out.hooks = [];
+  if (!Array.isArray(out.editingPlan)) out.editingPlan = [];
+  if (!Array.isArray(out.imagePrompts)) out.imagePrompts = [];
+  if (!Array.isArray(out.thumbnails)) out.thumbnails = [];
+  if (!Array.isArray(out.angleVariations)) out.angleVariations = [];
+  if (!Array.isArray(out.music)) out.music = [];
   // Fix editing plan scene numbering
   if (Array.isArray(out.editingPlan)) {
     out.editingPlan = out.editingPlan.map((scene: any, i: number) => ({
@@ -540,6 +555,7 @@ export default function Index() {
 
   const discoverIdeas = useCallback(async () => {
     setLoading(true);
+    setActiveTab("results");
     setDiscoveryResult(null);
     try {
       const body = {
@@ -667,7 +683,7 @@ export default function Index() {
       // Script length verification & retry
       const target = CHAR_TARGETS[scriptLength] || CHAR_TARGETS["30"];
       const scriptLen = (data?.script || "").length;
-      if (scriptLen < target.min) {
+      if (!isHorrorMode && scriptLen > 0 && scriptLen < Math.floor(target.min * 0.8)) {
         toast.info("Expanding script...", { duration: 3000 });
         const retryBody = {
           ...body,
@@ -1413,7 +1429,7 @@ Viral Score: ${viralScore}/10
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t("selector.length", locale)}</p>
               <div className="flex gap-2">
-                {(isHorrorMode ? LENGTH_OPTIONS.filter(l => l !== "60") : LENGTH_OPTIONS).map((len) => {
+                {LENGTH_OPTIONS.map((len) => {
                   const isLocked = !isProMode && !isHorrorMode && len === "60";
                   return (
                     <Pill
