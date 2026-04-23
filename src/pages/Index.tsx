@@ -1097,7 +1097,8 @@ Viral Score: ${viralScore}/10
 
       {/* Trial countdown banner — visible only during the 3-day Pro trial */}
       {planType === "trial" && (
-        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2.5">
+        <Alert className="rounded-none border-x-0 border-t-0 bg-primary/10 border-primary/20 py-2.5">
+          <AlertDescription>
           <div className="mx-auto max-w-6xl flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2 text-sm">
               <Crown className="h-4 w-4 text-primary shrink-0" />
@@ -1112,14 +1113,12 @@ Viral Score: ${viralScore}/10
                     : (locale === "tr" ? "Yakında bitiyor" : "Ending soon")}
               </span>
             </div>
-            <button
-              onClick={() => setShowUpgradeDialog(true)}
-              className="text-xs font-semibold text-primary hover:underline"
-            >
+            <Button variant="link" size="sm" onClick={() => setShowUpgradeDialog(true)} className="text-xs text-primary h-auto p-0">
               {locale === "tr" ? "Pro'ya yükselt →" : "Upgrade to Pro →"}
-            </button>
+            </Button>
           </div>
-        </div>
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Mobile: keep floating trending panel */}
