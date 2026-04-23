@@ -1401,11 +1401,13 @@ Viral Score: ${viralScore}/10
                 </p>
               )}
               {isHorrorMode && countryWarning && (
-                <div className="flex items-center gap-2 text-xs text-yellow-500 bg-yellow-500/10 rounded-xl px-3 py-2 border border-yellow-500/20">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                  <span>⚠️ You've used {countryWarning} before. Consider a new location.</span>
-                  <button onClick={() => setCountryWarning(null)} className="ml-auto text-yellow-400 hover:text-yellow-300 text-[10px] font-medium">Dismiss</button>
-                </div>
+                <Alert className="bg-yellow-500/10 border-yellow-500/20 text-yellow-500">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  <AlertDescription className="flex items-center gap-2 text-xs">
+                    <span>⚠️ You've used {countryWarning} before. Consider a new location.</span>
+                    <Button variant="ghost" size="sm" onClick={() => setCountryWarning(null)} className="ml-auto text-yellow-400 hover:text-yellow-300 text-[10px] h-auto p-0">Dismiss</Button>
+                  </AlertDescription>
+                </Alert>
               )}
 
             </div>
