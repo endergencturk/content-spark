@@ -1613,24 +1613,29 @@ Viral Score: ${viralScore}/10
 
           {/* Duplicate Warning Banner */}
           {duplicateWarning && (
-            <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-4 space-y-3">
+            <Alert className="rounded-2xl border-yellow-500/30 bg-yellow-500/10">
+              <AlertTriangle className="h-4 w-4 text-yellow-500" />
+              <AlertDescription className="space-y-3">
               <p className="text-sm font-semibold text-foreground">
-                ⚠️ You generated content about this topic before.
+                You generated content about this topic before.
               </p>
               <p className="text-xs text-muted-foreground">
                 {duplicateWarning.date} — &quot;{duplicateWarning.topic}&quot;
               </p>
               <div className="flex gap-2">
-                <button
+                <Button
+                  size="sm"
                   onClick={() => {
                     setDuplicateWarning(null);
                     generateContent(true);
                   }}
-                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"
+                  className="rounded-xl text-xs"
                 >
                   Yes, Continue
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => {
                     setDuplicateWarning(null);
                     handleHistoryReopen({
@@ -1648,12 +1653,13 @@ Viral Score: ${viralScore}/10
                       is_favorite: false,
                     });
                   }}
-                  className="px-4 py-2 rounded-xl bg-muted text-foreground text-xs font-semibold border border-border/50"
+                  className="rounded-xl text-xs"
                 >
                   View Previous
-                </button>
+                </Button>
               </div>
-            </div>
+              </AlertDescription>
+            </Alert>
           )}
 
           {/* Discovery Results (shown in generate tab) */}
