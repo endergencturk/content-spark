@@ -1729,7 +1729,8 @@ Viral Score: ${viralScore}/10
                     {locale === "tr" ? "📦 Oluşturulan İçerik Paketi" : "📦 Generated Content Pack"}
                   </h2>
                 </div>
-                <div className="rounded-2xl border border-border/40 bg-card shadow-sm p-4 flex flex-wrap items-center gap-4">
+                <Card className="rounded-2xl shadow-sm">
+                <CardContent className="p-4 flex flex-wrap items-center gap-4">
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Topic</p>
                     <p className="text-sm font-bold text-foreground truncate">{topic}</p>
@@ -1740,64 +1741,67 @@ Viral Score: ${viralScore}/10
                       <p className="text-xs font-semibold text-foreground">{((isProMode || isHorrorMode) ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
                     </div>
                     {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
-                      <div className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5">
-                        <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-sm font-bold text-primary">{(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10</span>
-                      </div>
+                      <Badge variant="secondary" className="bg-primary/10 text-primary border-0 gap-1.5 px-3 py-1.5">
+                        <TrendingUp className="h-3.5 w-3.5" />
+                        {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10
+                      </Badge>
                     )}
                   </div>
-                </div>
+                </CardContent>
+                </Card>
               </div>
             )}
 
             {/* Action bar */}
             {hasResults && (
-              <div className="rounded-2xl border border-border/40 bg-card shadow-sm p-4 space-y-3">
+              <Card className="rounded-2xl shadow-sm">
+              <CardContent className="p-4 space-y-3">
                 <div className="flex gap-2">
-                  <button
+                  <Button
+                    variant="outline"
                     onClick={copyAll}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
+                    className="flex-1 rounded-2xl bg-primary/10 border-primary/20 text-primary hover:bg-primary/15 h-auto py-3"
                   >
                     <Copy className="h-4 w-4" />
                     {copied === "all" ? t("btn.copied", locale) : t("btn.copyFullPack", locale)}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={downloadTxt}
-                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-muted/60 border border-border/50 text-foreground text-sm font-semibold hover:bg-muted transition-colors"
+                    className="rounded-2xl h-auto py-3"
                   >
                     <Download className="h-4 w-4" />
                     {t("btn.downloadTxt", locale)}
-                  </button>
+                  </Button>
                 </div>
                 <div className="flex justify-center gap-3 flex-wrap">
-                  <button onClick={() => setActiveTab("generate")} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  <Button variant="ghost" size="sm" onClick={() => setActiveTab("generate")} className="text-xs h-auto py-1">
                     <PenTool className="h-3 w-3" />{locale === "tr" ? "Düzenle" : "Edit & Regenerate"}
-                  </button>
-                  <button onClick={() => generateContent()} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => generateContent()} className="text-xs h-auto py-1">
                     <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
-                  </button>
-                  <button onClick={autoFix} disabled={loading} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={autoFix} disabled={loading} className="text-xs text-primary hover:text-primary/80 h-auto py-1">
                     <Zap className="h-3 w-3" />{t("btn.autoFix", locale)}
-                  </button>
+                  </Button>
                   {autoFixUsed && (originalGeneralResult || originalProResult) && (
-                    <button
-                      onClick={() => setShowOriginal(!showOriginal)}
-                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setShowOriginal(!showOriginal)} className="text-xs h-auto py-1">
                       {showOriginal ? t("result.autoFixedVersion", locale) : t("result.originalVersion", locale)}
-                    </button>
+                    </Button>
                   )}
                 </div>
                 {autoFixImproved && (
                   <div className="flex justify-center gap-2">
-                    <span className="text-[10px] uppercase tracking-widest font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-0 text-[10px] uppercase tracking-widest font-bold rounded-full">
                       ✓ {autoFixScoreDiff > 0 ? t("badge.improvedBy", locale).replace("{x}", String(autoFixScoreDiff)) : t("badge.improved", locale)}
-                    </span>
+                    </Badge>
                   </div>
                 )}
                 {autoFixUsed && (originalGeneralResult || originalProResult) && !showOriginal && (
                   <div className="flex justify-center">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => {
                         if (isProMode && originalProResult) {
                           setProResult(originalProResult);
@@ -1811,13 +1815,14 @@ Viral Score: ${viralScore}/10
                         setAutoFixScoreDiff(0);
                         setShowOriginal(false);
                       }}
-                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-xs h-auto py-1"
                     >
                       {t("btn.revertOriginal", locale)}
-                    </button>
+                    </Button>
                   </div>
                 )}
-              </div>
+              </CardContent>
+              </Card>
             )}
 
             {/* Auto-Fixed Version label */}
