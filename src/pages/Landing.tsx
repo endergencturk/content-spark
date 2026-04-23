@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
 import { useRouteThemeSync } from "@/contexts/SettingsContext";
@@ -46,21 +50,23 @@ function LandingNav() {
         </Link>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-          <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Features</button>
-          <button onClick={() => scrollTo("how-it-works")} className="hover:text-foreground transition-colors">How It Works</button>
-          <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">Pricing</button>
+          <Button variant="link" className="text-muted-foreground p-0 h-auto" onClick={() => scrollTo("features")}>Features</Button>
+          <Button variant="link" className="text-muted-foreground p-0 h-auto" onClick={() => scrollTo("how-it-works")}>How It Works</Button>
+          <Button variant="link" className="text-muted-foreground p-0 h-auto" onClick={() => scrollTo("pricing")}>Pricing</Button>
           <Link to="/app" className="hover:text-foreground transition-colors">App</Link>
-          <button onClick={() => scrollTo("contact")} className="hover:text-foreground transition-colors">Contact</button>
+          <Button variant="link" className="text-muted-foreground p-0 h-auto" onClick={() => scrollTo("contact")}>Contact</Button>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={toggleLandingTheme}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="rounded-xl"
             aria-label="Toggle theme"
           >
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
+          </Button>
           {user ? (
             <Button
               variant="ghost"
@@ -240,13 +246,17 @@ function Features() {
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => (
-            <div key={f.title} className="group rounded-2xl border border-border/50 bg-card p-6 transition-all hover:border-primary/30 hover:shadow-[var(--shadow-card-hover)]">
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+            <Card key={f.title} className="group rounded-2xl border-border/50 transition-all hover:border-primary/30 hover:shadow-[var(--shadow-card-hover)]">
+              <CardHeader className="pb-3">
+              <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                 <f.icon className="h-5 w-5" />
               </div>
-              <h3 className="text-lg font-bold text-foreground">{f.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-            </div>
+              <CardTitle className="text-lg">{f.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <CardDescription className="text-sm leading-relaxed">{f.desc}</CardDescription>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
@@ -317,15 +327,14 @@ const TOGGLE_OPTIONS: { key: ComparisonKey; label: string }[] = [
 
 function ExampleOutput() {
   const { user, setShowAuthModal } = useAuth();
-  const [active, setActive] = useState<ComparisonKey>("original");
-  const data = COMPARISON_DATA[active];
+  const [active, setActive] = useState<string>("original");
+  const data = COMPARISON_DATA[active as ComparisonKey];
 
-  const scoreColor =
-    data.score >= 9
-      ? "text-primary bg-primary/10"
-      : data.score >= 7
-      ? "text-green-500 bg-green-500/10"
-      : "text-orange-500 bg-orange-500/10";
+  const scoreColor = data.score >= 9
+    ? "text-primary bg-primary/10"
+    : data.score >= 7
+    ? "text-green-500 bg-green-500/10"
+    : "text-orange-500 bg-orange-500/10";
 
   return (
     <section className="py-20 sm:py-28">
@@ -335,46 +344,32 @@ function ExampleOutput() {
           <p className="mt-3 text-muted-foreground">Watch content transform from generic to viral-ready.</p>
         </div>
 
-        {/* Segmented Toggle */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-2xl border border-border/50 bg-muted/50 p-1 gap-1">
-            {TOGGLE_OPTIONS.map((opt) => (
-              <button
-                key={opt.key}
-                onClick={() => setActive(opt.key)}
-                className={`rounded-xl px-4 sm:px-6 py-2 text-xs sm:text-sm font-semibold transition-all ${
-                  active === opt.key
-                    ? "bg-primary text-primary-foreground shadow-[var(--shadow-warm)]"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+        {/* Segmented Toggle using Tabs */}
+        <Tabs value={active} onValueChange={setActive} className="w-full">
+          <div className="flex justify-center mb-8">
+            <TabsList className="rounded-2xl h-auto p-1">
+              {TOGGLE_OPTIONS.map((opt) => (
+                <TabsTrigger key={opt.key} value={opt.key} className="rounded-xl px-4 sm:px-6 py-2 text-xs sm:text-sm font-semibold data-[state=active]:shadow-[var(--shadow-warm)]">
+                  {opt.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
           </div>
-        </div>
 
         {/* Content Card */}
-        <div
-          className={`rounded-2xl border bg-card p-6 sm:p-8 transition-all duration-300 ${
+        <Card
+          className={`rounded-2xl p-6 sm:p-8 transition-all duration-300 ${
             active === "pro"
               ? "border-primary/50 shadow-[0_0_30px_-5px_hsl(var(--primary)/0.2)]"
-              : "border-border/50 shadow-[var(--shadow-card)]"
+              : "border-border/50"
           }`}
         >
-          {/* Badge */}
           {data.badge && (
             <div className="mb-4">
-              <span
-                className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
-                  data.badge === "Pro"
-                    ? "bg-primary/15 text-primary"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {data.badge === "Pro" && <Crown className="h-3 w-3 mr-1" />}
+              <Badge variant={data.badge === "Pro" ? "default" : "secondary"} className="rounded-full text-[10px] uppercase tracking-wider">
+                {data.badge === "Pro" && <Crown className="h-3 w-3 mr-1 inline" />}
                 {data.badge === "Pro" ? "Pro Quality" : "Free Tier"}
-              </span>
+              </Badge>
             </div>
           )}
 
@@ -396,17 +391,19 @@ function ExampleOutput() {
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-4">
+          <Separator className="my-6" />
+          <div className="flex items-center justify-between">
             <div className="flex gap-2">
-              <span className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">TikTok</span>
-              <span className="rounded-lg bg-destructive/10 px-3 py-1.5 text-xs font-bold text-destructive">YouTube Shorts</span>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-0">TikTok</Badge>
+              <Badge variant="secondary" className="bg-destructive/10 text-destructive border-0">YouTube Shorts</Badge>
             </div>
             <div className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 ${scoreColor}`}>
               <Star className="h-4 w-4 fill-current" />
               <span className="text-sm font-bold">{data.score} / 10</span>
             </div>
           </div>
-        </div>
+        </Card>
+        </Tabs>
 
         {/* CTAs */}
         <div className="mt-8 flex justify-center">
@@ -444,14 +441,18 @@ function Testimonials() {
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground text-center">Creators Are Already Using It</h2>
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
-          {TESTIMONIALS.map((t) => (
-            <div key={t.handle} className="rounded-2xl border border-border/50 bg-card p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl">{t.avatar}</span>
-                <span className="text-sm font-bold text-primary">{t.handle}</span>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">"{t.quote}"</p>
-            </div>
+          {TESTIMONIALS.map((item) => (
+            <Card key={item.handle} className="rounded-2xl border-border/50">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{item.avatar}</span>
+                  <CardTitle className="text-sm text-primary">{item.handle}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground leading-relaxed">"{item.quote}"</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
@@ -477,11 +478,14 @@ function Pricing() {
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 max-w-3xl mx-auto">
           {/* Trial card */}
-          <div className="relative rounded-2xl border border-border bg-card p-8 text-left">
-            <h3 className="text-lg font-bold text-foreground">Free Trial</h3>
-            <p className="mt-1 text-4xl font-extrabold text-foreground">$0</p>
-            <p className="mt-1 text-xs text-muted-foreground">3 days · Full Pro access</p>
-            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
+          <Card className="rounded-2xl text-left">
+            <CardHeader>
+              <CardTitle>Free Trial</CardTitle>
+              <p className="text-4xl font-extrabold text-foreground">$0</p>
+              <CardDescription>3 days · Full Pro access</CardDescription>
+            </CardHeader>
+            <CardContent>
+            <ul className="space-y-3 text-sm text-muted-foreground">
               {[
                 "All Pro features unlocked",
                 "Unlimited generations",
@@ -492,36 +496,44 @@ function Pricing() {
                 <li key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" />{f}</li>
               ))}
             </ul>
+            </CardContent>
+            <CardFooter>
             {user ? (
-              <Link to="/app" className="block mt-8">
-                <Button variant="outline" className="w-full rounded-xl font-semibold">Open the app</Button>
+              <Link to="/app" className="w-full">
+                <Button variant="outline" className="w-full rounded-xl font-semibold">
+                  Open the app
+                </Button>
               </Link>
             ) : (
               <Button
                 variant="outline"
-                className="w-full mt-8 rounded-xl font-semibold"
+                className="w-full rounded-xl font-semibold"
                 onClick={() => setShowAuthModal(true)}
               >
                 Start free trial
               </Button>
             )}
-          </div>
+            </CardFooter>
+          </Card>
 
           {/* Pro card — featured */}
-          <div className="relative rounded-2xl border-2 border-primary bg-card p-8 text-left shadow-[var(--shadow-warm)]">
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground">
+          <Card className="relative rounded-2xl border-2 border-primary text-left shadow-[var(--shadow-warm)]">
+            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1">
               Most Popular
-            </span>
-            <div className="flex items-center gap-2">
-              <Crown className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-bold text-foreground">Pro</h3>
-            </div>
-            <p className="mt-1">
-              <span className="text-4xl font-extrabold text-foreground">$19</span>
-              <span className="text-sm text-muted-foreground">/month</span>
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">Continue after your trial ends</p>
-            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
+            </Badge>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Crown className="h-5 w-5 text-primary" />
+                <CardTitle>Pro</CardTitle>
+              </div>
+              <p>
+                <span className="text-4xl font-extrabold text-foreground">$19</span>
+                <span className="text-sm text-muted-foreground">/month</span>
+              </p>
+              <CardDescription>Continue after your trial ends</CardDescription>
+            </CardHeader>
+            <CardContent>
+            <ul className="space-y-3 text-sm text-muted-foreground">
               {[
                 "Everything in Free Trial",
                 "Unlimited Pro generations",
@@ -533,13 +545,16 @@ function Pricing() {
                 <li key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" />{f}</li>
               ))}
             </ul>
-            <Button asChild className="w-full mt-8 rounded-xl font-semibold shadow-[var(--shadow-warm)]">
+            </CardContent>
+            <CardFooter className="flex-col gap-3">
+            <Button asChild className="w-full rounded-xl font-semibold shadow-[var(--shadow-warm)]">
               <a href={contactMailto}>Contact us to upgrade</a>
             </Button>
-            <p className="mt-3 text-[11px] text-muted-foreground text-center">
+            <p className="text-[11px] text-muted-foreground text-center">
               Payments aren&apos;t automated yet — contact us and we&apos;ll activate within 24h.
             </p>
-          </div>
+            </CardFooter>
+          </Card>
         </div>
       </div>
     </section>
@@ -586,13 +601,14 @@ function Footer() {
             <span className="text-xs text-muted-foreground ml-2">AI-powered content for creators</span>
           </div>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <button onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-foreground transition-colors">Features</button>
-            <button onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-foreground transition-colors">Pricing</button>
+            <Button variant="link" className="text-muted-foreground p-0 h-auto text-sm" onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}>Features</Button>
+            <Button variant="link" className="text-muted-foreground p-0 h-auto text-sm" onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>Pricing</Button>
             <Link to="/app" className="hover:text-foreground transition-colors">App</Link>
           </div>
         </div>
 
-        <div className="mt-8 text-center">
+        <Separator className="my-8" />
+        <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Contact</p>
           <p className="text-xs text-muted-foreground mb-2">For support or questions, reach out anytime.</p>
           <a href="mailto:ender.genctuerk@gmail.com" className="text-sm text-primary hover:text-primary/80 transition-colors">
