@@ -1160,67 +1160,43 @@ Viral Score: ${viralScore}/10
           </div>
 
           {/* MODE TOGGLE */}
-          <div className="flex gap-2 p-1 rounded-2xl bg-muted/60">
-            <button
-              onClick={() => setMode("general")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                mode === "general" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-              }`}
-            >
-              <Zap className="h-4 w-4" />{t("mode.free", locale)}
-            </button>
-            <button
-              onClick={() => setMode("pro")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-              }`}
-            >
-              <Crown className="h-4 w-4" />{t("mode.pro", locale)}
-            </button>
-            <button
-              onClick={() => setMode("horror")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                isHorrorMode ? "bg-red-900 text-red-100 shadow-sm shadow-red-900/30" : "text-muted-foreground"
-              }`}
-            >
-              <Skull className="h-4 w-4" />🎭 Horror
-            </button>
-          </div>
+          <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="w-full">
+            <TabsList className="w-full rounded-2xl h-auto p-1">
+              <TabsTrigger value="general" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2">
+                <Zap className="h-4 w-4" />{t("mode.free", locale)}
+              </TabsTrigger>
+              <TabsTrigger value="pro" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2">
+                <Crown className="h-4 w-4" />{t("mode.pro", locale)}
+              </TabsTrigger>
+              <TabsTrigger value="horror" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2 data-[state=active]:bg-red-900 data-[state=active]:text-red-100">
+                <Skull className="h-4 w-4" />🎭 Horror
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
           {/* Horror Mode badge */}
           {isHorrorMode && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-950/30 border border-red-800/40">
-              <span className="text-xs font-bold text-red-400 uppercase tracking-widest">Urban Legend Format</span>
-            </div>
+            <Alert className="bg-red-950/30 border-red-800/40">
+              <AlertDescription>
+                <span className="text-xs font-bold text-red-400 uppercase tracking-widest">Urban Legend Format</span>
+              </AlertDescription>
+            </Alert>
           )}
 
           {/* GENERATE / RESULTS TABS */}
-          <div className="flex gap-2 p-1 rounded-2xl bg-muted/40 border border-border/30">
-            <button
-              onClick={() => setActiveTab("generate")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-all ${
-                activeTab === "generate" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <PenTool className="h-3.5 w-3.5" />
-              {locale === "tr" ? "Oluştur" : "Generate"}
-            </button>
-            <button
-              onClick={() => setActiveTab("results")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-all ${
-                activeTab === "results"
-                  ? "bg-card text-foreground shadow-sm"
-                  : hasResults
-                    ? "text-primary hover:text-primary/80"
-                    : "text-muted-foreground/50 cursor-not-allowed"
-              }`}
-              disabled={!hasResults && !loading}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              {locale === "tr" ? "Sonuçlar" : "Results"}
-              {hasResults && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
-            </button>
-          </div>
+          <Tabs value={activeTab} onValueChange={(v) => { if (v === "results" && !hasResults && !loading) return; setActiveTab(v as "generate" | "results"); }} className="w-full">
+            <TabsList className="w-full rounded-2xl h-auto p-1 bg-muted/40 border border-border/30">
+              <TabsTrigger value="generate" className="flex-1 rounded-xl py-2 text-sm font-semibold gap-2">
+                <PenTool className="h-3.5 w-3.5" />
+                {locale === "tr" ? "Oluştur" : "Generate"}
+              </TabsTrigger>
+              <TabsTrigger value="results" disabled={!hasResults && !loading} className="flex-1 rounded-xl py-2 text-sm font-semibold gap-2">
+                <LayoutGrid className="h-3.5 w-3.5" />
+                {locale === "tr" ? "Sonuçlar" : "Results"}
+                {hasResults && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
