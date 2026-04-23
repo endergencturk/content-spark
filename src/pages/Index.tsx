@@ -1892,7 +1892,8 @@ Viral Score: ${viralScore}/10
             {!isMobile && (
               <aside className="hidden lg:block w-72 xl:w-80 shrink-0 space-y-6 sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
                 {/* Trending Panel - inline */}
-              <div ref={trendingRef} className="rounded-2xl border border-border/40 bg-muted/10 p-4">
+              <Card ref={trendingRef} className="rounded-2xl border-border/40 bg-muted/10">
+                <CardContent className="p-4">
                   <TrendingPanel
                     niche={selectedPreset}
                     audience={targetAudience}
@@ -1900,41 +1901,50 @@ Viral Score: ${viralScore}/10
                     onSelectTopic={(t) => setTopic(t)}
                     inline
                   />
-                </div>
+                </CardContent>
+              </Card>
 
                 {/* Quick Tips */}
-                <div className="rounded-2xl border border-border/40 bg-muted/10 p-4 space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                <Card className="rounded-2xl border-border/40 bg-muted/10">
+                <CardContent className="p-4 space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5 mb-3">
                     <Lightbulb className="h-3.5 w-3.5 text-primary" />
                     {locale === "tr" ? "İpuçları" : "Quick Tips"}
                   </h3>
                   <div className="space-y-2">
-                    <div className="rounded-xl bg-muted/30 p-3 border border-border/20">
+                    <Card className="rounded-xl bg-muted/30 border-border/20 shadow-none">
+                    <CardContent className="p-3">
                       <p className="text-[11px] font-medium text-foreground leading-snug">
                         {locale === "tr" ? "İlk 3 saniye hayati önem taşır" : "The first 3 seconds are critical"}
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-1">
                         {locale === "tr" ? "En güçlü hookunuzu en başa koyun." : "Place your strongest hook at the very start."}
                       </p>
-                    </div>
-                    <div className="rounded-xl bg-muted/30 p-3 border border-border/20">
+                    </CardContent>
+                    </Card>
+                    <Card className="rounded-xl bg-muted/30 border-border/20 shadow-none">
+                    <CardContent className="p-3">
                       <p className="text-[11px] font-medium text-foreground leading-snug">
                         {locale === "tr" ? "Niş kalın, geniş değil" : "Stay niche, not broad"}
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-1">
                         {locale === "tr" ? "Belirli konulardaki içerikler daha iyi performans gösterir." : "Content on specific topics performs better than generic."}
                       </p>
-                    </div>
-                    <div className="rounded-xl bg-muted/30 p-3 border border-border/20">
+                    </CardContent>
+                    </Card>
+                    <Card className="rounded-xl bg-muted/30 border-border/20 shadow-none">
+                    <CardContent className="p-3">
                       <p className="text-[11px] font-medium text-foreground leading-snug">
                         {locale === "tr" ? "Auto-Fix ile skoru yükseltin" : "Use Auto-Fix to boost score"}
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-1">
                         {locale === "tr" ? "Sonuçtan sonra Auto-Fix ile viral skorunuzu artırın." : "After generating, use Auto-Fix to improve your viral score."}
                       </p>
-                    </div>
+                    </CardContent>
+                    </Card>
                   </div>
-                </div>
+                </CardContent>
+                </Card>
               </aside>
             )}
           </div>{/* end flex */}
