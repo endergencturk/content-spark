@@ -3,6 +3,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Copy, Loader2, Sparkles, RefreshCw, Download,
   Image, Clock, Flame, Crown, Hash, Youtube, Mic,
@@ -1089,7 +1097,8 @@ Viral Score: ${viralScore}/10
 
       {/* Trial countdown banner — visible only during the 3-day Pro trial */}
       {planType === "trial" && (
-        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2.5">
+        <Alert className="rounded-none border-x-0 border-t-0 bg-primary/10 border-primary/20 py-2.5">
+          <AlertDescription>
           <div className="mx-auto max-w-6xl flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2 text-sm">
               <Crown className="h-4 w-4 text-primary shrink-0" />
@@ -1104,14 +1113,12 @@ Viral Score: ${viralScore}/10
                     : (locale === "tr" ? "Yakında bitiyor" : "Ending soon")}
               </span>
             </div>
-            <button
-              onClick={() => setShowUpgradeDialog(true)}
-              className="text-xs font-semibold text-primary hover:underline"
-            >
+            <Button variant="link" size="sm" onClick={() => setShowUpgradeDialog(true)} className="text-xs text-primary h-auto p-0">
               {locale === "tr" ? "Pro'ya yükselt →" : "Upgrade to Pro →"}
-            </button>
+            </Button>
           </div>
-        </div>
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Mobile: keep floating trending panel */}
@@ -1152,67 +1159,43 @@ Viral Score: ${viralScore}/10
           </div>
 
           {/* MODE TOGGLE */}
-          <div className="flex gap-2 p-1 rounded-2xl bg-muted/60">
-            <button
-              onClick={() => setMode("general")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                mode === "general" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-              }`}
-            >
-              <Zap className="h-4 w-4" />{t("mode.free", locale)}
-            </button>
-            <button
-              onClick={() => setMode("pro")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                isProMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-              }`}
-            >
-              <Crown className="h-4 w-4" />{t("mode.pro", locale)}
-            </button>
-            <button
-              onClick={() => setMode("horror")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                isHorrorMode ? "bg-red-900 text-red-100 shadow-sm shadow-red-900/30" : "text-muted-foreground"
-              }`}
-            >
-              <Skull className="h-4 w-4" />🎭 Horror
-            </button>
-          </div>
+          <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="w-full">
+            <TabsList className="w-full rounded-2xl h-auto p-1">
+              <TabsTrigger value="general" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2">
+                <Zap className="h-4 w-4" />{t("mode.free", locale)}
+              </TabsTrigger>
+              <TabsTrigger value="pro" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2">
+                <Crown className="h-4 w-4" />{t("mode.pro", locale)}
+              </TabsTrigger>
+              <TabsTrigger value="horror" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2 data-[state=active]:bg-red-900 data-[state=active]:text-red-100">
+                <Skull className="h-4 w-4" />🎭 Horror
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
           {/* Horror Mode badge */}
           {isHorrorMode && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-950/30 border border-red-800/40">
-              <span className="text-xs font-bold text-red-400 uppercase tracking-widest">Urban Legend Format</span>
-            </div>
+            <Alert className="bg-red-950/30 border-red-800/40">
+              <AlertDescription>
+                <span className="text-xs font-bold text-red-400 uppercase tracking-widest">Urban Legend Format</span>
+              </AlertDescription>
+            </Alert>
           )}
 
           {/* GENERATE / RESULTS TABS */}
-          <div className="flex gap-2 p-1 rounded-2xl bg-muted/40 border border-border/30">
-            <button
-              onClick={() => setActiveTab("generate")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-all ${
-                activeTab === "generate" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <PenTool className="h-3.5 w-3.5" />
-              {locale === "tr" ? "Oluştur" : "Generate"}
-            </button>
-            <button
-              onClick={() => setActiveTab("results")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-all ${
-                activeTab === "results"
-                  ? "bg-card text-foreground shadow-sm"
-                  : hasResults
-                    ? "text-primary hover:text-primary/80"
-                    : "text-muted-foreground/50 cursor-not-allowed"
-              }`}
-              disabled={!hasResults && !loading}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              {locale === "tr" ? "Sonuçlar" : "Results"}
-              {hasResults && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
-            </button>
-          </div>
+          <Tabs value={activeTab} onValueChange={(v) => { if (v === "results" && !hasResults && !loading) return; setActiveTab(v as "generate" | "results"); }} className="w-full">
+            <TabsList className="w-full rounded-2xl h-auto p-1 bg-muted/40 border border-border/30">
+              <TabsTrigger value="generate" className="flex-1 rounded-xl py-2 text-sm font-semibold gap-2">
+                <PenTool className="h-3.5 w-3.5" />
+                {locale === "tr" ? "Oluştur" : "Generate"}
+              </TabsTrigger>
+              <TabsTrigger value="results" disabled={!hasResults && !loading} className="flex-1 rounded-xl py-2 text-sm font-semibold gap-2">
+                <LayoutGrid className="h-3.5 w-3.5" />
+                {locale === "tr" ? "Sonuçlar" : "Results"}
+                {hasResults && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
@@ -1417,11 +1400,13 @@ Viral Score: ${viralScore}/10
                 </p>
               )}
               {isHorrorMode && countryWarning && (
-                <div className="flex items-center gap-2 text-xs text-yellow-500 bg-yellow-500/10 rounded-xl px-3 py-2 border border-yellow-500/20">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                  <span>⚠️ You've used {countryWarning} before. Consider a new location.</span>
-                  <button onClick={() => setCountryWarning(null)} className="ml-auto text-yellow-400 hover:text-yellow-300 text-[10px] font-medium">Dismiss</button>
-                </div>
+                <Alert className="bg-yellow-500/10 border-yellow-500/20 text-yellow-500">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  <AlertDescription className="flex items-center gap-2 text-xs">
+                    <span>⚠️ You've used {countryWarning} before. Consider a new location.</span>
+                    <Button variant="ghost" size="sm" onClick={() => setCountryWarning(null)} className="ml-auto text-yellow-400 hover:text-yellow-300 text-[10px] h-auto p-0">Dismiss</Button>
+                  </AlertDescription>
+                </Alert>
               )}
 
             </div>
@@ -1450,17 +1435,16 @@ Viral Score: ${viralScore}/10
 
             {/* ⚙️ Advanced Settings (collapsible, hidden in horror mode) */}
             {!isHorrorMode && (
-            <div className="rounded-2xl border border-border/40 overflow-hidden">
-              <button
-                onClick={() => setAdvancedOpen(!advancedOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted/30 transition-colors"
-              >
-                <span>⚙️ {locale === "tr" ? "Gelişmiş Ayarlar" : "Advanced Settings"}</span>
-                {advancedOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-              </button>
+            <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen} className="rounded-2xl border border-border/40 overflow-hidden">
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-none h-auto hover:bg-muted/30">
+                  <span>⚙️ {locale === "tr" ? "Gelişmiş Ayarlar" : "Advanced Settings"}</span>
+                  {advancedOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                </Button>
+              </CollapsibleTrigger>
 
-              {advancedOpen && (
-                <div className="px-4 pb-4 space-y-5">
+              <CollapsibleContent>
+                <div className="px-4 pb-4 pt-2 space-y-5">
                   {/* Style */}
                   {(isProMode || !selectedPreset) && (
                     <div className="space-y-2">
@@ -1536,28 +1520,14 @@ Viral Score: ${viralScore}/10
                     <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
                       <Flame className="h-3 w-3" />{t("selector.hookIntensity", locale)}
                     </p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setHookIntensity(0)}
-                        className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                          hookIntensity === 0
-                            ? "bg-primary/10 text-primary border border-primary/30"
-                            : "bg-muted/60 text-muted-foreground border border-transparent"
-                        }`}
-                      >
+                    <ToggleGroup type="single" value={String(hookIntensity)} onValueChange={(v) => v && setHookIntensity(Number(v))} className="w-full">
+                      <ToggleGroupItem value="0" className="flex-1 rounded-xl text-xs font-medium data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary/30">
                         {t("hook.low", locale)}
-                      </button>
-                      <button
-                        onClick={() => setHookIntensity(2)}
-                        className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                          hookIntensity === 2
-                            ? "bg-primary/10 text-primary border border-primary/30"
-                            : "bg-muted/60 text-muted-foreground border border-transparent"
-                        }`}
-                      >
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="2" className="flex-1 rounded-xl text-xs font-medium data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary/30">
                         {t("hook.high", locale)}
-                      </button>
-                    </div>
+                      </ToggleGroupItem>
+                    </ToggleGroup>
                   </div>
 
                   {/* Image Prompts */}
@@ -1592,18 +1562,18 @@ Viral Score: ${viralScore}/10
                       <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                         {t("selector.customDesc", locale)} <span className="text-muted-foreground/60">{t("selector.customDesc.optional", locale)}</span>
                       </p>
-                      <textarea
+                      <Textarea
                         value={customDescription}
                         onChange={(e) => setCustomDescription(e.target.value)}
                         placeholder={t("selector.customDesc.placeholder", locale)}
                         rows={3}
-                        className="w-full rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                        className="rounded-2xl border-border/60 bg-muted/30 resize-none"
                       />
                     </div>
                   )}
                 </div>
-              )}
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
             )}
             {/* Generate + Bulk Pack buttons */}
             <div className="flex gap-3 pt-2">
@@ -1642,24 +1612,29 @@ Viral Score: ${viralScore}/10
 
           {/* Duplicate Warning Banner */}
           {duplicateWarning && (
-            <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-4 space-y-3">
+            <Alert className="rounded-2xl border-yellow-500/30 bg-yellow-500/10">
+              <AlertTriangle className="h-4 w-4 text-yellow-500" />
+              <AlertDescription className="space-y-3">
               <p className="text-sm font-semibold text-foreground">
-                ⚠️ You generated content about this topic before.
+                You generated content about this topic before.
               </p>
               <p className="text-xs text-muted-foreground">
                 {duplicateWarning.date} — &quot;{duplicateWarning.topic}&quot;
               </p>
               <div className="flex gap-2">
-                <button
+                <Button
+                  size="sm"
                   onClick={() => {
                     setDuplicateWarning(null);
                     generateContent(true);
                   }}
-                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"
+                  className="rounded-xl text-xs"
                 >
                   Yes, Continue
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => {
                     setDuplicateWarning(null);
                     handleHistoryReopen({
@@ -1677,12 +1652,13 @@ Viral Score: ${viralScore}/10
                       is_favorite: false,
                     });
                   }}
-                  className="px-4 py-2 rounded-xl bg-muted text-foreground text-xs font-semibold border border-border/50"
+                  className="rounded-xl text-xs"
                 >
                   View Previous
-                </button>
+                </Button>
               </div>
-            </div>
+              </AlertDescription>
+            </Alert>
           )}
 
           {/* Discovery Results (shown in generate tab) */}
@@ -1752,7 +1728,8 @@ Viral Score: ${viralScore}/10
                     {locale === "tr" ? "📦 Oluşturulan İçerik Paketi" : "📦 Generated Content Pack"}
                   </h2>
                 </div>
-                <div className="rounded-2xl border border-border/40 bg-card shadow-sm p-4 flex flex-wrap items-center gap-4">
+                <Card className="rounded-2xl shadow-sm">
+                <CardContent className="p-4 flex flex-wrap items-center gap-4">
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Topic</p>
                     <p className="text-sm font-bold text-foreground truncate">{topic}</p>
@@ -1763,64 +1740,67 @@ Viral Score: ${viralScore}/10
                       <p className="text-xs font-semibold text-foreground">{((isProMode || isHorrorMode) ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
                     </div>
                     {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
-                      <div className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5">
-                        <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-sm font-bold text-primary">{(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10</span>
-                      </div>
+                      <Badge variant="secondary" className="bg-primary/10 text-primary border-0 gap-1.5 px-3 py-1.5">
+                        <TrendingUp className="h-3.5 w-3.5" />
+                        {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10
+                      </Badge>
                     )}
                   </div>
-                </div>
+                </CardContent>
+                </Card>
               </div>
             )}
 
             {/* Action bar */}
             {hasResults && (
-              <div className="rounded-2xl border border-border/40 bg-card shadow-sm p-4 space-y-3">
+              <Card className="rounded-2xl shadow-sm">
+              <CardContent className="p-4 space-y-3">
                 <div className="flex gap-2">
-                  <button
+                  <Button
+                    variant="outline"
                     onClick={copyAll}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 transition-colors"
+                    className="flex-1 rounded-2xl bg-primary/10 border-primary/20 text-primary hover:bg-primary/15 h-auto py-3"
                   >
                     <Copy className="h-4 w-4" />
                     {copied === "all" ? t("btn.copied", locale) : t("btn.copyFullPack", locale)}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={downloadTxt}
-                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-muted/60 border border-border/50 text-foreground text-sm font-semibold hover:bg-muted transition-colors"
+                    className="rounded-2xl h-auto py-3"
                   >
                     <Download className="h-4 w-4" />
                     {t("btn.downloadTxt", locale)}
-                  </button>
+                  </Button>
                 </div>
                 <div className="flex justify-center gap-3 flex-wrap">
-                  <button onClick={() => setActiveTab("generate")} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  <Button variant="ghost" size="sm" onClick={() => setActiveTab("generate")} className="text-xs h-auto py-1">
                     <PenTool className="h-3 w-3" />{locale === "tr" ? "Düzenle" : "Edit & Regenerate"}
-                  </button>
-                  <button onClick={() => generateContent()} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => generateContent()} className="text-xs h-auto py-1">
                     <RefreshCw className="h-3 w-3" />{t("btn.regenerate", locale)}
-                  </button>
-                  <button onClick={autoFix} disabled={loading} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={autoFix} disabled={loading} className="text-xs text-primary hover:text-primary/80 h-auto py-1">
                     <Zap className="h-3 w-3" />{t("btn.autoFix", locale)}
-                  </button>
+                  </Button>
                   {autoFixUsed && (originalGeneralResult || originalProResult) && (
-                    <button
-                      onClick={() => setShowOriginal(!showOriginal)}
-                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setShowOriginal(!showOriginal)} className="text-xs h-auto py-1">
                       {showOriginal ? t("result.autoFixedVersion", locale) : t("result.originalVersion", locale)}
-                    </button>
+                    </Button>
                   )}
                 </div>
                 {autoFixImproved && (
                   <div className="flex justify-center gap-2">
-                    <span className="text-[10px] uppercase tracking-widest font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-0 text-[10px] uppercase tracking-widest font-bold rounded-full">
                       ✓ {autoFixScoreDiff > 0 ? t("badge.improvedBy", locale).replace("{x}", String(autoFixScoreDiff)) : t("badge.improved", locale)}
-                    </span>
+                    </Badge>
                   </div>
                 )}
                 {autoFixUsed && (originalGeneralResult || originalProResult) && !showOriginal && (
                   <div className="flex justify-center">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => {
                         if (isProMode && originalProResult) {
                           setProResult(originalProResult);
@@ -1834,13 +1814,14 @@ Viral Score: ${viralScore}/10
                         setAutoFixScoreDiff(0);
                         setShowOriginal(false);
                       }}
-                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-xs h-auto py-1"
                     >
                       {t("btn.revertOriginal", locale)}
-                    </button>
+                    </Button>
                   </div>
                 )}
-              </div>
+              </CardContent>
+              </Card>
             )}
 
             {/* Auto-Fixed Version label */}
@@ -1910,7 +1891,8 @@ Viral Score: ${viralScore}/10
             {!isMobile && (
               <aside className="hidden lg:block w-72 xl:w-80 shrink-0 space-y-6 sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
                 {/* Trending Panel - inline */}
-              <div ref={trendingRef} className="rounded-2xl border border-border/40 bg-muted/10 p-4">
+              <Card ref={trendingRef} className="rounded-2xl border-border/40 bg-muted/10">
+                <CardContent className="p-4">
                   <TrendingPanel
                     niche={selectedPreset}
                     audience={targetAudience}
@@ -1918,41 +1900,50 @@ Viral Score: ${viralScore}/10
                     onSelectTopic={(t) => setTopic(t)}
                     inline
                   />
-                </div>
+                </CardContent>
+              </Card>
 
                 {/* Quick Tips */}
-                <div className="rounded-2xl border border-border/40 bg-muted/10 p-4 space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                <Card className="rounded-2xl border-border/40 bg-muted/10">
+                <CardContent className="p-4 space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5 mb-3">
                     <Lightbulb className="h-3.5 w-3.5 text-primary" />
                     {locale === "tr" ? "İpuçları" : "Quick Tips"}
                   </h3>
                   <div className="space-y-2">
-                    <div className="rounded-xl bg-muted/30 p-3 border border-border/20">
+                    <Card className="rounded-xl bg-muted/30 border-border/20 shadow-none">
+                    <CardContent className="p-3">
                       <p className="text-[11px] font-medium text-foreground leading-snug">
                         {locale === "tr" ? "İlk 3 saniye hayati önem taşır" : "The first 3 seconds are critical"}
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-1">
                         {locale === "tr" ? "En güçlü hookunuzu en başa koyun." : "Place your strongest hook at the very start."}
                       </p>
-                    </div>
-                    <div className="rounded-xl bg-muted/30 p-3 border border-border/20">
+                    </CardContent>
+                    </Card>
+                    <Card className="rounded-xl bg-muted/30 border-border/20 shadow-none">
+                    <CardContent className="p-3">
                       <p className="text-[11px] font-medium text-foreground leading-snug">
                         {locale === "tr" ? "Niş kalın, geniş değil" : "Stay niche, not broad"}
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-1">
                         {locale === "tr" ? "Belirli konulardaki içerikler daha iyi performans gösterir." : "Content on specific topics performs better than generic."}
                       </p>
-                    </div>
-                    <div className="rounded-xl bg-muted/30 p-3 border border-border/20">
+                    </CardContent>
+                    </Card>
+                    <Card className="rounded-xl bg-muted/30 border-border/20 shadow-none">
+                    <CardContent className="p-3">
                       <p className="text-[11px] font-medium text-foreground leading-snug">
                         {locale === "tr" ? "Auto-Fix ile skoru yükseltin" : "Use Auto-Fix to boost score"}
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-1">
                         {locale === "tr" ? "Sonuçtan sonra Auto-Fix ile viral skorunuzu artırın." : "After generating, use Auto-Fix to improve your viral score."}
                       </p>
-                    </div>
+                    </CardContent>
+                    </Card>
                   </div>
-                </div>
+                </CardContent>
+                </Card>
               </aside>
             )}
           </div>{/* end flex */}

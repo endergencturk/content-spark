@@ -3,6 +3,9 @@ import {
   Copy, Trophy, FileText, Youtube, Hash, Instagram, Film, Image, Mic,
   CalendarClock, Target, Music, TrendingUp, Package, ChevronDown, Clock, Layout, Shuffle,
 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const safeArray = (val: any): string[] =>
   Array.isArray(val) ? val : typeof val === "string" ? val.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
@@ -63,13 +66,10 @@ const CopyBtn = memo(function CopyBtn({
   text, label, copied, onCopy, locale = "en", customLabel,
 }: { text: string; label: string; copied: string; onCopy: (k: string, t: string) => void; locale?: Locale; customLabel?: string }) {
   return (
-    <button
-      className="shrink-0 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
-      onClick={() => onCopy(label, text)}
-    >
+    <Button variant="ghost" size="sm" className="shrink-0 text-[11px] h-auto p-1" onClick={() => onCopy(label, text)}>
       <Copy className="h-3 w-3 inline mr-1" />
       {copied === label ? t("btn.copied", locale) : (customLabel || t("btn.copy", locale))}
-    </button>
+    </Button>
   );
 });
 
@@ -91,7 +91,8 @@ export const ProResults = memo(function ProResults({
   return (
     <div className="space-y-6">
       {/* Best Hook — hero card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5">
+      <Card className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">
+      <CardContent className="p-5">
         <div className="flex items-start gap-3">
           <div className="shrink-0 h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center">
             <Trophy className="h-4 w-4 text-primary" />
@@ -102,7 +103,8 @@ export const ProResults = memo(function ProResults({
           </div>
           <CopyBtn text={safeResult.bestHook} label="best-hook" copied={copied} onCopy={onCopy} locale={locale} />
         </div>
-      </div>
+      </CardContent>
+      </Card>
 
       {/* Script */}
       <section className="space-y-2.5">
@@ -133,7 +135,7 @@ export const ProResults = memo(function ProResults({
             </div>
             <div className="flex flex-wrap gap-1.5">
               {safeArray(youtube.tags).map((tag, i) => (
-                <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{tag}</span>
+                <Badge key={i} variant="secondary" className="bg-primary/10 text-primary border-0">{tag}</Badge>
               ))}
             </div>
           </div>
@@ -156,7 +158,7 @@ export const ProResults = memo(function ProResults({
           </div>
           <div className="flex flex-wrap gap-1.5">
             {safeArray(tiktok.hashtags).map((ht, i) => (
-              <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-lg">{ht}</span>
+              <Badge key={i} variant="secondary" className="bg-primary/10 text-primary border-0">{ht}</Badge>
             ))}
           </div>
         </div>
@@ -179,14 +181,15 @@ export const ProResults = memo(function ProResults({
 
       {/* VIEW FULL CONTENT PACK */}
       {!showPack && (
-        <button
+        <Button
+          variant="outline"
           onClick={() => setShowPack(true)}
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-primary/30 bg-primary/5 text-primary text-sm font-semibold hover:bg-primary/10 transition-colors"
+          className="w-full rounded-2xl border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 h-auto py-3.5"
         >
           <Package className="h-4 w-4" />
           {t("result.viewPack", locale)}
           <ChevronDown className="h-4 w-4" />
-        </button>
+        </Button>
       )}
 
       {showPack && (
