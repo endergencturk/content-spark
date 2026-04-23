@@ -1434,17 +1434,16 @@ Viral Score: ${viralScore}/10
 
             {/* ⚙️ Advanced Settings (collapsible, hidden in horror mode) */}
             {!isHorrorMode && (
-            <div className="rounded-2xl border border-border/40 overflow-hidden">
-              <button
-                onClick={() => setAdvancedOpen(!advancedOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted/30 transition-colors"
-              >
-                <span>⚙️ {locale === "tr" ? "Gelişmiş Ayarlar" : "Advanced Settings"}</span>
-                {advancedOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-              </button>
+            <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen} className="rounded-2xl border border-border/40 overflow-hidden">
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-none h-auto hover:bg-muted/30">
+                  <span>⚙️ {locale === "tr" ? "Gelişmiş Ayarlar" : "Advanced Settings"}</span>
+                  {advancedOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                </Button>
+              </CollapsibleTrigger>
 
-              {advancedOpen && (
-                <div className="px-4 pb-4 space-y-5">
+              <CollapsibleContent>
+                <div className="px-4 pb-4 pt-2 space-y-5">
                   {/* Style */}
                   {(isProMode || !selectedPreset) && (
                     <div className="space-y-2">
@@ -1520,28 +1519,14 @@ Viral Score: ${viralScore}/10
                     <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
                       <Flame className="h-3 w-3" />{t("selector.hookIntensity", locale)}
                     </p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setHookIntensity(0)}
-                        className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                          hookIntensity === 0
-                            ? "bg-primary/10 text-primary border border-primary/30"
-                            : "bg-muted/60 text-muted-foreground border border-transparent"
-                        }`}
-                      >
+                    <ToggleGroup type="single" value={String(hookIntensity)} onValueChange={(v) => v && setHookIntensity(Number(v))} className="w-full">
+                      <ToggleGroupItem value="0" className="flex-1 rounded-xl text-xs font-medium data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary/30">
                         {t("hook.low", locale)}
-                      </button>
-                      <button
-                        onClick={() => setHookIntensity(2)}
-                        className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                          hookIntensity === 2
-                            ? "bg-primary/10 text-primary border border-primary/30"
-                            : "bg-muted/60 text-muted-foreground border border-transparent"
-                        }`}
-                      >
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="2" className="flex-1 rounded-xl text-xs font-medium data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary/30">
                         {t("hook.high", locale)}
-                      </button>
-                    </div>
+                      </ToggleGroupItem>
+                    </ToggleGroup>
                   </div>
 
                   {/* Image Prompts */}
@@ -1576,18 +1561,18 @@ Viral Score: ${viralScore}/10
                       <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                         {t("selector.customDesc", locale)} <span className="text-muted-foreground/60">{t("selector.customDesc.optional", locale)}</span>
                       </p>
-                      <textarea
+                      <Textarea
                         value={customDescription}
                         onChange={(e) => setCustomDescription(e.target.value)}
                         placeholder={t("selector.customDesc.placeholder", locale)}
                         rows={3}
-                        className="w-full rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                        className="rounded-2xl border-border/60 bg-muted/30 resize-none"
                       />
                     </div>
                   )}
                 </div>
-              )}
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
             )}
             {/* Generate + Bulk Pack buttons */}
             <div className="flex gap-3 pt-2">
