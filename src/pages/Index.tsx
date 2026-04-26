@@ -1675,6 +1675,18 @@ Viral Score: ${viralScore}/10
                 </Alert>
               )}
 
+              {/* Hook Lab quick action */}
+              {!isHorrorMode && topic.trim().length > 3 && (
+                <button
+                  type="button"
+                  onClick={() => setHookLabOpen(true)}
+                  className="text-[11px] font-medium text-primary/90 hover:text-primary flex items-center gap-1.5 transition-colors"
+                >
+                  <Wand2 className="h-3 w-3" />
+                  {locale === "tr" ? "🧪 Hook Lab — 10 farklı açıdan hook üret" : "🧪 Hook Lab — generate 10 angled hooks"}
+                </button>
+              )}
+
             </div>
 
             {/* 4. Length */}
