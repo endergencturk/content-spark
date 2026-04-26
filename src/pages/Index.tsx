@@ -1888,6 +1888,27 @@ Viral Score: ${viralScore}/10
               />
             </div>
 
+            {/* Hook Lab dialog */}
+            <HookLab
+              open={hookLabOpen}
+              onOpenChange={setHookLabOpen}
+              topic={topic}
+              language={locale}
+              platform={platform}
+              onUseHook={(hookText) => {
+                if (isProMode && proResult) {
+                  setProResult({ ...proResult, bestHook: hookText });
+                  setActiveTab("results");
+                } else if (generalResult) {
+                  setGeneralResult({ ...generalResult, bestHook: hookText });
+                  setActiveTab("results");
+                } else {
+                  // No result yet — copy to clipboard for the user
+                  navigator.clipboard.writeText(hookText);
+                }
+              }}
+            />
+
           </div>
 
           {/* Duplicate Warning Banner */}
