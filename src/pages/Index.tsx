@@ -1516,18 +1516,30 @@ Viral Score: ${viralScore}/10
             {/* 4. Niche Presets (hidden in horror mode) */}
             {!isHorrorMode && (
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-                {t("preset.title", locale)}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                  {t("preset.title", locale)}
+                </p>
+                <button
+                  onClick={() => setShowAllPresets(v => !v)}
+                  className="text-[10px] uppercase tracking-widest font-bold text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+                >
+                  {showAllPresets
+                    ? (locale === "tr" ? "Daha az" : "Less")
+                    : (locale === "tr" ? `+${EXTENDED_PRESETS.length} kategori` : `+${EXTENDED_PRESETS.length} more`)}
+                  {showAllPresets ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                </button>
+              </div>
               <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
-                {NICHE_PRESETS.map((preset) => {
+                {(showAllPresets ? ALL_PRESETS : NICHE_PRESETS).map((preset) => {
                   const isSelected = selectedPreset === preset.id;
                   const PresetIcon = preset.icon;
+                  const hasFresh = !!freshTopicsCache[preset.id];
                   return (
                     <button
                       key={preset.id}
                       onClick={() => handlePresetClick(preset)}
-                      className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl text-xs font-medium transition-all ${
+                      className={`relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl text-xs font-medium transition-all ${
                         isSelected
                           ? "bg-primary text-primary-foreground shadow-sm"
                           : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted/80"
@@ -1535,10 +1547,40 @@ Viral Score: ${viralScore}/10
                     >
                       <PresetIcon className="h-4 w-4" />
                       {locale === "tr" ? preset.labelTr : preset.label}
+                      {hasFresh && (
+                        <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-emerald-400" title="Fresh AI topics cached" />
+                      )}
                     </button>
                   );
                 })}
               </div>
+
+              {/* AI Topic Generator action bar */}
+              {selectedPreset && (
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="text-[11px] text-muted-foreground">
+                    {presetTopics.length > 0
+                      ? (freshTopicsCache[selectedPreset]
+                          ? (locale === "tr" ? "✨ AI'dan taze fikirler" : "✨ Fresh AI ideas")
+                          : (locale === "tr" ? "Hazır viral fikirler" : "Curated viral ideas"))
+                      : ""}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateFreshTopics}
+                    disabled={generatingFreshTopics}
+                    className="h-7 text-[11px] gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
+                  >
+                    {generatingFreshTopics ? (
+                      <><Loader2 className="h-3 w-3 animate-spin" /> {locale === "tr" ? "Üretiliyor…" : "Generating…"}</>
+                    ) : (
+                      <><Wand2 className="h-3 w-3" /> {locale === "tr" ? "✨ Yeni fikirler üret" : "✨ Generate fresh topics"}</>
+                    )}
+                  </Button>
+                </div>
+              )}
 
               {/* Preset topic chips */}
               {presetTopics.length > 0 && (
