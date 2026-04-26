@@ -1,8 +1,10 @@
 import React, { useState, useMemo, memo } from "react";
-import { Copy, Scissors, Plus } from "lucide-react";
+import { Copy, Scissors, Plus, Wand2, Loader2, Undo2, Skull, Laugh, Zap, Heart, Gauge, Flame } from "lucide-react";
 import { t, type Locale } from "@/lib/i18n";
 import { CHAR_TARGETS_BY_SPEED, VOICE_SPEED_CONFIG, type VoiceSpeed } from "@/contexts/SettingsContext";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 function getColor(count: number, range: { min: number; max: number }): string {
   if (count >= range.min && count <= range.max) return "text-green-500";
@@ -89,6 +91,51 @@ export const ScriptEditor = memo(function ScriptEditor({
   );
 
   const [script, setScript] = useState(cleanScript);
+  const [remixing, setRemixing] = useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+
+  const isTr = locale === "tr";
+
+  async function remix(tone: string) {
+    if (!script.trim() || script.trim().length < 30) {
+      toast.error(isTr ? "Script çok kısa" : "Script too short");
+      return;
+    }
+    setRemixing(tone);
+    try {
+      const { data, error } = await supabase.functions.invoke("script-remix", {
+        body: { script, tone, language: locale, scriptLength },
+      });
+      if (error) throw error;
+      const next = String(data?.script || "").trim();
+      if (!next) throw new Error("empty");
+      setHistory((h) => [...h.slice(-4), script]);
+      setScript(next);
+      toast.success(isTr ? "Script remix edildi 🔥" : "Script remixed 🔥");
+    } catch (e: any) {
+      console.error("remix error", e);
+      toast.error(isTr ? "Remix başarısız" : "Remix failed");
+    } finally {
+      setRemixing(null);
+    }
+  }
+
+  function undoRemix() {
+    if (history.length === 0) return;
+    const prev = history[history.length - 1];
+    setHistory((h) => h.slice(0, -1));
+    setScript(prev);
+    toast.success(isTr ? "Geri alındı" : "Reverted");
+  }
+
+  const REMIX_BUTTONS: { id: string; label: string; labelTr: string; icon: React.ElementType; cls: string }[] = [
+    { id: "darker",        label: "Darker",        labelTr: "Daha karanlık",   icon: Skull, cls: "hover:border-red-500/50 hover:text-red-400" },
+    { id: "funnier",       label: "Funnier",       labelTr: "Daha komik",      icon: Laugh, cls: "hover:border-amber-500/50 hover:text-amber-400" },
+    { id: "shocking",      label: "More shocking", labelTr: "Daha şok",        icon: Zap,   cls: "hover:border-violet-500/50 hover:text-violet-400" },
+    { id: "emotional",     label: "More emotional",labelTr: "Daha duygusal",   icon: Heart, cls: "hover:border-rose-500/50 hover:text-rose-400" },
+    { id: "faster",        label: "Faster pace",   labelTr: "Daha hızlı",      icon: Gauge, cls: "hover:border-cyan-500/50 hover:text-cyan-400" },
+    { id: "controversial", label: "More edgy",     labelTr: "Daha tartışmalı", icon: Flame, cls: "hover:border-orange-500/50 hover:text-orange-400" },
+  ];
 
   const targets = CHAR_TARGETS_BY_SPEED[voiceSpeed] || CHAR_TARGETS_BY_SPEED["0.9"];
   const range = targets[scriptLength] || targets["30"];
@@ -152,6 +199,42 @@ export const ScriptEditor = memo(function ScriptEditor({
           ➕ Make Longer
         </Button>
       </div>
+
+      {/* AI Script Remix toolbar */}
+      <div className="space-y-1.5 px-1 pt-1">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-1">
+            <Wand2 className="h-3 w-3" /> {isTr ? "AI Remix" : "AI Remix"}
+          </p>
+          {history.length > 0 && (
+            <button
+              onClick={undoRemix}
+              className="text-[10px] font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+            >
+              <Undo2 className="h-3 w-3" />
+              {isTr ? "Geri al" : "Undo"} ({history.length})
+            </button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {REMIX_BUTTONS.map((b) => {
+            const Icon = b.icon;
+            const isActive = remixing === b.id;
+            return (
+              <button
+                key={b.id}
+                disabled={!!remixing}
+                onClick={() => remix(b.id)}
+                className={`text-[11px] px-2.5 py-1.5 rounded-xl border border-border/60 bg-muted/40 text-muted-foreground transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed ${b.cls}`}
+              >
+                {isActive ? <Loader2 className="h-3 w-3 animate-spin" /> : <Icon className="h-3 w-3" />}
+                {isTr ? b.labelTr : b.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <p className="text-[10px] text-muted-foreground/60 px-1">
         Optimized for ElevenLabs Speed {voiceSpeed}
       </p>
