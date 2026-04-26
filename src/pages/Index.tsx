@@ -18,6 +18,7 @@ import {
   Search, Dumbbell, DollarSign, Brain, Skull, BookOpen,
   ChevronDown, ChevronUp, PenTool, LayoutGrid, Dice1, AlertTriangle,
 } from "lucide-react";
+import { Eye, Ghost, Cpu, Rocket, Scroll, MessageCircle, Wand2, BarChart3, Layers } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
@@ -34,6 +35,7 @@ import { WeeklyPlan } from "@/components/WeeklyPlan";
 import { ABHookTester } from "@/components/ABHookTester";
 import { BulkPackDialog } from "@/components/BulkPackDialog";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { HookLab } from "@/components/HookLab";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
@@ -336,6 +338,174 @@ const NICHE_PRESETS: NichePreset[] = [
   },
 ];
 
+// Extended presets — 6 additional niches for power users
+const EXTENDED_PRESETS: NichePreset[] = [
+  {
+    id: "conspiracy",
+    label: "Conspiracy",
+    labelTr: "Komplo",
+    icon: Eye,
+    style: "suspense",
+    topics: [
+      "The 1971 experiment the government still hides",
+      "Why every world map you've seen is wrong",
+      "The town that was erased from every database",
+      "What was found inside the sealed Vatican archives",
+      "The phone call that predicted 9/11 — six years early",
+      "The Antarctica expedition that never came back",
+      "Why Denver Airport scares conspiracy theorists",
+      "The book banned in 47 countries for one chapter",
+    ],
+    topicsTr: [
+      "Hükümetin hâlâ sakladığı 1971 deneyi",
+      "Gördüğünüz her dünya haritası neden yanlış",
+      "Tüm veritabanlarından silinen kasaba",
+      "Vatikan arşivlerinin mührünün arkasında bulunan şey",
+      "11 Eylül'ü altı yıl önceden tahmin eden telefon",
+      "Geri dönmeyen Antarktika seferi",
+      "Denver Havalimanı komplo teorisyenlerini neden korkutuyor",
+      "Tek bir bölüm yüzünden 47 ülkede yasaklanan kitap",
+    ],
+  },
+  {
+    id: "paranormal",
+    label: "Paranormal",
+    labelTr: "Paranormal",
+    icon: Ghost,
+    style: "suspense",
+    topics: [
+      "The hotel room that no one survives a full night in",
+      "The girl who remembered her past life in detail",
+      "The CCTV footage scientists still can't explain",
+      "The 911 call that came from inside an empty house",
+      "Why this forest in Japan has no animals",
+      "The painting that follows you with its eyes — proven",
+      "The voice on the radio that keeps repeating one date",
+      "The man who woke up speaking a language he never learned",
+    ],
+    topicsTr: [
+      "Kimsenin bütün geceyi atlatamadığı otel odası",
+      "Geçmiş hayatını detaylıca hatırlayan kız",
+      "Bilim insanlarının hâlâ açıklayamadığı kamera kaydı",
+      "Boş bir evden gelen 112 araması",
+      "Japonya'daki bu ormanın hiç hayvanı neden yok",
+      "Sizi gözleriyle takip eden tablo — kanıtlandı",
+      "Radyoda tek bir tarihi tekrar eden ses",
+      "Hiç öğrenmediği bir dili konuşarak uyanan adam",
+    ],
+  },
+  {
+    id: "tech-ai",
+    label: "Tech & AI",
+    labelTr: "Teknoloji & AI",
+    icon: Cpu,
+    style: "viral",
+    topics: [
+      "The AI that taught itself to lie — and got caught",
+      "Why ChatGPT will replace 300M jobs in 2 years",
+      "The phone feature Apple buried for 8 years",
+      "What happens when two AIs negotiate without humans",
+      "The free AI tool that makes me $10K a month",
+      "Why Elon Musk is terrified of GPT-5",
+      "The dark web AI nobody is allowed to use",
+      "How your iPhone is secretly listening — proof",
+    ],
+    topicsTr: [
+      "Kendi kendine yalan söylemeyi öğrenen AI",
+      "ChatGPT 2 yıl içinde 300M işi neden çalacak",
+      "Apple'ın 8 yıl gömdüğü telefon özelliği",
+      "İki AI insansız müzakere edince ne olur",
+      "Bana ayda $10K kazandıran ücretsiz AI aracı",
+      "Elon Musk GPT-5'ten neden korkuyor",
+      "Kimsenin kullanmasına izin verilmeyen dark web AI'sı",
+      "iPhone'unuz sizi nasıl gizlice dinliyor — kanıt",
+    ],
+  },
+  {
+    id: "space",
+    label: "Space",
+    labelTr: "Uzay",
+    icon: Rocket,
+    style: "educational",
+    topics: [
+      "What NASA found at the edge of the universe",
+      "The signal from space that repeats every 16 days",
+      "Why we never went back to the Moon — the real reason",
+      "The planet where it rains diamonds",
+      "What's inside Jupiter — it's not what you think",
+      "The astronaut who saw something he can't talk about",
+      "Why time moves differently on Mars",
+      "The black hole that shouldn't exist",
+    ],
+    topicsTr: [
+      "NASA evrenin sınırında ne buldu",
+      "Her 16 günde bir tekrar eden uzay sinyali",
+      "Aya neden bir daha gitmedik — gerçek sebep",
+      "Elmas yağmurunun yağdığı gezegen",
+      "Jüpiter'in içinde ne var — sandığınız gibi değil",
+      "Anlatamadığı bir şey gören astronot",
+      "Mars'ta zaman neden farklı akıyor",
+      "Var olmaması gereken kara delik",
+    ],
+  },
+  {
+    id: "history",
+    label: "Dark History",
+    labelTr: "Karanlık Tarih",
+    icon: Scroll,
+    style: "suspense",
+    topics: [
+      "The medieval punishment too brutal to teach in schools",
+      "Why ancient maps show Antarctica without ice",
+      "The Roman invention we still can't replicate",
+      "What was found in Hitler's secret bunker — declassified",
+      "The pharaoh whose tomb killed everyone who entered",
+      "The civilization that vanished overnight — no bodies",
+      "Why the Library of Alexandria burning hid one book on purpose",
+      "The forgotten war that killed more people than WWII",
+    ],
+    topicsTr: [
+      "Okullarda öğretilemeyecek kadar vahşi ortaçağ cezası",
+      "Antik haritalar Antarktika'yı neden buzsuz gösteriyor",
+      "Hâlâ kopyalayamadığımız Roma icadı",
+      "Hitler'in gizli sığınağında bulunan şey — açıklandı",
+      "Mezarına giren herkesi öldüren firavun",
+      "Bir gecede yok olan medeniyet — ceset yok",
+      "İskenderiye Kütüphanesi yanarken bilerek saklanan kitap",
+      "II. Dünya Savaşı'ndan fazla öldüren unutulmuş savaş",
+    ],
+  },
+  {
+    id: "storytime",
+    label: "Storytime",
+    labelTr: "Hikaye Zamanı",
+    icon: MessageCircle,
+    style: "emotional",
+    topics: [
+      "The text I got from my dad — three years after he died",
+      "I caught my best friend doing this in my house",
+      "The customer who tipped me $4,000 — and why",
+      "I was kidnapped at 7 and didn't know it for 20 years",
+      "The Uber driver who saved my life without knowing",
+      "I found a hidden room in the apartment I just bought",
+      "My twin sister has been living my life — for 6 months",
+      "The interview question that made me walk out and cry",
+    ],
+    topicsTr: [
+      "Babamdan gelen mesaj — öldükten üç yıl sonra",
+      "En iyi arkadaşımı evimde bunu yaparken yakaladım",
+      "Bana 4.000$ bahşiş bırakan müşteri — ve nedeni",
+      "7 yaşında kaçırılmışım — 20 yıl sonra öğrendim",
+      "Hayatımı bilmeden kurtaran Uber sürücüsü",
+      "Yeni aldığım dairede gizli bir oda buldum",
+      "İkiz kardeşim 6 aydır benim hayatımı yaşıyor",
+      "Beni ağlatıp dışarı çıkaran iş görüşmesi sorusu",
+    ],
+  },
+];
+
+const ALL_PRESETS: NichePreset[] = [...NICHE_PRESETS, ...EXTENDED_PRESETS];
+
 type Mode = "general" | "pro" | "horror";
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -460,6 +630,17 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<"generate" | "results">("generate");
   const [profileForceOpen, setProfileForceOpen] = useState(false);
 
+  // Quick Start expansion + AI topic generator
+  const [showAllPresets, setShowAllPresets] = useState(false);
+  const [generatingFreshTopics, setGeneratingFreshTopics] = useState(false);
+  const [hookLabOpen, setHookLabOpen] = useState(false);
+  const [freshTopicsCache, setFreshTopicsCache] = useState<Record<string, string[]>>(() => {
+    try {
+      const cached = sessionStorage.getItem("fresh-topics-cache");
+      return cached ? JSON.parse(cached) : {};
+    } catch { return {}; }
+  });
+
   useEffect(() => {
     setSuggestions(getTopicSuggestions(isProMode ? 6 : 3, contentType, style));
   }, [isProMode, contentType, style]);
@@ -518,17 +699,62 @@ export default function Index() {
     setSelectedPreset(preset.id);
     setStyle(preset.style);
     // Set content type based on preset
-    if (preset.id === "educational" || preset.id === "fitness") {
+    if (preset.id === "educational" || preset.id === "fitness" || preset.id === "space" || preset.id === "tech-ai") {
       setContentType("educational");
-    } else if (preset.id === "mystery" || preset.id === "horror") {
+    } else if (
+      preset.id === "mystery" || preset.id === "horror" ||
+      preset.id === "conspiracy" || preset.id === "paranormal" ||
+      preset.id === "history" || preset.id === "storytime"
+    ) {
       setContentType("story");
     } else if (preset.id === "motivation") {
       setContentType("story");
     } else if (preset.id === "finance") {
       setContentType("entertainment");
     }
-    setPresetTopics(locale === "tr" ? preset.topicsTr : preset.topics);
-  }, [locale]);
+    // Prefer AI-generated fresh topics if cached
+    const fresh = freshTopicsCache[preset.id];
+    if (fresh && fresh.length > 0) {
+      setPresetTopics(fresh);
+    } else {
+      setPresetTopics(locale === "tr" ? preset.topicsTr : preset.topics);
+    }
+  }, [locale, freshTopicsCache]);
+
+  // ✨ Generate fresh AI-powered topics for the selected preset
+  const handleGenerateFreshTopics = useCallback(async () => {
+    if (!selectedPreset) {
+      toast.error(locale === "tr" ? "Önce bir kategori seç" : "Pick a category first");
+      return;
+    }
+    const preset = ALL_PRESETS.find(p => p.id === selectedPreset);
+    if (!preset) return;
+    setGeneratingFreshTopics(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-topics", {
+        body: {
+          niche: preset.id,
+          nicheLabel: preset.label,
+          language: locale,
+          targetAudience,
+          count: 8,
+        },
+      });
+      if (error) throw error;
+      const topics: string[] = Array.isArray(data?.topics) ? data.topics.filter((t: any) => typeof t === "string") : [];
+      if (topics.length === 0) throw new Error("No topics returned");
+      setPresetTopics(topics);
+      const next = { ...freshTopicsCache, [preset.id]: topics };
+      setFreshTopicsCache(next);
+      try { sessionStorage.setItem("fresh-topics-cache", JSON.stringify(next)); } catch {}
+      toast.success(locale === "tr" ? "8 yeni viral fikir geldi ✨" : "8 fresh viral ideas loaded ✨");
+    } catch (e: any) {
+      console.error("Fresh topics error", e);
+      toast.error(locale === "tr" ? "Fikir üretilemedi, tekrar dene" : "Couldn't generate, try again");
+    } finally {
+      setGeneratingFreshTopics(false);
+    }
+  }, [selectedPreset, locale, targetAudience, freshTopicsCache]);
 
   const togglePlatform = useCallback((value: string) => {
     setPlatforms((prev) =>
@@ -1292,18 +1518,30 @@ Viral Score: ${viralScore}/10
             {/* 4. Niche Presets (hidden in horror mode) */}
             {!isHorrorMode && (
             <div className="space-y-2">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-                {t("preset.title", locale)}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                  {t("preset.title", locale)}
+                </p>
+                <button
+                  onClick={() => setShowAllPresets(v => !v)}
+                  className="text-[10px] uppercase tracking-widest font-bold text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+                >
+                  {showAllPresets
+                    ? (locale === "tr" ? "Daha az" : "Less")
+                    : (locale === "tr" ? `+${EXTENDED_PRESETS.length} kategori` : `+${EXTENDED_PRESETS.length} more`)}
+                  {showAllPresets ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                </button>
+              </div>
               <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
-                {NICHE_PRESETS.map((preset) => {
+                {(showAllPresets ? ALL_PRESETS : NICHE_PRESETS).map((preset) => {
                   const isSelected = selectedPreset === preset.id;
                   const PresetIcon = preset.icon;
+                  const hasFresh = !!freshTopicsCache[preset.id];
                   return (
                     <button
                       key={preset.id}
                       onClick={() => handlePresetClick(preset)}
-                      className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl text-xs font-medium transition-all ${
+                      className={`relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl text-xs font-medium transition-all ${
                         isSelected
                           ? "bg-primary text-primary-foreground shadow-sm"
                           : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted/80"
@@ -1311,10 +1549,40 @@ Viral Score: ${viralScore}/10
                     >
                       <PresetIcon className="h-4 w-4" />
                       {locale === "tr" ? preset.labelTr : preset.label}
+                      {hasFresh && (
+                        <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-emerald-400" title="Fresh AI topics cached" />
+                      )}
                     </button>
                   );
                 })}
               </div>
+
+              {/* AI Topic Generator action bar */}
+              {selectedPreset && (
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="text-[11px] text-muted-foreground">
+                    {presetTopics.length > 0
+                      ? (freshTopicsCache[selectedPreset]
+                          ? (locale === "tr" ? "✨ AI'dan taze fikirler" : "✨ Fresh AI ideas")
+                          : (locale === "tr" ? "Hazır viral fikirler" : "Curated viral ideas"))
+                      : ""}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateFreshTopics}
+                    disabled={generatingFreshTopics}
+                    className="h-7 text-[11px] gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
+                  >
+                    {generatingFreshTopics ? (
+                      <><Loader2 className="h-3 w-3 animate-spin" /> {locale === "tr" ? "Üretiliyor…" : "Generating…"}</>
+                    ) : (
+                      <><Wand2 className="h-3 w-3" /> {locale === "tr" ? "✨ Yeni fikirler üret" : "✨ Generate fresh topics"}</>
+                    )}
+                  </Button>
+                </div>
+              )}
 
               {/* Preset topic chips */}
               {presetTopics.length > 0 && (
@@ -1407,6 +1675,18 @@ Viral Score: ${viralScore}/10
                     <Button variant="ghost" size="sm" onClick={() => setCountryWarning(null)} className="ml-auto text-yellow-400 hover:text-yellow-300 text-[10px] h-auto p-0">Dismiss</Button>
                   </AlertDescription>
                 </Alert>
+              )}
+
+              {/* Hook Lab quick action */}
+              {!isHorrorMode && topic.trim().length > 3 && (
+                <button
+                  type="button"
+                  onClick={() => setHookLabOpen(true)}
+                  className="text-[11px] font-medium text-primary/90 hover:text-primary flex items-center gap-1.5 transition-colors"
+                >
+                  <Wand2 className="h-3 w-3" />
+                  {locale === "tr" ? "🧪 Hook Lab — 10 farklı açıdan hook üret" : "🧪 Hook Lab — generate 10 angled hooks"}
+                </button>
               )}
 
             </div>
@@ -1608,6 +1888,27 @@ Viral Score: ${viralScore}/10
               />
             </div>
 
+            {/* Hook Lab dialog */}
+            <HookLab
+              open={hookLabOpen}
+              onOpenChange={setHookLabOpen}
+              topic={topic}
+              language={locale}
+              platform={platform}
+              onUseHook={(hookText) => {
+                if (isProMode && proResult) {
+                  setProResult({ ...proResult, bestHook: hookText });
+                  setActiveTab("results");
+                } else if (generalResult) {
+                  setGeneralResult({ ...generalResult, bestHook: hookText });
+                  setActiveTab("results");
+                } else {
+                  // No result yet — copy to clipboard for the user
+                  navigator.clipboard.writeText(hookText);
+                }
+              }}
+            />
+
           </div>
 
           {/* Duplicate Warning Banner */}
@@ -1742,7 +2043,7 @@ Viral Score: ${viralScore}/10
                     {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
                       <Badge variant="secondary" className="bg-primary/10 text-primary border-0 gap-1.5 px-3 py-1.5">
                         <TrendingUp className="h-3.5 w-3.5" />
-                        {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10
+                        {Math.round((Number(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) || 0) * 10)}/100
                       </Badge>
                     )}
                   </div>
