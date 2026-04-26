@@ -697,17 +697,62 @@ export default function Index() {
     setSelectedPreset(preset.id);
     setStyle(preset.style);
     // Set content type based on preset
-    if (preset.id === "educational" || preset.id === "fitness") {
+    if (preset.id === "educational" || preset.id === "fitness" || preset.id === "space" || preset.id === "tech-ai") {
       setContentType("educational");
-    } else if (preset.id === "mystery" || preset.id === "horror") {
+    } else if (
+      preset.id === "mystery" || preset.id === "horror" ||
+      preset.id === "conspiracy" || preset.id === "paranormal" ||
+      preset.id === "history" || preset.id === "storytime"
+    ) {
       setContentType("story");
     } else if (preset.id === "motivation") {
       setContentType("story");
     } else if (preset.id === "finance") {
       setContentType("entertainment");
     }
-    setPresetTopics(locale === "tr" ? preset.topicsTr : preset.topics);
-  }, [locale]);
+    // Prefer AI-generated fresh topics if cached
+    const fresh = freshTopicsCache[preset.id];
+    if (fresh && fresh.length > 0) {
+      setPresetTopics(fresh);
+    } else {
+      setPresetTopics(locale === "tr" ? preset.topicsTr : preset.topics);
+    }
+  }, [locale, freshTopicsCache]);
+
+  // ✨ Generate fresh AI-powered topics for the selected preset
+  const handleGenerateFreshTopics = useCallback(async () => {
+    if (!selectedPreset) {
+      toast.error(locale === "tr" ? "Önce bir kategori seç" : "Pick a category first");
+      return;
+    }
+    const preset = ALL_PRESETS.find(p => p.id === selectedPreset);
+    if (!preset) return;
+    setGeneratingFreshTopics(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-topics", {
+        body: {
+          niche: preset.id,
+          nicheLabel: preset.label,
+          language: locale,
+          targetAudience,
+          count: 8,
+        },
+      });
+      if (error) throw error;
+      const topics: string[] = Array.isArray(data?.topics) ? data.topics.filter((t: any) => typeof t === "string") : [];
+      if (topics.length === 0) throw new Error("No topics returned");
+      setPresetTopics(topics);
+      const next = { ...freshTopicsCache, [preset.id]: topics };
+      setFreshTopicsCache(next);
+      try { sessionStorage.setItem("fresh-topics-cache", JSON.stringify(next)); } catch {}
+      toast.success(locale === "tr" ? "8 yeni viral fikir geldi ✨" : "8 fresh viral ideas loaded ✨");
+    } catch (e: any) {
+      console.error("Fresh topics error", e);
+      toast.error(locale === "tr" ? "Fikir üretilemedi, tekrar dene" : "Couldn't generate, try again");
+    } finally {
+      setGeneratingFreshTopics(false);
+    }
+  }, [selectedPreset, locale, targetAudience, freshTopicsCache]);
 
   const togglePlatform = useCallback((value: string) => {
     setPlatforms((prev) =>
