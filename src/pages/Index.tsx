@@ -35,6 +35,7 @@ import { WeeklyPlan } from "@/components/WeeklyPlan";
 import { ABHookTester } from "@/components/ABHookTester";
 import { BulkPackDialog } from "@/components/BulkPackDialog";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { HookLab } from "@/components/HookLab";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
@@ -632,6 +633,7 @@ export default function Index() {
   // Quick Start expansion + AI topic generator
   const [showAllPresets, setShowAllPresets] = useState(false);
   const [generatingFreshTopics, setGeneratingFreshTopics] = useState(false);
+  const [hookLabOpen, setHookLabOpen] = useState(false);
   const [freshTopicsCache, setFreshTopicsCache] = useState<Record<string, string[]>>(() => {
     try {
       const cached = sessionStorage.getItem("fresh-topics-cache");
