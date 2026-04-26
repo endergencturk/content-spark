@@ -2043,7 +2043,7 @@ Viral Score: ${viralScore}/10
                     {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
                       <Badge variant="secondary" className="bg-primary/10 text-primary border-0 gap-1.5 px-3 py-1.5">
                         <TrendingUp className="h-3.5 w-3.5" />
-                        {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score)}/10
+                        {Math.round((Number(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) || 0) * 10)}/100
                       </Badge>
                     )}
                   </div>
