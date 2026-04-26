@@ -629,6 +629,16 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<"generate" | "results">("generate");
   const [profileForceOpen, setProfileForceOpen] = useState(false);
 
+  // Quick Start expansion + AI topic generator
+  const [showAllPresets, setShowAllPresets] = useState(false);
+  const [generatingFreshTopics, setGeneratingFreshTopics] = useState(false);
+  const [freshTopicsCache, setFreshTopicsCache] = useState<Record<string, string[]>>(() => {
+    try {
+      const cached = sessionStorage.getItem("fresh-topics-cache");
+      return cached ? JSON.parse(cached) : {};
+    } catch { return {}; }
+  });
+
   useEffect(() => {
     setSuggestions(getTopicSuggestions(isProMode ? 6 : 3, contentType, style));
   }, [isProMode, contentType, style]);
