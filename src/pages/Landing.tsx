@@ -494,16 +494,26 @@ const TESTIMONIALS = [
 
 function Testimonials() {
   return (
-    <section className="py-20 sm:py-28 bg-muted/30">
+    <section className="relative py-20 sm:py-28 bg-muted/30 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute right-10 top-10 h-[300px] w-[300px] rounded-full bg-fuchsia-500/10 blur-[100px] animate-orb-2" />
+      </div>
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground text-center">Creators Are Already Using It</h2>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground text-center">
+          Creators Are <span className="text-gradient-animated">Already Using It</span>
+        </h2>
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
           {TESTIMONIALS.map((item) => (
-            <Card key={item.handle} className="rounded-2xl border-border/50">
+            <Card key={item.handle} className="hover-lift glow-border rounded-2xl border-border/50 bg-card/70 backdrop-blur transition-all hover:border-primary/30">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{item.avatar}</span>
+                  <span className="text-2xl transition-transform hover:scale-125 hover:rotate-12">{item.avatar}</span>
                   <CardTitle className="text-sm text-primary">{item.handle}</CardTitle>
+                </div>
+                <div className="flex gap-0.5 mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                  ))}
                 </div>
               </CardHeader>
               <CardContent>
