@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon, LogIn, LogOut, User } from "lucide-react";
+import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon, LogIn, LogOut, User, Flame, Rocket, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -114,21 +114,32 @@ function Hero() {
   const { user, setShowAuthModal } = useAuth();
   return (
     <section className="relative overflow-hidden py-20 sm:py-28 lg:py-36">
-      {/* bg glow */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-0 -translate-x-1/2 h-[600px] w-[900px] rounded-full bg-primary/8 blur-[120px]" />
+      {/* animated grid + orbs background */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-grid-fade" />
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute left-1/4 top-10 h-[420px] w-[420px] rounded-full bg-primary/20 blur-[120px] animate-orb-1" />
+        <div className="absolute right-1/4 top-32 h-[360px] w-[360px] rounded-full bg-fuchsia-500/15 blur-[120px] animate-orb-2" />
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 h-[500px] w-[700px] rounded-full bg-violet-500/10 blur-[120px] animate-pulse-glow" />
       </div>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           {/* copy */}
           <div className="text-center lg:text-left">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary">
-              <Zap className="h-3.5 w-3.5" /> AI-Powered Content Engine
+            <div className="relative mb-6 inline-flex items-center gap-2 overflow-hidden rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary">
+              <span className="relative z-10 flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-green-500 animate-live-pulse" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                </span>
+                AI Engine · Live now
+                <Flame className="h-3.5 w-3.5" />
+              </span>
+              <span className="absolute inset-0 animate-shimmer" />
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]">
               Generate Viral Short-Form Content{" "}
-              <span className="bg-[var(--gradient-primary)] bg-clip-text text-transparent">in Seconds</span>
+              <span className="text-gradient-animated">in Seconds</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-lg mx-auto lg:mx-0">
               AI-powered hooks, scripts, thumbnails &amp; posting strategy for TikTok, YouTube Shorts and Instagram Reels.
@@ -137,26 +148,26 @@ function Hero() {
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               {user ? (
                 <Link to="/app">
-                  <Button size="lg" className="rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto">
-                    <Zap className="h-4 w-4 mr-1" /> Open the app
+                  <Button size="lg" className="group rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto transition-transform hover:scale-[1.03] hover:shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.5)]">
+                    <Zap className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" /> Open the app
                   </Button>
                 </Link>
               ) : (
                 <Button
                   size="lg"
-                  className="rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto"
+                  className="group rounded-2xl text-base font-bold px-8 shadow-[var(--shadow-warm)] w-full sm:w-auto transition-transform hover:scale-[1.03] hover:shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.5)]"
                   onClick={() => setShowAuthModal(true)}
                 >
-                  <Zap className="h-4 w-4 mr-1" /> Sign up free
+                  <Zap className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" /> Sign up free
                 </Button>
               )}
               <Button
                 variant="outline"
                 size="lg"
-                className="rounded-2xl text-base font-medium px-8"
+                className="group rounded-2xl text-base font-medium px-8 transition-all hover:border-primary/50 hover:bg-primary/5"
                 onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}
               >
-                <Play className="h-4 w-4 mr-1" /> See How It Works
+                <Play className="h-4 w-4 mr-1 transition-transform group-hover:translate-x-0.5" /> See How It Works
               </Button>
             </div>
 
@@ -166,9 +177,9 @@ function Hero() {
                 ["10,000+", "Content Packs"],
                 ["50+", "Niches"],
                 ["8.7", "Avg Viral Score"],
-              ].map(([val, label]) => (
-                <div key={label}>
-                  <p className="text-2xl font-extrabold text-foreground">{val}</p>
+              ].map(([val, label], i) => (
+                <div key={label} className="animate-count-up" style={{ animationDelay: `${i * 120}ms` }}>
+                  <p className="text-2xl font-extrabold text-gradient-animated">{val}</p>
                   <p className="text-xs text-muted-foreground">{label}</p>
                 </div>
               ))}
@@ -176,12 +187,18 @@ function Hero() {
           </div>
 
           {/* product preview card */}
-          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-            <div className="rounded-2xl border border-border/50 bg-card p-6 shadow-2xl shadow-primary/5">
+          <div className="relative mx-auto w-full max-w-md lg:max-w-none animate-float-slow">
+            {/* glow halo */}
+            <div className="pointer-events-none absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-br from-primary/30 via-fuchsia-500/20 to-violet-500/20 blur-2xl opacity-60 animate-pulse-glow" />
+            <div className="rounded-2xl border border-border/50 bg-card/90 backdrop-blur p-6 shadow-2xl shadow-primary/10 glow-border">
               <div className="mb-4 flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-destructive/60" />
                 <div className="h-3 w-3 rounded-full bg-accent/80" />
                 <div className="h-3 w-3 rounded-full bg-primary/40" />
+                <div className="ml-auto flex items-center gap-1.5 rounded-full bg-green-500/10 px-2 py-0.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[10px] font-bold text-green-500">GENERATING</span>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -190,7 +207,7 @@ function Hero() {
                   <p className="text-sm font-medium text-foreground">He Vanished Inside an Airport. No Trace.</p>
                 </div>
 
-                <div className="rounded-xl bg-primary/5 border border-primary/10 p-3">
+                <div className="rounded-xl bg-gradient-to-br from-primary/10 to-fuchsia-500/5 border border-primary/20 p-3 animate-float-medium">
                   <p className="text-[10px] uppercase tracking-widest text-primary mb-1">🪝 Best Hook</p>
                   <p className="text-sm font-bold text-foreground">"Vanished. On camera."</p>
                 </div>
@@ -210,13 +227,39 @@ function Hero() {
                     <span className="rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">TikTok</span>
                     <span className="rounded-lg bg-destructive/10 px-2.5 py-1 text-[10px] font-bold text-destructive">YouTube Shorts</span>
                   </div>
-                  <div className="flex items-center gap-1 rounded-lg bg-green-500/10 px-2.5 py-1">
+                  <div className="flex items-center gap-1 rounded-lg bg-green-500/10 px-2.5 py-1 animate-pulse-glow">
                     <TrendingUp className="h-3 w-3 text-green-500" />
                     <span className="text-xs font-bold text-green-500">8.7/10</span>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* floating accent badges */}
+            <div className="pointer-events-none absolute -left-6 top-12 hidden lg:flex animate-float-medium items-center gap-1.5 rounded-full border border-border/50 bg-card/90 backdrop-blur px-3 py-1.5 shadow-lg">
+              <Wand2 className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[11px] font-bold text-foreground">AI Hook Lab</span>
+            </div>
+            <div className="pointer-events-none absolute -right-4 -bottom-4 hidden lg:flex animate-float-slow items-center gap-1.5 rounded-full border border-border/50 bg-card/90 backdrop-blur px-3 py-1.5 shadow-lg">
+              <Rocket className="h-3.5 w-3.5 text-fuchsia-500" />
+              <span className="text-[11px] font-bold text-foreground">+312% reach</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Marquee — trusted by / platforms */}
+        <div className="relative mt-20 overflow-hidden border-y border-border/40 py-5 [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
+          <div className="flex w-max animate-marquee gap-12 pr-12">
+            {[...Array(2)].flatMap((_, j) =>
+              [
+                "TikTok", "YouTube Shorts", "Instagram Reels", "ElevenLabs", "Midjourney",
+                "Gemini 3", "GPT-5", "Whisper", "DALL·E", "Suno",
+              ].map((p, i) => (
+                <span key={`${j}-${i}`} className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
+                  {p}
+                </span>
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -236,19 +279,28 @@ const FEATURES = [
 
 function Features() {
   return (
-    <section id="features" className="py-20 sm:py-28">
+    <section id="features" className="relative py-20 sm:py-28">
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute right-0 top-1/3 h-[400px] w-[400px] rounded-full bg-primary/10 blur-[120px] animate-orb-2" />
+      </div>
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="text-center mb-14">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">Everything You Need to Go Viral</h2>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">
+            Everything You Need to <span className="text-gradient-animated">Go Viral</span>
+          </h2>
           <p className="mt-4 text-muted-foreground max-w-lg mx-auto">
             A complete toolkit designed for creators who want to grow fast.
           </p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f) => (
-            <Card key={f.title} className="group rounded-2xl border-border/50 transition-all hover:border-primary/30 hover:shadow-[var(--shadow-card-hover)]">
+          {FEATURES.map((f, i) => (
+            <Card
+              key={f.title}
+              className="group hover-lift glow-border rounded-2xl border-border/50 bg-card/70 backdrop-blur transition-all hover:border-primary/40 hover:shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.35)]"
+              style={{ animationDelay: `${i * 80}ms` }}
+            >
               <CardHeader className="pb-3">
-              <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-fuchsia-500/10 text-primary transition-all duration-300 group-hover:from-primary group-hover:to-fuchsia-500 group-hover:text-primary-foreground group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-[0_8px_20px_-4px_hsl(var(--primary)/0.5)]">
                 <f.icon className="h-5 w-5" />
               </div>
               <CardTitle className="text-lg">{f.title}</CardTitle>
@@ -273,15 +325,20 @@ const STEPS = [
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-20 sm:py-28 bg-muted/30">
+    <section id="how-it-works" className="relative py-20 sm:py-28 bg-muted/30 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/4 top-1/2 h-[400px] w-[400px] rounded-full bg-violet-500/10 blur-[120px] animate-orb-1" />
+      </div>
       <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
         <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">
-          From idea to ready-to-upload in <span className="bg-[var(--gradient-primary)] bg-clip-text text-transparent">60 seconds</span>
+          From idea to ready-to-upload in <span className="text-gradient-animated">60 seconds</span>
         </h2>
-        <div className="mt-14 grid gap-8 sm:grid-cols-3">
-          {STEPS.map((s) => (
-            <div key={s.num} className="relative">
-              <span className="text-5xl font-black text-primary/15">{s.num}</span>
+        <div className="mt-14 grid gap-8 sm:grid-cols-3 relative">
+          {/* connector line */}
+          <div className="hidden sm:block absolute top-8 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+          {STEPS.map((s, i) => (
+            <div key={s.num} className="relative group">
+              <span className="inline-block text-5xl font-black bg-gradient-to-br from-primary to-fuchsia-500 bg-clip-text text-transparent transition-transform duration-300 group-hover:scale-110">{s.num}</span>
               <h3 className="mt-2 text-lg font-bold text-foreground">{s.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
             </div>
@@ -437,16 +494,26 @@ const TESTIMONIALS = [
 
 function Testimonials() {
   return (
-    <section className="py-20 sm:py-28 bg-muted/30">
+    <section className="relative py-20 sm:py-28 bg-muted/30 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute right-10 top-10 h-[300px] w-[300px] rounded-full bg-fuchsia-500/10 blur-[100px] animate-orb-2" />
+      </div>
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground text-center">Creators Are Already Using It</h2>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground text-center">
+          Creators Are <span className="text-gradient-animated">Already Using It</span>
+        </h2>
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
           {TESTIMONIALS.map((item) => (
-            <Card key={item.handle} className="rounded-2xl border-border/50">
+            <Card key={item.handle} className="hover-lift glow-border rounded-2xl border-border/50 bg-card/70 backdrop-blur transition-all hover:border-primary/30">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{item.avatar}</span>
+                  <span className="text-2xl transition-transform hover:scale-125 hover:rotate-12">{item.avatar}</span>
                   <CardTitle className="text-sm text-primary">{item.handle}</CardTitle>
+                </div>
+                <div className="flex gap-0.5 mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                  ))}
                 </div>
               </CardHeader>
               <CardContent>
@@ -565,23 +632,28 @@ function Pricing() {
 function FinalCTA() {
   const { user, setShowAuthModal } = useAuth();
   return (
-    <section className="py-20 sm:py-28 bg-muted/30">
+    <section className="relative py-20 sm:py-28 bg-muted/30 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[700px] rounded-full bg-gradient-to-r from-primary/20 via-fuchsia-500/15 to-violet-500/20 blur-[120px] animate-pulse-glow" />
+      </div>
       <div className="mx-auto max-w-2xl px-4 sm:px-6 text-center">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">Ready to go viral?</h2>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">
+          Ready to <span className="text-gradient-animated">go viral</span>?
+        </h2>
         <p className="mt-4 text-muted-foreground text-lg">Sign up free and start generating viral content. No credit card required.</p>
         {user ? (
           <Link to="/app" className="inline-block mt-8">
-            <Button size="lg" className="rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)]">
-              <Zap className="h-4 w-4 mr-1" /> Open the app
+            <Button size="lg" className="group rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)] transition-all hover:scale-[1.05] hover:shadow-[0_12px_40px_-8px_hsl(var(--primary)/0.6)]">
+              <Zap className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" /> Open the app
             </Button>
           </Link>
         ) : (
           <Button
             size="lg"
-            className="mt-8 rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)]"
+            className="group mt-8 rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)] transition-all hover:scale-[1.05] hover:shadow-[0_12px_40px_-8px_hsl(var(--primary)/0.6)]"
             onClick={() => setShowAuthModal(true)}
           >
-            <Zap className="h-4 w-4 mr-1" /> Sign up free
+            <Zap className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" /> Sign up free
           </Button>
         )}
       </div>

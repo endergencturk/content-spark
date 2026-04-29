@@ -105,3 +105,136 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
+
+@layer utilities {
+  /* Animated gradient text */
+  .text-gradient-animated {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary)),
+      hsl(280 80% 65%),
+      hsl(320 75% 60%),
+      hsl(252 70% 60%),
+      hsl(var(--primary))
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-pan 6s linear infinite;
+  }
+
+  @keyframes gradient-pan {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+
+  /* Floating animation */
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+  .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+
+  @keyframes float-medium {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    50% { transform: translateY(-8px) translateX(4px); }
+  }
+  .animate-float-medium { animation: float-medium 4.5s ease-in-out infinite; }
+
+  /* Pulsing glow */
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.08); }
+  }
+  .animate-pulse-glow { animation: pulse-glow 5s ease-in-out infinite; }
+
+  /* Orb drift (background blobs) */
+  @keyframes orb-drift-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -30px) scale(1.1); }
+    66% { transform: translate(-30px, 20px) scale(0.95); }
+  }
+  @keyframes orb-drift-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-50px, 40px) scale(1.15); }
+  }
+  .animate-orb-1 { animation: orb-drift-1 18s ease-in-out infinite; }
+  .animate-orb-2 { animation: orb-drift-2 22s ease-in-out infinite; }
+
+  /* Marquee */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee { animation: marquee 30s linear infinite; }
+
+  /* Shimmer for hero badge */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--primary) / 0.15) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  /* Live dot pulse */
+  @keyframes live-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(142 70% 50% / 0.6); }
+    50% { box-shadow: 0 0 0 6px hsl(142 70% 50% / 0); }
+  }
+  .animate-live-pulse { animation: live-pulse 2s ease-out infinite; }
+
+  /* Tilt on hover */
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Number counter slide */
+  @keyframes count-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-count-up { animation: count-up 0.8s ease-out both; }
+
+  /* Grid background */
+  .bg-grid-fade {
+    background-image:
+      linear-gradient(hsl(var(--border) / 0.4) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.4) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 80%);
+  }
+
+  /* Spotlight border on hover */
+  .glow-border {
+    position: relative;
+  }
+  .glow-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.6), transparent 50%, hsl(280 70% 60% / 0.5));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .glow-border:hover::before { opacity: 1; }
+}
