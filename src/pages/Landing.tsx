@@ -632,23 +632,28 @@ function Pricing() {
 function FinalCTA() {
   const { user, setShowAuthModal } = useAuth();
   return (
-    <section className="py-20 sm:py-28 bg-muted/30">
+    <section className="relative py-20 sm:py-28 bg-muted/30 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[700px] rounded-full bg-gradient-to-r from-primary/20 via-fuchsia-500/15 to-violet-500/20 blur-[120px] animate-pulse-glow" />
+      </div>
       <div className="mx-auto max-w-2xl px-4 sm:px-6 text-center">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">Ready to go viral?</h2>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">
+          Ready to <span className="text-gradient-animated">go viral</span>?
+        </h2>
         <p className="mt-4 text-muted-foreground text-lg">Sign up free and start generating viral content. No credit card required.</p>
         {user ? (
           <Link to="/app" className="inline-block mt-8">
-            <Button size="lg" className="rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)]">
-              <Zap className="h-4 w-4 mr-1" /> Open the app
+            <Button size="lg" className="group rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)] transition-all hover:scale-[1.05] hover:shadow-[0_12px_40px_-8px_hsl(var(--primary)/0.6)]">
+              <Zap className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" /> Open the app
             </Button>
           </Link>
         ) : (
           <Button
             size="lg"
-            className="mt-8 rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)]"
+            className="group mt-8 rounded-2xl text-base font-bold px-10 shadow-[var(--shadow-warm)] transition-all hover:scale-[1.05] hover:shadow-[0_12px_40px_-8px_hsl(var(--primary)/0.6)]"
             onClick={() => setShowAuthModal(true)}
           >
-            <Zap className="h-4 w-4 mr-1" /> Sign up free
+            <Zap className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" /> Sign up free
           </Button>
         )}
       </div>
