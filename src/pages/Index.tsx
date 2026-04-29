@@ -1357,15 +1357,32 @@ Viral Score: ${viralScore}/10
         />
       )}
 
-      <div className="py-6 lg:py-8 px-4 lg:px-6 flex-1">
-        <div className="mx-auto max-w-6xl">
+      <div className="relative py-6 lg:py-8 px-4 lg:px-6 flex-1 overflow-hidden">
+        {/* Ambient background — animated orbs + grid */}
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute inset-0 bg-grid-fade opacity-60" />
+          <div className="absolute -top-24 -left-16 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-primary/20 blur-3xl animate-orb-1" />
+          <div className="absolute top-40 -right-20 w-72 h-72 sm:w-[28rem] sm:h-[28rem] rounded-full bg-fuchsia-500/15 blur-3xl animate-orb-2" />
+          <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-violet-500/10 blur-3xl animate-pulse-glow" />
+        </div>
+        <div className="mx-auto max-w-6xl relative">
           <div className="flex gap-8">
             {/* ── LEFT MAIN WORKSPACE ── */}
             <div className="flex-1 min-w-0 max-w-3xl mx-auto lg:mx-0 space-y-7">
-          <div className="text-center space-y-2 pt-2">
+          <div className="text-center space-y-3 pt-2 animate-fade-in">
+            {/* Live status badge */}
+            <div className="flex items-center justify-center">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[11px] font-semibold text-primary">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-live-pulse" />
+                </span>
+                {locale === "tr" ? "AI motoru çevrimiçi" : "AI engine online"}
+              </div>
+            </div>
             <div className="flex items-center justify-center gap-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-                {t("app.title", locale)}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
+                <span className="text-gradient-animated">{t("app.title", locale)}</span>
               </h1>
               <HistoryDrawer
                 deviceId={deviceId}
@@ -1379,22 +1396,39 @@ Viral Score: ${viralScore}/10
                 hideTrigger={!isMobile}
               />
             </div>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
               {t("app.subtitle", locale)}
             </p>
+            {/* Quick stat strip — mobile-friendly */}
+            <div className="flex items-center justify-center gap-2 sm:gap-4 pt-2 flex-wrap">
+              <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <span><b className="text-foreground">12+</b> {locale === "tr" ? "niş" : "niches"}</span>
+              </div>
+              <span className="h-1 w-1 rounded-full bg-border" />
+              <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-muted-foreground">
+                <Flame className="h-3.5 w-3.5 text-orange-500" />
+                <span><b className="text-foreground">10</b> {locale === "tr" ? "hook varyasyonu" : "hook variations"}</span>
+              </div>
+              <span className="h-1 w-1 rounded-full bg-border" />
+              <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-muted-foreground">
+                <Zap className="h-3.5 w-3.5 text-amber-500" />
+                <span><b className="text-foreground">~60s</b> {locale === "tr" ? "üretim" : "to generate"}</span>
+              </div>
+            </div>
           </div>
 
           {/* MODE TOGGLE */}
           <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="w-full">
-            <TabsList className="w-full rounded-2xl h-auto p-1">
-              <TabsTrigger value="general" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2">
+            <TabsList className="w-full rounded-2xl h-auto p-1 bg-card/70 backdrop-blur-sm border border-border/40 shadow-sm">
+              <TabsTrigger value="general" className="flex-1 rounded-xl py-2.5 text-xs sm:text-sm font-semibold gap-1.5 sm:gap-2 transition-all data-[state=active]:shadow-md data-[state=active]:scale-[1.02]">
                 <Zap className="h-4 w-4" />{t("mode.free", locale)}
               </TabsTrigger>
-              <TabsTrigger value="pro" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2">
+              <TabsTrigger value="pro" className="flex-1 rounded-xl py-2.5 text-xs sm:text-sm font-semibold gap-1.5 sm:gap-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-fuchsia-600 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:scale-[1.02]">
                 <Crown className="h-4 w-4" />{t("mode.pro", locale)}
               </TabsTrigger>
-              <TabsTrigger value="horror" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2 data-[state=active]:bg-red-900 data-[state=active]:text-red-100">
-                <Skull className="h-4 w-4" />🎭 Horror
+              <TabsTrigger value="horror" className="flex-1 rounded-xl py-2.5 text-xs sm:text-sm font-semibold gap-1.5 sm:gap-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-950 data-[state=active]:to-red-800 data-[state=active]:text-red-100 data-[state=active]:shadow-md data-[state=active]:scale-[1.02]">
+                <Skull className="h-4 w-4" /><span className="hidden sm:inline">🎭 </span>Horror
               </TabsTrigger>
             </TabsList>
           </Tabs>
