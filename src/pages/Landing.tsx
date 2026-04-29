@@ -325,15 +325,20 @@ const STEPS = [
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-20 sm:py-28 bg-muted/30">
+    <section id="how-it-works" className="relative py-20 sm:py-28 bg-muted/30 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/4 top-1/2 h-[400px] w-[400px] rounded-full bg-violet-500/10 blur-[120px] animate-orb-1" />
+      </div>
       <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
         <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">
-          From idea to ready-to-upload in <span className="bg-[var(--gradient-primary)] bg-clip-text text-transparent">60 seconds</span>
+          From idea to ready-to-upload in <span className="text-gradient-animated">60 seconds</span>
         </h2>
-        <div className="mt-14 grid gap-8 sm:grid-cols-3">
-          {STEPS.map((s) => (
-            <div key={s.num} className="relative">
-              <span className="text-5xl font-black text-primary/15">{s.num}</span>
+        <div className="mt-14 grid gap-8 sm:grid-cols-3 relative">
+          {/* connector line */}
+          <div className="hidden sm:block absolute top-8 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+          {STEPS.map((s, i) => (
+            <div key={s.num} className="relative group">
+              <span className="inline-block text-5xl font-black bg-gradient-to-br from-primary to-fuchsia-500 bg-clip-text text-transparent transition-transform duration-300 group-hover:scale-110">{s.num}</span>
               <h3 className="mt-2 text-lg font-bold text-foreground">{s.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
             </div>
