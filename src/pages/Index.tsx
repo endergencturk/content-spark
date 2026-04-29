@@ -1929,6 +1929,8 @@ Viral Score: ${viralScore}/10
               topic={topic}
               language={locale}
               platform={platform}
+              audience={targetAudience}
+              style={style}
               onUseHook={(hookText) => {
                 if (isProMode && proResult) {
                   setProResult({ ...proResult, bestHook: hookText });
