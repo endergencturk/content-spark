@@ -8,16 +8,18 @@ const corsHeaders = {
 };
 
 const ANGLES = [
-  { id: "shock",      label: "Shock",      desc: "Open with a brutal, undeniable fact that breaks the scroll." },
-  { id: "curiosity",  label: "Curiosity",  desc: "Tease an unanswered mystery the viewer needs resolved." },
-  { id: "fear",       label: "Fear",       desc: "Trigger primal threat detection — danger, loss, exposure." },
-  { id: "controversy",label: "Controversy",desc: "Take a polarizing stance most people won't say out loud." },
-  { id: "authority",  label: "Authority",  desc: "Open as the insider, expert, or whistleblower." },
-  { id: "story",      label: "Story",      desc: "Drop straight into a personal narrative mid-action." },
-  { id: "question",   label: "Question",   desc: "Ask a question the viewer cannot ignore." },
-  { id: "contrast",   label: "Contrast",   desc: "Two opposing facts smashed together (then vs now, A vs B)." },
-  { id: "stat",       label: "Stat Bomb",  desc: "Lead with a stunning specific number or percentage." },
-  { id: "secret",     label: "Forbidden",  desc: "Frame the topic as suppressed knowledge." },
+  { id: "shock",       label: "Shock",        desc: "Open with a brutal, undeniable fact that breaks the scroll.",        formula: "Disruptor + extreme fact" },
+  { id: "curiosity",   label: "Curiosity",    desc: "Tease an unanswered mystery the viewer needs resolved.",             formula: "Setup + open loop" },
+  { id: "fear",        label: "Fear",         desc: "Trigger primal threat detection — danger, loss, exposure.",          formula: "Threat + proximity" },
+  { id: "controversy", label: "Controversy",  desc: "Take a polarizing stance most people won't say out loud.",           formula: "Forbidden opinion + receipts" },
+  { id: "authority",   label: "Authority",    desc: "Open as the insider, expert, or whistleblower.",                     formula: "Credential + leak" },
+  { id: "story",       label: "Story",        desc: "Drop straight into a personal narrative mid-action.",                formula: "In medias res + sensory" },
+  { id: "question",    label: "Question",     desc: "Ask a question the viewer cannot ignore.",                           formula: "Identity question + tension" },
+  { id: "contrast",    label: "Contrast",     desc: "Two opposing facts smashed together (then vs now, A vs B).",         formula: "Before/after collision" },
+  { id: "stat",        label: "Stat Bomb",    desc: "Lead with a stunning specific number or percentage.",                formula: "Specific number + payoff tease" },
+  { id: "secret",      label: "Forbidden",    desc: "Frame the topic as suppressed knowledge.",                           formula: "Hidden knowledge + reveal promise" },
+  { id: "list",        label: "Numbered List", desc: "Promise a finite, ranked countdown viewers must finish to see #1.", formula: "N reasons / things + ranked promise" },
+  { id: "cliffhanger", label: "Cliffhanger",  desc: "Open mid-event at the highest tension moment, then cut.",            formula: "Mid-action freeze + delayed payoff" },
 ];
 
 serve(async (req) => {
@@ -41,7 +43,13 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const { topic, language = "en", platform = "tiktok" } = await req.json();
+    const {
+      topic,
+      language = "en",
+      platform = "tiktok",
+      audience = "global",
+      style = "viral",
+    } = await req.json();
     if (!topic || typeof topic !== "string") {
       return new Response(JSON.stringify({ error: "topic required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -50,19 +58,51 @@ serve(async (req) => {
 
     const lang = language === "tr" ? "Turkish" : "English";
 
-    const prompt = `You are a viral hook engineer. Topic: "${topic}". Platform: ${platform}.
+    const platformGuidance: Record<string, string> = {
+      tiktok:           "TikTok — raw, conversational, pattern-interrupt FIRST WORD. No polish. Sound-driven.",
+      "youtube-shorts": "YouTube Shorts — slightly more setup OK (search-friendly keyword in first 5 words), retention-engineered.",
+      "instagram-reels":"Instagram Reels — visually evocative, aesthetic-aware, identity/aspiration-coded.",
+    };
+    const platformLine = platformGuidance[platform] || platformGuidance.tiktok;
 
-Generate exactly 10 hook variations — ONE per psychological angle below. Each hook must:
-- Be MAX 14 words total
-- Open with a 1-3 word disruptor (a punch, not a sentence)
-- Avoid clickbait clichés ("you won't believe", "wait for it")
-- Be in ${lang}
-- Match the angle's emotional intent precisely
+    const audienceLine = audience && audience !== "global"
+      ? `Audience: ${audience} — adapt cultural references, idioms, and emotional triggers accordingly.`
+      : `Audience: Global — use universal references, avoid region-locked slang.`;
 
-ANGLES:
-${ANGLES.map((a, i) => `${i + 1}. ${a.label} — ${a.desc}`).join("\n")}
+    const prompt = `You are the world's #1 viral hook engineer. You've written hooks for accounts with 100M+ views.
 
-Return strictly: { "hooks": [{ "angle": "Shock", "text": "..." }, ... 10 items in the same order] }`;
+TOPIC: "${topic}"
+PLATFORM: ${platformLine}
+${audienceLine}
+STYLE TONE: ${style}
+
+Generate exactly 12 hook variations — ONE per psychological angle below. For EACH hook, you must also score and diagnose it.
+
+HARD RULES (violate any → useless hook):
+1. MAX 14 words total. Shorter wins.
+2. First 1-3 words MUST be a pattern interrupt (a punch, not a setup phrase).
+3. NO banned clichés: "you won't believe", "wait for it", "this changed everything", "POV:", "tell me why", "the truth about".
+4. NO vague words ("things", "stuff", "amazing", "incredible", "crazy") — be SPECIFIC.
+5. Every hook must create a CURIOSITY GAP — the viewer MUST know what comes next.
+6. Language: ${lang}. Sound spoken, not written.
+7. Match the angle's emotional intent exactly. Don't blur angles.
+8. Use sensory, concrete, present-tense language whenever possible.
+
+SCORING (0-100, be honest, not generous):
+- 90-100: Industry-killer. Stops thumb in <0.4s. Top 1%.
+- 75-89:  Strong. Will outperform average. Top 10%.
+- 60-74:  Solid baseline. Average viral.
+- <60:    Weak. Rewrite needed.
+
+ANGLES (return in THIS order):
+${ANGLES.map((a, i) => `${i + 1}. ${a.label} — ${a.desc} | Formula: ${a.formula}`).join("\n")}
+
+For each hook also return:
+- "score" (0-100 integer)
+- "curiosityGap" (1 sentence: what unanswered question this creates)
+- "emotionalTrigger" (one of: fear, anger, awe, curiosity, desire, shame, pride, validation, disgust, anticipation)
+- "retentionForecast" ("3s", "10s", "full" — how long this hook can hold attention solo)
+- "tip" (1 short sentence: how to make this hook even sharper)`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -70,14 +110,14 @@ Return strictly: { "hooks": [{ "angle": "Shock", "text": "..." }, ... 10 items i
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: "You are a viral hook engineer. Output only valid JSON." },
+          { role: "system", content: "You are the world's #1 viral hook engineer. You diagnose hooks like a surgeon. Output only via the provided tool." },
           { role: "user", content: prompt },
         ],
         tools: [{
           type: "function",
           function: {
             name: "return_hooks",
-            description: "Return 10 hook variations",
+            description: "Return 12 hook variations with scores and diagnostics",
             parameters: {
               type: "object",
               properties: {
@@ -88,11 +128,16 @@ Return strictly: { "hooks": [{ "angle": "Shock", "text": "..." }, ... 10 items i
                     properties: {
                       angle: { type: "string" },
                       text: { type: "string" },
+                      score: { type: "integer", minimum: 0, maximum: 100 },
+                      curiosityGap: { type: "string" },
+                      emotionalTrigger: { type: "string" },
+                      retentionForecast: { type: "string", enum: ["3s", "10s", "full"] },
+                      tip: { type: "string" },
                     },
-                    required: ["angle", "text"],
+                    required: ["angle", "text", "score", "curiosityGap", "emotionalTrigger", "retentionForecast", "tip"],
                     additionalProperties: false,
                   },
-                  minItems: 10, maxItems: 10,
+                  minItems: 12, maxItems: 12,
                 },
               },
               required: ["hooks"],
