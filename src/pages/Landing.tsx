@@ -279,19 +279,28 @@ const FEATURES = [
 
 function Features() {
   return (
-    <section id="features" className="py-20 sm:py-28">
+    <section id="features" className="relative py-20 sm:py-28">
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute right-0 top-1/3 h-[400px] w-[400px] rounded-full bg-primary/10 blur-[120px] animate-orb-2" />
+      </div>
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="text-center mb-14">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">Everything You Need to Go Viral</h2>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">
+            Everything You Need to <span className="text-gradient-animated">Go Viral</span>
+          </h2>
           <p className="mt-4 text-muted-foreground max-w-lg mx-auto">
             A complete toolkit designed for creators who want to grow fast.
           </p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f) => (
-            <Card key={f.title} className="group rounded-2xl border-border/50 transition-all hover:border-primary/30 hover:shadow-[var(--shadow-card-hover)]">
+          {FEATURES.map((f, i) => (
+            <Card
+              key={f.title}
+              className="group hover-lift glow-border rounded-2xl border-border/50 bg-card/70 backdrop-blur transition-all hover:border-primary/40 hover:shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.35)]"
+              style={{ animationDelay: `${i * 80}ms` }}
+            >
               <CardHeader className="pb-3">
-              <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-fuchsia-500/10 text-primary transition-all duration-300 group-hover:from-primary group-hover:to-fuchsia-500 group-hover:text-primary-foreground group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-[0_8px_20px_-4px_hsl(var(--primary)/0.5)]">
                 <f.icon className="h-5 w-5" />
               </div>
               <CardTitle className="text-lg">{f.title}</CardTitle>
