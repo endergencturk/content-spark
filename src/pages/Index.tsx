@@ -1420,15 +1420,15 @@ Viral Score: ${viralScore}/10
 
           {/* MODE TOGGLE */}
           <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="w-full">
-            <TabsList className="w-full rounded-2xl h-auto p-1">
-              <TabsTrigger value="general" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2">
+            <TabsList className="w-full rounded-2xl h-auto p-1 bg-card/70 backdrop-blur-sm border border-border/40 shadow-sm">
+              <TabsTrigger value="general" className="flex-1 rounded-xl py-2.5 text-xs sm:text-sm font-semibold gap-1.5 sm:gap-2 transition-all data-[state=active]:shadow-md data-[state=active]:scale-[1.02]">
                 <Zap className="h-4 w-4" />{t("mode.free", locale)}
               </TabsTrigger>
-              <TabsTrigger value="pro" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2">
+              <TabsTrigger value="pro" className="flex-1 rounded-xl py-2.5 text-xs sm:text-sm font-semibold gap-1.5 sm:gap-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-fuchsia-600 data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=active]:scale-[1.02]">
                 <Crown className="h-4 w-4" />{t("mode.pro", locale)}
               </TabsTrigger>
-              <TabsTrigger value="horror" className="flex-1 rounded-xl py-2.5 text-sm font-semibold gap-2 data-[state=active]:bg-red-900 data-[state=active]:text-red-100">
-                <Skull className="h-4 w-4" />🎭 Horror
+              <TabsTrigger value="horror" className="flex-1 rounded-xl py-2.5 text-xs sm:text-sm font-semibold gap-1.5 sm:gap-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-950 data-[state=active]:to-red-800 data-[state=active]:text-red-100 data-[state=active]:shadow-md data-[state=active]:scale-[1.02]">
+                <Skull className="h-4 w-4" /><span className="hidden sm:inline">🎭 </span>Horror
               </TabsTrigger>
             </TabsList>
           </Tabs>
