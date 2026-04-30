@@ -1354,12 +1354,37 @@ Viral Score: ${viralScore}/10
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Desktop Left Sidebar */}
-      <AppSidebar
+      {/* Premium Sidebar (desktop sticky + mobile sheet) */}
+      <WorkspaceSidebar
         locale={locale}
-        activeNav="create"
-        onHistoryClick={() => setHistoryOpen(true)}
+        deviceId={deviceId}
+        onEditProfile={() => setProfileForceOpen(true)}
+        onOpenHistory={() => setHistoryOpen(true)}
+        onOpenCommandPalette={() => setCommandOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onSelectTopic={(t) => { setTopic(t); setMobileSidebarOpen(false); }}
+        recentRefreshKey={historyRefreshKey}
+        mobileOpen={mobileSidebarOpen}
+        onMobileOpenChange={setMobileSidebarOpen}
       />
+
+      {/* Command palette + settings dialog */}
+      <CommandPalette
+        open={commandOpen}
+        onOpenChange={setCommandOpen}
+        locale={locale}
+        deviceId={deviceId}
+        onSelectTopic={(t) => setTopic(t)}
+        onSwitchMode={(m) => setMode(m as Mode)}
+        onOpenHistory={() => setHistoryOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenProfile={() => setProfileForceOpen(true)}
+        onScrollToTrending={handleSidebarDiscover}
+        onOpenHookLab={() => setHookLabOpen(true)}
+        onTriggerGenerate={() => { if (topic.trim() && !loading) generateContent(); }}
+        onRandomTopic={() => setTopic(getRandomTopic(contentType, style))}
+      />
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       {/* Main content area */}
       <div className="flex-1 min-w-0 flex flex-col">
