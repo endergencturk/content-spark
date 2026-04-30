@@ -1561,8 +1561,18 @@ Viral Score: ${viralScore}/10
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
           <>
-          {/* Channel Profile Onboarding (not in horror mode) */}
-          {!isHorrorMode && <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />}
+          {/* Channel Profile Onboarding — only when first-time setup or user explicitly edits */}
+          {!isHorrorMode && profileForceOpen && (
+            <ChannelProfile locale={locale} onSave={(p) => { handleProfileSave(p); setProfileForceOpen(false); }} forceOpen={true} />
+          )}
+
+          {/* Daily Challenge */}
+          {!isHorrorMode && (
+            <DailyChallenge
+              locale={locale}
+              onAccept={(s) => { setStyle(s); toast.success(locale === "tr" ? "Görev kabul edildi! Konunu yaz ve üret." : "Challenge accepted! Type a topic and generate."); }}
+            />
+          )}
 
           {/* Weekly Content Plan (not in horror mode) */}
           {!isHorrorMode && <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />}
