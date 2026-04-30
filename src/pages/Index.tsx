@@ -22,7 +22,12 @@ import { Eye, Ghost, Cpu, Rocket, Scroll, MessageCircle, Wand2, BarChart3, Layer
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
-import { AppSidebar } from "@/components/AppSidebar";
+import { WorkspaceSidebar } from "@/components/WorkspaceSidebar";
+import { CommandPalette } from "@/components/CommandPalette";
+import { DailyChallenge } from "@/components/DailyChallenge";
+import { SettingsDialog } from "@/components/SettingsDialog";
+import { useGamification } from "@/hooks/useGamification";
+import { Menu } from "lucide-react";
 import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { t, type Locale } from "@/lib/i18n";
@@ -654,6 +659,9 @@ export default function Index() {
         const presetMatch = NICHE_PRESETS.find(p => p.id === profile.niche);
         if (presetMatch) handlePresetClick(presetMatch);
       }
+    } else if (localStorage.getItem("viralengine-channel-setup-done") !== "true") {
+      // First-time visitor — auto-open the profile onboarding
+      setProfileForceOpen(true);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -949,6 +957,20 @@ export default function Index() {
       setActiveTab("results");
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 
+      // Gamification: record + celebrate
+      try {
+        const { xpGain, unlocked, newStreak } = recordGeneration(1);
+        if (unlocked) {
+          toast.success(
+            `${unlocked.icon} ${locale === "tr" ? "Yeni rozet:" : "New badge:"} ${locale === "tr" ? unlocked.labelTr : unlocked.label}`,
+            { duration: 4000 }
+          );
+        } else if (newStreak > 1 && newStreak % 3 === 0) {
+          toast.success(`🔥 ${newStreak} ${locale === "tr" ? "günlük seri!" : "day streak!"} +${xpGain} XP`);
+        }
+      } catch {}
+      setHistoryRefreshKey((k) => k + 1);
+
       // Save country for horror tracking
       if (isHorrorMode) {
         const savedTopic = effectiveTopic === "__horror_random__" ? (data?.title || "") : effectiveTopic;
@@ -1221,6 +1243,45 @@ Viral Score: ${viralScore}/10
 
   const [historyOpen, setHistoryOpen] = useState(false);
   const trendingRef = useRef<HTMLDivElement>(null);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
+  const { recordGeneration } = useGamification();
+
+  // Global shortcuts: ⌘K palette, ⌘Enter generate, ⌘H history
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandOpen((o) => !o);
+      } else if (mod && e.key === "Enter") {
+        // Triggered by generate button anyway; only fire if topic is set & not loading
+        const target = e.target as HTMLElement;
+        const tag = target?.tagName;
+        if (tag === "TEXTAREA" || tag === "INPUT") return;
+        e.preventDefault();
+        // dispatched event listened by generate button
+        document.dispatchEvent(new CustomEvent("cs:generate"));
+      } else if (mod && e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        setHistoryOpen(true);
+      } else if (mod && e.key === ",") {
+        e.preventDefault();
+        setSettingsOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  // Listen for cs:generate event
+  useEffect(() => {
+    const fire = () => { if (topic.trim() && !loading) generateContent(); };
+    document.addEventListener("cs:generate", fire);
+    return () => document.removeEventListener("cs:generate", fire);
+  }, [topic, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSidebarDiscover = useCallback(() => {
     if (trendingRef.current) {
@@ -1310,16 +1371,59 @@ Viral Score: ${viralScore}/10
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Desktop Left Sidebar */}
-      <AppSidebar
+      {/* Premium Sidebar (desktop sticky + mobile sheet) */}
+      <WorkspaceSidebar
         locale={locale}
-        activeNav="create"
-        onHistoryClick={() => setHistoryOpen(true)}
+        deviceId={deviceId}
+        onEditProfile={() => setProfileForceOpen(true)}
+        onOpenHistory={() => setHistoryOpen(true)}
+        onOpenCommandPalette={() => setCommandOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onSelectTopic={(t) => { setTopic(t); setMobileSidebarOpen(false); }}
+        recentRefreshKey={historyRefreshKey}
+        mobileOpen={mobileSidebarOpen}
+        onMobileOpenChange={setMobileSidebarOpen}
       />
+
+      {/* Command palette + settings dialog */}
+      <CommandPalette
+        open={commandOpen}
+        onOpenChange={setCommandOpen}
+        locale={locale}
+        deviceId={deviceId}
+        onSelectTopic={(t) => setTopic(t)}
+        onSwitchMode={(m) => setMode(m as Mode)}
+        onOpenHistory={() => setHistoryOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenProfile={() => setProfileForceOpen(true)}
+        onScrollToTrending={handleSidebarDiscover}
+        onOpenHookLab={() => setHookLabOpen(true)}
+        onTriggerGenerate={() => { if (topic.trim() && !loading) generateContent(); }}
+        onRandomTopic={() => setTopic(getRandomTopic(contentType, style))}
+      />
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       {/* Main content area */}
       <div className="flex-1 min-w-0 flex flex-col">
       <Navbar onEditProfile={() => setProfileForceOpen(true)} />
+
+      {/* Mobile sidebar trigger (visible < lg) */}
+      <div className="lg:hidden border-b border-border/40 bg-background/80 backdrop-blur-xl px-4 py-2 flex items-center justify-between">
+        <button
+          onClick={() => setMobileSidebarOpen(true)}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+        >
+          <Menu className="h-4 w-4" />
+          {locale === "tr" ? "Menü" : "Menu"}
+        </button>
+        <button
+          onClick={() => setCommandOpen(true)}
+          className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span className="kbd-chip">⌘K</span>
+        </button>
+      </div>
 
       {/* Trial countdown banner — visible only during the 3-day Pro trial */}
       {planType === "trial" && (
@@ -1460,8 +1564,18 @@ Viral Score: ${viralScore}/10
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
           <>
-          {/* Channel Profile Onboarding (not in horror mode) */}
-          {!isHorrorMode && <ChannelProfile locale={locale} onSave={handleProfileSave} forceOpen={profileForceOpen} />}
+          {/* Channel Profile Onboarding — only when first-time setup or user explicitly edits */}
+          {!isHorrorMode && profileForceOpen && (
+            <ChannelProfile locale={locale} onSave={(p) => { handleProfileSave(p); setProfileForceOpen(false); }} forceOpen={true} />
+          )}
+
+          {/* Daily Challenge */}
+          {!isHorrorMode && (
+            <DailyChallenge
+              locale={locale}
+              onAccept={(s) => { setStyle(s); toast.success(locale === "tr" ? "Görev kabul edildi! Konunu yaz ve üret." : "Challenge accepted! Type a topic and generate."); }}
+            />
+          )}
 
           {/* Weekly Content Plan (not in horror mode) */}
           {!isHorrorMode && <WeeklyPlan isPro={isProMode} locale={locale} onSelectTopic={(t) => { setTopic(t); setDiscoveryResult(null); }} />}
