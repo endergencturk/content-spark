@@ -22,7 +22,12 @@ import { Eye, Ghost, Cpu, Rocket, Scroll, MessageCircle, Wand2, BarChart3, Layer
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
-import { AppSidebar } from "@/components/AppSidebar";
+import { WorkspaceSidebar } from "@/components/WorkspaceSidebar";
+import { CommandPalette } from "@/components/CommandPalette";
+import { DailyChallenge } from "@/components/DailyChallenge";
+import { SettingsDialog } from "@/components/SettingsDialog";
+import { useGamification } from "@/hooks/useGamification";
+import { Menu } from "lucide-react";
 import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { t, type Locale } from "@/lib/i18n";
