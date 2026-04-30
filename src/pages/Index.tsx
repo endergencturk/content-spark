@@ -1404,6 +1404,24 @@ Viral Score: ${viralScore}/10
       <div className="flex-1 min-w-0 flex flex-col">
       <Navbar onEditProfile={() => setProfileForceOpen(true)} />
 
+      {/* Mobile sidebar trigger (visible < lg) */}
+      <div className="lg:hidden border-b border-border/40 bg-background/80 backdrop-blur-xl px-4 py-2 flex items-center justify-between">
+        <button
+          onClick={() => setMobileSidebarOpen(true)}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+        >
+          <Menu className="h-4 w-4" />
+          {locale === "tr" ? "Menü" : "Menu"}
+        </button>
+        <button
+          onClick={() => setCommandOpen(true)}
+          className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span className="kbd-chip">⌘K</span>
+        </button>
+      </div>
+
       {/* Trial countdown banner — visible only during the 3-day Pro trial */}
       {planType === "trial" && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-primary/10 border-primary/20 py-2.5">
