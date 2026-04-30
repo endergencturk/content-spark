@@ -7,7 +7,6 @@ import {
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { type Locale } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface RecentItem {
   id: string;
