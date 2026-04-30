@@ -78,7 +78,7 @@ export function CommandPalette({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="p-0 max-w-xl gap-0 overflow-hidden border-border/60">
-        <VisuallyHidden><DialogTitle>Command Palette</DialogTitle></VisuallyHidden>
+        <DialogTitle className="sr-only">Command Palette</DialogTitle>
         <CommandPrimitive label="Command palette" className="bg-card">
           <div className="flex items-center gap-2 px-4 border-b border-border/40">
             <Search className="h-4 w-4 text-muted-foreground" />
