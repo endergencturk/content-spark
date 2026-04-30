@@ -659,6 +659,9 @@ export default function Index() {
         const presetMatch = NICHE_PRESETS.find(p => p.id === profile.niche);
         if (presetMatch) handlePresetClick(presetMatch);
       }
+    } else if (localStorage.getItem("viralengine-channel-setup-done") !== "true") {
+      // First-time visitor — auto-open the profile onboarding
+      setProfileForceOpen(true);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
