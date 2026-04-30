@@ -237,4 +237,65 @@
     pointer-events: none;
   }
   .glow-border:hover::before { opacity: 1; }
+
+  /* Neon glow border (always-on, soft) */
+  .neon-edge {
+    position: relative;
+    isolation: isolate;
+  }
+  .neon-edge::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.55), hsl(280 80% 65% / 0.35) 50%, hsl(320 75% 60% / 0.45));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Sidebar scroll polish */
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+  /* Glass panel */
+  .glass-panel {
+    background: linear-gradient(180deg, hsl(var(--card) / 0.85), hsl(var(--card) / 0.55));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* XP bar shimmer */
+  @keyframes xp-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .xp-bar {
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(280 80% 65%), hsl(var(--primary)));
+    background-size: 200% 100%;
+    animation: xp-shimmer 3s linear infinite;
+  }
+
+  /* Streak flame pulse */
+  @keyframes flame-flicker {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px hsl(20 100% 60% / 0.6)); }
+    50% { transform: scale(1.08); filter: drop-shadow(0 0 8px hsl(20 100% 60% / 0.9)); }
+  }
+  .animate-flame { animation: flame-flicker 1.6s ease-in-out infinite; }
+
+  /* Subtle hover-glow for sidebar items */
+  .sidebar-item-glow:hover {
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.3), 0 8px 24px -8px hsl(var(--primary) / 0.4);
+  }
+
+  /* Kbd chip */
+  .kbd-chip {
+    @apply inline-flex items-center justify-center rounded-md border border-border/60 bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground;
+    box-shadow: 0 1px 0 hsl(var(--border));
+  }
+}
 }
