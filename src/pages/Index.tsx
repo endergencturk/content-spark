@@ -1226,6 +1226,45 @@ Viral Score: ${viralScore}/10
 
   const [historyOpen, setHistoryOpen] = useState(false);
   const trendingRef = useRef<HTMLDivElement>(null);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
+  const { recordGeneration } = useGamification();
+
+  // Global shortcuts: ⌘K palette, ⌘Enter generate, ⌘H history
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandOpen((o) => !o);
+      } else if (mod && e.key === "Enter") {
+        // Triggered by generate button anyway; only fire if topic is set & not loading
+        const target = e.target as HTMLElement;
+        const tag = target?.tagName;
+        if (tag === "TEXTAREA" || tag === "INPUT") return;
+        e.preventDefault();
+        // dispatched event listened by generate button
+        document.dispatchEvent(new CustomEvent("cs:generate"));
+      } else if (mod && e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        setHistoryOpen(true);
+      } else if (mod && e.key === ",") {
+        e.preventDefault();
+        setSettingsOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  // Listen for cs:generate event
+  useEffect(() => {
+    const fire = () => { if (topic.trim() && !loading) generateContent(); };
+    document.addEventListener("cs:generate", fire);
+    return () => document.removeEventListener("cs:generate", fire);
+  }, [topic, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSidebarDiscover = useCallback(() => {
     if (trendingRef.current) {
