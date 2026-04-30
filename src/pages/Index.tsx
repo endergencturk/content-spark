@@ -954,6 +954,20 @@ export default function Index() {
       setActiveTab("results");
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 
+      // Gamification: record + celebrate
+      try {
+        const { xpGain, unlocked, newStreak } = recordGeneration(1);
+        if (unlocked) {
+          toast.success(
+            `${unlocked.icon} ${locale === "tr" ? "Yeni rozet:" : "New badge:"} ${locale === "tr" ? unlocked.labelTr : unlocked.label}`,
+            { duration: 4000 }
+          );
+        } else if (newStreak > 1 && newStreak % 3 === 0) {
+          toast.success(`🔥 ${newStreak} ${locale === "tr" ? "günlük seri!" : "day streak!"} +${xpGain} XP`);
+        }
+      } catch {}
+      setHistoryRefreshKey((k) => k + 1);
+
       // Save country for horror tracking
       if (isHorrorMode) {
         const savedTopic = effectiveTopic === "__horror_random__" ? (data?.title || "") : effectiveTopic;
