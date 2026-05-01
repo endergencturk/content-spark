@@ -1659,6 +1659,26 @@ Viral Score: ${viralScore}/10
             </div>
             )}
 
+            {!isHorrorMode && (
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                {locale === "tr" ? "Görsel Stili" : "Image Style"}
+              </p>
+              <div className="flex gap-2 flex-wrap">
+                {IMAGE_STYLE_OPTIONS.map((o) => (
+                  <Pill
+                    key={o.value}
+                    selected={settings.imageStyle === o.value}
+                    onClick={() => updateSettings({ imageStyle: o.value as ImageStyle })}
+                  >
+                    <span className="mr-1">{o.emoji}</span>
+                    {locale === "tr" ? o.labelTr : o.label}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+            )}
+
             {/* 4. Niche Presets (hidden in horror mode) */}
             {!isHorrorMode && (
             <div className="space-y-2">
