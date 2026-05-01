@@ -1185,20 +1185,20 @@ Viral Score: ${viralScore}/10
       const body = isHorrorMode
         ? {
             mode: "horror", topic, platforms, platform, scriptLength,
-            language: locale, targetAudience, imageFormat: "9:16",
+            language: locale, targetAudience, imageFormat: "9:16", imageStyle: settings.imageStyle,
             autoFixForced: true,
           }
         : isProMode
         ? {
             mode: "pro", topic, platforms, contentType, style, scriptLength, goal,
-            hookIntensity: 2, imageFormat: "9:16", imagePromptCount,
+            hookIntensity: 2, imageFormat: "9:16", imageStyle: settings.imageStyle, imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale, targetAudience, hookStyle: "aggressive",
             autoFixForced: true,
           }
         : {
             mode: "general", topic, platform, contentType, style, scriptLength, goal,
-            hookIntensity: 2, imageFormat: "9:16", outputStyle: settings.outputStyle,
+            hookIntensity: 2, imageFormat: "9:16", imageStyle: settings.imageStyle, outputStyle: settings.outputStyle,
             language: locale, targetAudience, hookStyle: "aggressive",
             autoFixForced: true,
           };
