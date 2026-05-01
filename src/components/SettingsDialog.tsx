@@ -149,20 +149,6 @@ export const SettingsDialog = memo(function SettingsDialog({
             </Select>
           </SettingsRow>
 
-          {/* Voice Speed */}
-          <SettingsRow label="Voice Speed">
-            <Select value={settings.voiceSpeed} onValueChange={(v) => updateSettings({ voiceSpeed: v as VoiceSpeed })}>
-              <SelectTrigger className="w-32 h-8 text-xs rounded-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(VOICE_SPEED_CONFIG) as VoiceSpeed[]).map((speed) => (
-                  <SelectItem key={speed} value={speed}>{VOICE_SPEED_CONFIG[speed].label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </SettingsRow>
-
           {/* Image Style */}
           <SettingsRow label={locale === "tr" ? "Görsel Stili" : "Image Style"}>
             <Select value={settings.imageStyle} onValueChange={(v) => updateSettings({ imageStyle: v as ImageStyle })}>
@@ -174,6 +160,20 @@ export const SettingsDialog = memo(function SettingsDialog({
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.emoji} {locale === "tr" ? opt.labelTr : opt.label}
                   </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </SettingsRow>
+
+          {/* Voice Speed */}
+          <SettingsRow label="Voice Speed">
+            <Select value={settings.voiceSpeed} onValueChange={(v) => updateSettings({ voiceSpeed: v as VoiceSpeed })}>
+              <SelectTrigger className="w-32 h-8 text-xs rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(VOICE_SPEED_CONFIG) as VoiceSpeed[]).map((speed) => (
+                  <SelectItem key={speed} value={speed}>{VOICE_SPEED_CONFIG[speed].label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
