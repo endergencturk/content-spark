@@ -361,6 +361,7 @@ Return as JSON with "hookA" and "hookB" string fields.`;
       goal,
       hookIntensity,
       imageFormat: imageFormat || "9:16",
+      imageStyle: imageStyle || "cinematic",
       depth,
       hookCount,
       customDescription,
