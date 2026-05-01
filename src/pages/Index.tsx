@@ -1564,11 +1564,6 @@ Viral Score: ${viralScore}/10
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
           <>
-          {/* Channel Profile Onboarding — only when first-time setup or user explicitly edits */}
-          {!isHorrorMode && profileForceOpen && (
-            <ChannelProfile locale={locale} onSave={(p) => { handleProfileSave(p); setProfileForceOpen(false); }} forceOpen={true} />
-          )}
-
           {/* Daily Challenge */}
           {!isHorrorMode && (
             <DailyChallenge
