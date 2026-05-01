@@ -897,13 +897,13 @@ export default function Index() {
         ? {
             mode: "horror", topic: effectiveTopic === "__horror_random__" ? "" : effectiveTopic,
             platforms, platform, scriptLength, language: locale,
-            targetAudience, imageFormat: "9:16",
+            targetAudience, imageFormat: "9:16", imageStyle: settings.imageStyle,
             threatType: horrorThreatType !== "ai-chooses" ? horrorThreatType : undefined,
           }
         : isProMode
         ? {
             mode: "pro", topic: effectiveTopic, platforms, contentType, style, scriptLength, goal, hookIntensity,
-            imageFormat: "9:16", imagePromptCount,
+            imageFormat: "9:16", imageStyle: settings.imageStyle, imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale,
             targetAudience,
@@ -911,7 +911,7 @@ export default function Index() {
           }
         : {
             mode: "general", topic: effectiveTopic, platform, contentType, style, scriptLength, goal, hookIntensity,
-            imageFormat: "9:16", outputStyle: settings.outputStyle,
+            imageFormat: "9:16", imageStyle: settings.imageStyle, outputStyle: settings.outputStyle,
             language: locale,
             targetAudience,
             hookStyle,
