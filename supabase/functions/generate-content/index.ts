@@ -778,6 +778,7 @@ interface PromptInput {
   goal: string;
   hookIntensity: number;
   imageFormat: string;
+  imageStyle: string;
   depth: string;
   hookCount: number;
   customDescription?: string;
