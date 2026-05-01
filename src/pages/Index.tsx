@@ -26,6 +26,7 @@ import { WorkspaceSidebar } from "@/components/WorkspaceSidebar";
 import { CommandPalette } from "@/components/CommandPalette";
 import { DailyChallenge } from "@/components/DailyChallenge";
 import { SettingsDialog } from "@/components/SettingsDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGamification } from "@/hooks/useGamification";
 import { Menu } from "lucide-react";
 import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
