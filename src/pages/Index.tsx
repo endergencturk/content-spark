@@ -26,6 +26,7 @@ import { WorkspaceSidebar } from "@/components/WorkspaceSidebar";
 import { CommandPalette } from "@/components/CommandPalette";
 import { DailyChallenge } from "@/components/DailyChallenge";
 import { SettingsDialog } from "@/components/SettingsDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGamification } from "@/hooks/useGamification";
 import { Menu } from "lucide-react";
 import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
@@ -896,13 +897,13 @@ export default function Index() {
         ? {
             mode: "horror", topic: effectiveTopic === "__horror_random__" ? "" : effectiveTopic,
             platforms, platform, scriptLength, language: locale,
-            targetAudience, imageFormat: "9:16",
+            targetAudience, imageFormat: "9:16", imageStyle: settings.imageStyle,
             threatType: horrorThreatType !== "ai-chooses" ? horrorThreatType : undefined,
           }
         : isProMode
         ? {
             mode: "pro", topic: effectiveTopic, platforms, contentType, style, scriptLength, goal, hookIntensity,
-            imageFormat: "9:16", imagePromptCount,
+            imageFormat: "9:16", imageStyle: settings.imageStyle, imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale,
             targetAudience,
@@ -910,7 +911,7 @@ export default function Index() {
           }
         : {
             mode: "general", topic: effectiveTopic, platform, contentType, style, scriptLength, goal, hookIntensity,
-            imageFormat: "9:16", outputStyle: settings.outputStyle,
+            imageFormat: "9:16", imageStyle: settings.imageStyle, outputStyle: settings.outputStyle,
             language: locale,
             targetAudience,
             hookStyle,
@@ -1184,20 +1185,20 @@ Viral Score: ${viralScore}/10
       const body = isHorrorMode
         ? {
             mode: "horror", topic, platforms, platform, scriptLength,
-            language: locale, targetAudience, imageFormat: "9:16",
+            language: locale, targetAudience, imageFormat: "9:16", imageStyle: settings.imageStyle,
             autoFixForced: true,
           }
         : isProMode
         ? {
             mode: "pro", topic, platforms, contentType, style, scriptLength, goal,
-            hookIntensity: 2, imageFormat: "9:16", imagePromptCount,
+            hookIntensity: 2, imageFormat: "9:16", imageStyle: settings.imageStyle, imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale, targetAudience, hookStyle: "aggressive",
             autoFixForced: true,
           }
         : {
             mode: "general", topic, platform, contentType, style, scriptLength, goal,
-            hookIntensity: 2, imageFormat: "9:16", outputStyle: settings.outputStyle,
+            hookIntensity: 2, imageFormat: "9:16", imageStyle: settings.imageStyle, outputStyle: settings.outputStyle,
             language: locale, targetAudience, hookStyle: "aggressive",
             autoFixForced: true,
           };
@@ -1564,11 +1565,6 @@ Viral Score: ${viralScore}/10
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
           <>
-          {/* Channel Profile Onboarding — only when first-time setup or user explicitly edits */}
-          {!isHorrorMode && profileForceOpen && (
-            <ChannelProfile locale={locale} onSave={(p) => { handleProfileSave(p); setProfileForceOpen(false); }} forceOpen={true} />
-          )}
-
           {/* Daily Challenge */}
           {!isHorrorMode && (
             <DailyChallenge
@@ -2401,6 +2397,24 @@ Viral Score: ${viralScore}/10
         </div>
       </div>
       </div>{/* end main content area */}
+
+      {/* Channel Profile Dialog — opened from sidebar/navbar/onboarding */}
+      {!isHorrorMode && (
+        <Dialog open={profileForceOpen} onOpenChange={setProfileForceOpen}>
+          <DialogContent className="sm:max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-base font-bold">
+                {locale === "tr" ? "Kanal Profili" : "Channel Profile"}
+              </DialogTitle>
+            </DialogHeader>
+            <ChannelProfile
+              locale={locale}
+              onSave={(p) => { handleProfileSave(p); setProfileForceOpen(false); }}
+              forceOpen={true}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
