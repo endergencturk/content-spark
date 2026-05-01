@@ -24,7 +24,17 @@ export interface Settings {
   defaultScriptLength: string;
   hookStyle: "safe" | "balanced" | "aggressive";
   voiceSpeed: VoiceSpeed;
+  imageStyle: ImageStyle;
 }
+
+export type ImageStyle = "cinematic" | "cartoon" | "horror" | "3d";
+
+export const IMAGE_STYLE_OPTIONS: { value: ImageStyle; label: string; labelTr: string; emoji: string }[] = [
+  { value: "cinematic", label: "Cinematic / Realistic", labelTr: "Sinematik / Gerçekçi", emoji: "🎬" },
+  { value: "cartoon",   label: "Cartoon / Anime",       labelTr: "Çizgi Film / Anime",   emoji: "🎨" },
+  { value: "horror",    label: "Horror / Dark",         labelTr: "Korku / Karanlık",     emoji: "💀" },
+  { value: "3d",        label: "3D / Pixar",            labelTr: "3D / Pixar",           emoji: "🧊" },
+];
 
 const DEFAULT_SETTINGS: Settings = {
   theme: "light",
@@ -34,6 +44,7 @@ const DEFAULT_SETTINGS: Settings = {
   defaultScriptLength: "30",
   hookStyle: "balanced",
   voiceSpeed: "0.9",
+  imageStyle: "cinematic",
 };
 
 const STORAGE_KEY = "viralengine-settings";
