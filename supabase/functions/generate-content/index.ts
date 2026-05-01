@@ -1363,17 +1363,7 @@ COMMENT TRIGGER RULE:
   - A theory viewers will debate
 - Goal: maximize comments and interaction`;
 
-  const imagePromptRules = `
-IMAGE PROMPTS:
-- Generate exactly 5 prompts.
-- imagePrompts must be an array of plain strings.
-- Each prompt is a single text string.
-- Example: ["Dark forest path, cinematic, vertical 9:16", "Empty airport corridor, eerie, vertical 9:16"]
-- Never return objects. Always return strings.
-- Each must include: scene description, lighting details, atmosphere, camera feel.
-- Format: [scene], [lighting], [mood], cinematic, photorealistic, vertical 9:16, no text, no faces, no identifiable people, no portraits
-- CRITICAL: Every prompt MUST end with "no faces, no identifiable people, no portraits"
-- CRITICAL: At least 1 prompt MUST be unsettling, surreal, or visually impossible`;
+  const imagePromptRules = getImagePromptRules(input.imageStyle);
 
   const thumbnailRules = `
 THUMBNAIL IDEAS:
