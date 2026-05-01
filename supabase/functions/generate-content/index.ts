@@ -855,6 +855,58 @@ function getHookStyleInstructions(hookStyle: string): string {
   }
 }
 
+function getImagePromptRules(imageStyle: string): string {
+  const baseRules = `
+IMAGE PROMPTS:
+- Generate exactly 5 prompts.
+- imagePrompts must be an array of plain strings.
+- Each prompt is a single text string.
+- Never return objects. Always return strings.
+- Each must include: scene description, lighting details, atmosphere, camera feel.
+- All prompts must be vertical 9:16, no text, no faces, no identifiable people, no portraits.
+- CRITICAL: Every prompt MUST end with "no faces, no identifiable people, no portraits".`;
+
+  switch (imageStyle) {
+    case "cartoon":
+      return baseRules + `
+
+VISUAL STYLE — CARTOON / ANIME:
+- Format: [scene], [lighting], [mood], anime illustration, cel-shaded, vibrant colors, bold linework, vertical 9:16, no text, no faces, no identifiable people, no portraits
+- Style suffix to append: "anime / Studio Ghibli inspired illustration, cel-shaded, expressive saturated colors, clean bold outlines, hand-drawn feel, dramatic anime lighting"
+- Example: "Empty neon-lit Tokyo alley at night, glowing signs, mysterious mood, anime illustration, cel-shaded, vibrant colors, bold linework, vertical 9:16, no faces, no identifiable people, no portraits"
+- At least 1 prompt should feel surreal, dreamlike, or impossible.`;
+
+    case "horror":
+      return baseRules + `
+
+VISUAL STYLE — HORROR / DARK:
+- Format: [scene], [lighting], [mood], dark horror cinematography, high contrast, deep shadows, vertical 9:16, no text, no faces, no identifiable people, no portraits
+- Style suffix to append: "psychological horror aesthetic, deep blacks, charcoal grays, single cold blue or blood-red accent only, volumetric fog, single chiaroscuro light source, 70% of frame in pitch-black shadow, eerie uncanny mood, photorealistic but desaturated"
+- Use words like: unsettling, eerie, abandoned, motionless, ominous. NEVER: blood, gore, screaming, dying.
+- Example: "Abandoned hospital corridor at midnight, single flickering fluorescent light, deep shadows, unsettling stillness, dark horror cinematography, high contrast, vertical 9:16, no faces, no identifiable people, no portraits"
+- At least 2 prompts MUST be unsettling, surreal, or visually impossible.`;
+
+    case "3d":
+      return baseRules + `
+
+VISUAL STYLE — 3D / PIXAR:
+- Format: [scene], [lighting], [mood], 3D animated render, Pixar-style, soft global illumination, vertical 9:16, no text, no faces, no identifiable people, no portraits
+- Style suffix to append: "high-quality 3D render, Pixar / DreamWorks animation aesthetic, soft volumetric lighting, subtle subsurface scattering, polished materials, cinematic depth of field, warm and inviting color palette"
+- Example: "Cozy attic workshop with floating dust particles, warm sunlight through round window, hopeful mood, 3D animated render, Pixar-style, soft global illumination, vertical 9:16, no faces, no identifiable people, no portraits"
+- At least 1 prompt should feel whimsical, oversized, or magical.`;
+
+    case "cinematic":
+    default:
+      return baseRules + `
+
+VISUAL STYLE — CINEMATIC / REALISTIC:
+- Format: [scene], [lighting], [mood], cinematic, photorealistic, vertical 9:16, no text, no faces, no identifiable people, no portraits
+- Style suffix to append: "shot on Arri Alexa, anamorphic lens flare, shallow depth of field, color-graded cinematic look, ultra-detailed, photorealistic"
+- Example: "Dark forest path at dusk, soft golden hour rays cutting through fog, mysterious mood, cinematic, photorealistic, vertical 9:16, no faces, no identifiable people, no portraits"
+- At least 1 prompt MUST be unsettling, surreal, or visually impossible.`;
+  }
+}
+
 function buildPrompt(input: PromptInput) {
   const { autoFixForced } = input;
   const hookLevel =
