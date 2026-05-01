@@ -573,7 +573,7 @@ const Pill = memo(function Pill({
 export default function Index() {
   useRouteThemeSync();
   const isMobile = useIsMobile();
-  const { settings } = useSettings();
+  const { settings, updateSettings } = useSettings();
   const locale = settings.language;
   const { user, planType, hasProAccess, trialDaysLeft, trialHoursLeft, requireAuth, loading: authLoading, setShowAuthModal, setShowUpgradeDialog } = useAuth();
 
