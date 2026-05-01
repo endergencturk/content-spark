@@ -50,6 +50,7 @@ serve(async (req) => {
       hookIntensity,
       imageFormat,
       imagePromptCount,
+      imageStyle,
       outputDepth,
       customDescription,
       language,
