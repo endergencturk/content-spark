@@ -2397,6 +2397,24 @@ Viral Score: ${viralScore}/10
         </div>
       </div>
       </div>{/* end main content area */}
+
+      {/* Channel Profile Dialog — opened from sidebar/navbar/onboarding */}
+      {!isHorrorMode && (
+        <Dialog open={profileForceOpen} onOpenChange={setProfileForceOpen}>
+          <DialogContent className="sm:max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-base font-bold">
+                {locale === "tr" ? "Kanal Profili" : "Channel Profile"}
+              </DialogTitle>
+            </DialogHeader>
+            <ChannelProfile
+              locale={locale}
+              onSave={(p) => { handleProfileSave(p); setProfileForceOpen(false); }}
+              forceOpen={true}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
