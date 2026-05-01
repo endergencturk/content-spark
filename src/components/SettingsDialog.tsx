@@ -3,7 +3,7 @@ import { Crown } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useSettings, VOICE_SPEED_CONFIG, IMAGE_STYLE_OPTIONS, type VoiceSpeed, type ImageStyle } from "@/contexts/SettingsContext";
+import { useSettings, VOICE_SPEED_CONFIG, type VoiceSpeed } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { t } from "@/lib/i18n";
 
@@ -145,22 +145,6 @@ export const SettingsDialog = memo(function SettingsDialog({
                 <SelectItem value="safe">{t("settings.hookStyle.safe", locale)}</SelectItem>
                 <SelectItem value="balanced">{t("settings.hookStyle.balanced", locale)}</SelectItem>
                 <SelectItem value="aggressive">{t("settings.hookStyle.aggressive", locale)}</SelectItem>
-              </SelectContent>
-            </Select>
-          </SettingsRow>
-
-          {/* Image Style */}
-          <SettingsRow label={locale === "tr" ? "Görsel Stili" : "Image Style"}>
-            <Select value={settings.imageStyle} onValueChange={(v) => updateSettings({ imageStyle: v as ImageStyle })}>
-              <SelectTrigger className="w-44 h-8 text-xs rounded-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {IMAGE_STYLE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.emoji} {locale === "tr" ? opt.labelTr : opt.label}
-                  </SelectItem>
-                ))}
               </SelectContent>
             </Select>
           </SettingsRow>

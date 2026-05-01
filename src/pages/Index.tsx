@@ -29,7 +29,7 @@ import { SettingsDialog } from "@/components/SettingsDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGamification } from "@/hooks/useGamification";
 import { Menu } from "lucide-react";
-import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync } from "@/contexts/SettingsContext";
+import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync, IMAGE_STYLE_OPTIONS, type ImageStyle } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { t, type Locale } from "@/lib/i18n";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
@@ -573,7 +573,7 @@ const Pill = memo(function Pill({
 export default function Index() {
   useRouteThemeSync();
   const isMobile = useIsMobile();
-  const { settings } = useSettings();
+  const { settings, updateSettings } = useSettings();
   const locale = settings.language;
   const { user, planType, hasProAccess, trialDaysLeft, trialHoursLeft, requireAuth, loading: authLoading, setShowAuthModal, setShowUpgradeDialog } = useAuth();
 
@@ -1653,6 +1653,26 @@ Viral Score: ${viralScore}/10
                     onClick={() => setHookStyle(o.value)}
                   >
                     {t(o.labelKey, locale)}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+            )}
+
+            {!isHorrorMode && (
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                {locale === "tr" ? "Görsel Stili" : "Image Style"}
+              </p>
+              <div className="flex gap-2 flex-wrap">
+                {IMAGE_STYLE_OPTIONS.map((o) => (
+                  <Pill
+                    key={o.value}
+                    selected={settings.imageStyle === o.value}
+                    onClick={() => updateSettings({ imageStyle: o.value as ImageStyle })}
+                  >
+                    <span className="mr-1">{o.emoji}</span>
+                    {locale === "tr" ? o.labelTr : o.label}
                   </Pill>
                 ))}
               </div>
