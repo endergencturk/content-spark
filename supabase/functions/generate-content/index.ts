@@ -1903,6 +1903,10 @@ VISUAL SYNC:
 - Every 2–3 lines of the script must be visualizable
 - Avoid abstract-only writing
 
+${creatorDNA}
+
+${viralRetentionMechanics}
+
 ${imagePromptRules}
 
 ${thumbnailRules}
