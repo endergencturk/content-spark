@@ -2079,6 +2079,39 @@ Viral Score: ${viralScore}/10
 
           </div>
 
+          {/* ─── VIRAL LABS (always available on Generate tab) ─── */}
+          {!isHorrorMode && (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+              <TitleThumbnailLab
+                topic={topic}
+                hook={generalResult?.bestHook || (proResult as any)?.bestHook}
+                language={locale}
+                platform={platform}
+                audience={targetAudience}
+                imageStyle={settings.imageStyle}
+              />
+              <HookMiningPanel
+                niche={selectedPreset || ""}
+                topic={topic}
+                language={locale}
+                platform={platform}
+                audience={targetAudience}
+                onUseHook={(hookText) => {
+                  if (isProMode && proResult) {
+                    setProResult({ ...proResult, bestHook: hookText });
+                    setActiveTab("results");
+                  } else if (generalResult) {
+                    setGeneralResult({ ...generalResult, bestHook: hookText });
+                    setActiveTab("results");
+                  } else {
+                    navigator.clipboard.writeText(hookText);
+                    toast.success(locale === "tr" ? "Hook kopyalandı" : "Hook copied");
+                  }
+                }}
+              />
+            </div>
+          )}
+
           {/* Duplicate Warning Banner */}
           {duplicateWarning && (
             <Alert className="rounded-2xl border-yellow-500/30 bg-yellow-500/10">
