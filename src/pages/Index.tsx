@@ -42,6 +42,8 @@ import { ABHookTester } from "@/components/ABHookTester";
 import { BulkPackDialog } from "@/components/BulkPackDialog";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { HookLab } from "@/components/HookLab";
+import { TitleThumbnailLab } from "@/components/TitleThumbnailLab";
+import { HookMiningPanel } from "@/components/HookMiningPanel";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
