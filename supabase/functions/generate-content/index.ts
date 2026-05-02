@@ -855,6 +855,95 @@ function getHookStyleInstructions(hookStyle: string): string {
   }
 }
 
+function getCreatorDNA(hookStyle: string): string {
+  // Map Hook Style → famous YouTube creator pacing & rhythm DNA.
+  // The model studies these creators' opening 10-second behavior.
+  switch (hookStyle) {
+    case "curiosity":
+      return `=== CREATOR DNA: JOHNNY HARRIS / VERITASIUM ===
+- Open with one specific, weird, undeniable detail (not a generic claim).
+- Layer information slowly: each line should answer ONE small question and create TWO new ones.
+- Use "but / except / however" pivots every 3-4 lines to redirect attention.
+- Cinematic narration rhythm: short → short → medium → SHORT.
+- Avoid hype words. Whisper the wild parts. Confidence > volume.
+- The viewer should feel they're being walked into a secret.`;
+    case "emotional":
+      return `=== CREATOR DNA: HUMANS-OF / DHAR MANN STORYTELLERS ===
+- Open mid-feeling, never mid-explanation. ("She knew.", "He waited.", "Nobody came.")
+- Use named or specific people (not "a man" / "a woman" — give them an age, a job, a detail).
+- One concrete sensory anchor per beat: a smell, a sound, a small object.
+- Pacing: heartbeat rhythm — tight, breath, tight, breath.
+- Land the climax on a single line of human truth, not on a fact.
+- Last line should make the viewer text someone, not just stop scrolling.`;
+    case "dark":
+      return `=== CREATOR DNA: MR BALLEN / LEMMINO / NEXPO ===
+- Slow burn. The opening 3 seconds should feel quiet, almost calm — wrong calm.
+- Trust the listener. Withhold context aggressively. Reveal one disturbing detail at a time.
+- Avoid splatter words (blood, gore, screaming). Use absence (silence, missing, locked, no answer).
+- Sentence rhythm: long, hushed line → tiny breaking line. Repeat.
+- The horror is in what is NOT said. Imply, don't show.
+- End on a question the viewer cannot un-think.`;
+    default: // aggressive
+      return `=== CREATOR DNA: MR BEAST / SIDEMEN / IMAN GADZHI OPENERS ===
+- First line is a verb, a number, or a one-word verdict. No setup.
+- Stack stakes inside the first 3 seconds: who, what, how high the cost.
+- Use specific numbers ("3 seconds", "$40,000", "47 floors") — vagueness kills retention.
+- Pattern interrupt every 2 lines: rhythm break, sudden 1-word line, contradicting fact.
+- Energy stays at 9/10 the whole way — never let the listener relax.
+- Close with a stake reveal or a "...and that was just the beginning."`;
+  }
+}
+
+const viralRetentionMechanics = `
+=== YOUTUBE FENOMEN-LEVEL RETENTION MECHANICS (NON-NEGOTIABLE) ===
+These are the mechanics top short-form creators use to push 90%+ average view duration.
+The script MUST embed ALL of them implicitly (never label them in output):
+
+1. THE 0.5-SECOND STOP
+   - Word #1 of the script must be physically arresting (a verb, a verdict, a number, a name).
+   - Words 1-3 must be processable in one glance.
+
+2. THE 3-SECOND PROMISE
+   - By second 3 the viewer must know WHY they should keep watching (the stake).
+   - Implied promise = a specific payoff is coming. Vague = scroll.
+
+3. OPEN LOOP CHAIN
+   - Open at least 3 micro-loops in the first 60% of the script.
+   - Close ONLY one of them before the very end. The rest force replay/comments.
+
+4. INFORMATION DELAY (RESERVE THE BEST FACT)
+   - The single most shocking fact does NOT appear until 60-75% in.
+   - Anything that gives the answer too early = REWRITE.
+
+5. PATTERN INTERRUPT EVERY 2-3 LINES
+   - Sudden rhythm shift, 1-word line, contradiction, time-jump, or zoom-in detail.
+   - If 4+ lines pass without an interrupt → INVALID.
+
+6. STAKE ESCALATION
+   - Stakes must rise monotonically: personal → social → existential.
+   - A line that lowers stakes is forbidden mid-script.
+
+7. SPECIFICITY OVER ADJECTIVES
+   - Replace adjectives with numbers, names, locations, time codes.
+   - "Many people" → "47 people". "A long time" → "11 days". "Far away" → "in a Mongolian truck stop".
+
+8. THE LOOP CLOSE
+   - The final line must rhyme thematically with the opening line so the viewer can replay seamlessly.
+   - It must also leave one loop deliberately OPEN (the comment-driver).
+
+9. COMMENT TRIGGER (BUILT IN, NEVER LABELED)
+   - Bake one mildly debatable / divisive / "wait what?" beat into the middle.
+   - The viewer should feel the urge to comment without being asked.
+
+10. NO DEAD WORDS
+    - Strike: very, really, just, basically, actually, literally, somehow.
+    - Strike all hedges: "kind of", "sort of", "maybe a little".
+    - Every word must increase tension, specificity, or emotion.
+
+SELF-CHECK BEFORE RETURNING:
+- Read the script aloud mentally. If at ANY second you could imagine a viewer scrolling away → rewrite that section.
+- Could the script be confused with a generic AI script? If yes → add specificity and rewrite the openers.`;
+
 function getImagePromptRules(imageStyle: string): string {
   const baseRules = `
 IMAGE PROMPTS:
@@ -928,6 +1017,7 @@ function buildPrompt(input: PromptInput) {
   const contentTypeInstructions = getContentTypeInstructions(input.contentType);
   const targetAudienceInstructions = getTargetAudienceInstructions(input.targetAudience);
   const hookStyleInstructions = getHookStyleInstructions(input.hookStyle);
+  const creatorDNA = getCreatorDNA(input.hookStyle);
 
   const globalRules = `
 GLOBAL RULES:
@@ -1652,6 +1742,10 @@ ${editSyncRule}
 
 ${platformBehaviorRule}
 
+${creatorDNA}
+
+${viralRetentionMechanics}
+
 EDITING PLAN:
 - Provide scenes with sequential numbering (scene: 1, scene: 2, etc.)
 - The "visual" field must describe the visual ONLY — do NOT start with "Scene 1:" or "Scene X:" prefix. The UI adds scene numbers automatically.
@@ -1808,6 +1902,10 @@ EDITING PLAN:
 VISUAL SYNC:
 - Every 2–3 lines of the script must be visualizable
 - Avoid abstract-only writing
+
+${creatorDNA}
+
+${viralRetentionMechanics}
 
 ${imagePromptRules}
 
