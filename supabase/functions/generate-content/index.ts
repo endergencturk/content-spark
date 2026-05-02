@@ -1017,6 +1017,7 @@ function buildPrompt(input: PromptInput) {
   const contentTypeInstructions = getContentTypeInstructions(input.contentType);
   const targetAudienceInstructions = getTargetAudienceInstructions(input.targetAudience);
   const hookStyleInstructions = getHookStyleInstructions(input.hookStyle);
+  const creatorDNA = getCreatorDNA(input.hookStyle);
 
   const globalRules = `
 GLOBAL RULES:
