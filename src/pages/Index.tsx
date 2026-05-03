@@ -1681,6 +1681,45 @@ Viral Score: ${viralScore}/10
             </div>
             )}
 
+            {!isHorrorMode && (
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                {locale === "tr" ? "Görsel Modu" : "Image Mode"}
+              </p>
+              <div className="flex gap-2 flex-wrap">
+                {IMAGE_MODE_OPTIONS.map((o) => (
+                  <Pill
+                    key={o.value}
+                    selected={settings.imageMode === o.value}
+                    onClick={() => updateSettings({ imageMode: o.value as ImageMode })}
+                  >
+                    <span className="mr-1">{o.emoji}</span>
+                    {locale === "tr" ? o.labelTr : o.label}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+            )}
+
+            {!isHorrorMode && settings.imageMode !== "scene" && (
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                {locale === "tr" ? "Yüz Yoğunluğu" : "Face Intensity"}
+              </p>
+              <div className="flex gap-2 flex-wrap">
+                {FACE_INTENSITY_OPTIONS.map((o) => (
+                  <Pill
+                    key={o.value}
+                    selected={settings.faceIntensity === o.value}
+                    onClick={() => updateSettings({ faceIntensity: o.value as FaceIntensity })}
+                  >
+                    {locale === "tr" ? o.labelTr : o.label}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+            )}
+
             {/* 4. Niche Presets (hidden in horror mode) */}
             {!isHorrorMode && (
             <div className="space-y-2">
