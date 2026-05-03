@@ -899,13 +899,13 @@ export default function Index() {
         ? {
             mode: "horror", topic: effectiveTopic === "__horror_random__" ? "" : effectiveTopic,
             platforms, platform, scriptLength, language: locale,
-            targetAudience, imageFormat: "9:16", imageStyle: settings.imageStyle,
+            targetAudience, imageFormat: "9:16", imageStyle: settings.imageStyle, imageMode: settings.imageMode, faceIntensity: settings.faceIntensity,
             threatType: horrorThreatType !== "ai-chooses" ? horrorThreatType : undefined,
           }
         : isProMode
         ? {
             mode: "pro", topic: effectiveTopic, platforms, contentType, style, scriptLength, goal, hookIntensity,
-            imageFormat: "9:16", imageStyle: settings.imageStyle, imagePromptCount,
+            imageFormat: "9:16", imageStyle: settings.imageStyle, imageMode: settings.imageMode, faceIntensity: settings.faceIntensity, imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale,
             targetAudience,
@@ -913,7 +913,7 @@ export default function Index() {
           }
         : {
             mode: "general", topic: effectiveTopic, platform, contentType, style, scriptLength, goal, hookIntensity,
-            imageFormat: "9:16", imageStyle: settings.imageStyle, outputStyle: settings.outputStyle,
+            imageFormat: "9:16", imageStyle: settings.imageStyle, imageMode: settings.imageMode, faceIntensity: settings.faceIntensity, outputStyle: settings.outputStyle,
             language: locale,
             targetAudience,
             hookStyle,
@@ -1187,20 +1187,20 @@ Viral Score: ${viralScore}/10
       const body = isHorrorMode
         ? {
             mode: "horror", topic, platforms, platform, scriptLength,
-            language: locale, targetAudience, imageFormat: "9:16", imageStyle: settings.imageStyle,
+            language: locale, targetAudience, imageFormat: "9:16", imageStyle: settings.imageStyle, imageMode: settings.imageMode, faceIntensity: settings.faceIntensity,
             autoFixForced: true,
           }
         : isProMode
         ? {
             mode: "pro", topic, platforms, contentType, style, scriptLength, goal,
-            hookIntensity: 2, imageFormat: "9:16", imageStyle: settings.imageStyle, imagePromptCount,
+            hookIntensity: 2, imageFormat: "9:16", imageStyle: settings.imageStyle, imageMode: settings.imageMode, faceIntensity: settings.faceIntensity, imagePromptCount,
             customDescription: customDescription.trim() || undefined,
             language: locale, targetAudience, hookStyle: "aggressive",
             autoFixForced: true,
           }
         : {
             mode: "general", topic, platform, contentType, style, scriptLength, goal,
-            hookIntensity: 2, imageFormat: "9:16", imageStyle: settings.imageStyle, outputStyle: settings.outputStyle,
+            hookIntensity: 2, imageFormat: "9:16", imageStyle: settings.imageStyle, imageMode: settings.imageMode, faceIntensity: settings.faceIntensity, outputStyle: settings.outputStyle,
             language: locale, targetAudience, hookStyle: "aggressive",
             autoFixForced: true,
           };
