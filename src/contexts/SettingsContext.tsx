@@ -25,9 +25,25 @@ export interface Settings {
   hookStyle: "safe" | "balanced" | "aggressive";
   voiceSpeed: VoiceSpeed;
   imageStyle: ImageStyle;
+  imageMode: ImageMode;
+  faceIntensity: FaceIntensity;
 }
 
 export type ImageStyle = "cinematic" | "cartoon" | "horror" | "3d";
+export type ImageMode = "character" | "scene" | "mixed";
+export type FaceIntensity = "low" | "medium" | "extreme";
+
+export const IMAGE_MODE_OPTIONS: { value: ImageMode; label: string; labelTr: string; emoji: string }[] = [
+  { value: "character", label: "Character", labelTr: "Karakter",  emoji: "😱" },
+  { value: "scene",     label: "Scene",     labelTr: "Sahne",     emoji: "🌃" },
+  { value: "mixed",     label: "Mixed",     labelTr: "Karışık",   emoji: "🎭" },
+];
+
+export const FACE_INTENSITY_OPTIONS: { value: FaceIntensity; label: string; labelTr: string }[] = [
+  { value: "low",     label: "Low",     labelTr: "Düşük" },
+  { value: "medium",  label: "Medium",  labelTr: "Orta" },
+  { value: "extreme", label: "Extreme", labelTr: "Aşırı" },
+];
 
 export const IMAGE_STYLE_OPTIONS: { value: ImageStyle; label: string; labelTr: string; emoji: string }[] = [
   { value: "cinematic", label: "Cinematic / Realistic", labelTr: "Sinematik / Gerçekçi", emoji: "🎬" },
@@ -45,6 +61,8 @@ const DEFAULT_SETTINGS: Settings = {
   hookStyle: "balanced",
   voiceSpeed: "0.9",
   imageStyle: "cinematic",
+  imageMode: "character",
+  faceIntensity: "medium",
 };
 
 const STORAGE_KEY = "viralengine-settings";

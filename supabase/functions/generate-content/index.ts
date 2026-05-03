@@ -51,6 +51,8 @@ serve(async (req) => {
       imageFormat,
       imagePromptCount,
       imageStyle,
+      imageMode,
+      faceIntensity,
       outputDepth,
       customDescription,
       language,
@@ -362,6 +364,8 @@ Return as JSON with "hookA" and "hookB" string fields.`;
       hookIntensity,
       imageFormat: imageFormat || "9:16",
       imageStyle: imageStyle || "cinematic",
+      imageMode: imageMode || "character",
+      faceIntensity: faceIntensity || "medium",
       depth,
       hookCount,
       customDescription,
@@ -779,6 +783,8 @@ interface PromptInput {
   hookIntensity: number;
   imageFormat: string;
   imageStyle: string;
+  imageMode: string;
+  faceIntensity: string;
   depth: string;
   hookCount: number;
   customDescription?: string;
@@ -944,56 +950,77 @@ SELF-CHECK BEFORE RETURNING:
 - Read the script aloud mentally. If at ANY second you could imagine a viewer scrolling away → rewrite that section.
 - Could the script be confused with a generic AI script? If yes → add specificity and rewrite the openers.`;
 
-function getImagePromptRules(imageStyle: string): string {
-  const baseRules = `
+function getImagePromptRules(imageStyle: string, imageMode: string = "character", faceIntensity: string = "medium"): string {
+  // Style suffix per visual style
+  const styleSuffix: Record<string, string> = {
+    cartoon:   "anime / Studio Ghibli inspired illustration, cel-shaded, expressive saturated colors, clean bold outlines, hand-drawn feel, dramatic anime lighting",
+    horror:    "dark horror ink illustration, semi-realistic, sharp ink lines, cross-hatching shading, gritty texture, high contrast lighting, analog horror grain, deep blacks, single cold blue or blood-red accent, eerie uncanny mood",
+    "3d":      "high-quality 3D render, Pixar / DreamWorks animation aesthetic, soft volumetric lighting, subtle subsurface scattering, polished materials, cinematic depth of field",
+    cinematic: "shot on Arri Alexa, anamorphic lens flare, shallow depth of field, color-graded cinematic look, ultra-detailed, photorealistic",
+  };
+  const suffix = styleSuffix[imageStyle] || styleSuffix.cinematic;
+
+  // Face intensity expression block
+  const faceIntensityBlock = (() => {
+    switch (faceIntensity) {
+      case "low":
+        return "Subtle expression: thoughtful eyes, slight tension, calm but unsettled.";
+      case "extreme":
+        return "EXTREME expression: terrified expression, wide eyes, visible fear, tense facial muscles, mouth slightly open, sweat detail, panic energy.";
+      case "medium":
+      default:
+        return "Strong expression: wide eyes, clear emotion (fear/shock/curiosity), tense brow, parted lips, palpable intensity.";
+    }
+  })();
+
+  // Safety language for human characters (NO real identities)
+  const safetySuffix = "fictional character, generic person, no real identity, not a celebrity, not a real public figure, no text, no logos, vertical 9:16";
+
+  const baseHeader = `
 IMAGE PROMPTS:
 - Generate exactly 5 prompts.
 - imagePrompts must be an array of plain strings.
-- Each prompt is a single text string.
-- Never return objects. Always return strings.
-- Each must include: scene description, lighting details, atmosphere, camera feel.
-- All prompts must be vertical 9:16, no text, no faces, no identifiable people, no portraits.
-- CRITICAL: Every prompt MUST end with "no faces, no identifiable people, no portraits".`;
+- Each prompt is a single text string. Never return objects.
+- Each prompt must be vertical 9:16, no text, no logos.
+- IMPORTANT: Human faces and characters ARE allowed and encouraged. Use ONLY fictional characters. Never depict, name, or resemble real people, celebrities, politicians, or public figures.
+- Every prompt MUST include the safety phrase: "${safetySuffix}".
+- Visual style suffix to append to every prompt: "${suffix}".`;
 
-  switch (imageStyle) {
-    case "cartoon":
-      return baseRules + `
+  if (imageMode === "scene") {
+    return baseHeader + `
 
-VISUAL STYLE — CARTOON / ANIME:
-- Format: [scene], [lighting], [mood], anime illustration, cel-shaded, vibrant colors, bold linework, vertical 9:16, no text, no faces, no identifiable people, no portraits
-- Style suffix to append: "anime / Studio Ghibli inspired illustration, cel-shaded, expressive saturated colors, clean bold outlines, hand-drawn feel, dramatic anime lighting"
-- Example: "Empty neon-lit Tokyo alley at night, glowing signs, mysterious mood, anime illustration, cel-shaded, vibrant colors, bold linework, vertical 9:16, no faces, no identifiable people, no portraits"
-- At least 1 prompt should feel surreal, dreamlike, or impossible.`;
-
-    case "horror":
-      return baseRules + `
-
-VISUAL STYLE — HORROR / DARK:
-- Format: [scene], [lighting], [mood], dark horror cinematography, high contrast, deep shadows, vertical 9:16, no text, no faces, no identifiable people, no portraits
-- Style suffix to append: "psychological horror aesthetic, deep blacks, charcoal grays, single cold blue or blood-red accent only, volumetric fog, single chiaroscuro light source, 70% of frame in pitch-black shadow, eerie uncanny mood, photorealistic but desaturated"
-- Use words like: unsettling, eerie, abandoned, motionless, ominous. NEVER: blood, gore, screaming, dying.
-- Example: "Abandoned hospital corridor at midnight, single flickering fluorescent light, deep shadows, unsettling stillness, dark horror cinematography, high contrast, vertical 9:16, no faces, no identifiable people, no portraits"
-- At least 2 prompts MUST be unsettling, surreal, or visually impossible.`;
-
-    case "3d":
-      return baseRules + `
-
-VISUAL STYLE — 3D / PIXAR:
-- Format: [scene], [lighting], [mood], 3D animated render, Pixar-style, soft global illumination, vertical 9:16, no text, no faces, no identifiable people, no portraits
-- Style suffix to append: "high-quality 3D render, Pixar / DreamWorks animation aesthetic, soft volumetric lighting, subtle subsurface scattering, polished materials, cinematic depth of field, warm and inviting color palette"
-- Example: "Cozy attic workshop with floating dust particles, warm sunlight through round window, hopeful mood, 3D animated render, Pixar-style, soft global illumination, vertical 9:16, no faces, no identifiable people, no portraits"
-- At least 1 prompt should feel whimsical, oversized, or magical.`;
-
-    case "cinematic":
-    default:
-      return baseRules + `
-
-VISUAL STYLE — CINEMATIC / REALISTIC:
-- Format: [scene], [lighting], [mood], cinematic, photorealistic, vertical 9:16, no text, no faces, no identifiable people, no portraits
-- Style suffix to append: "shot on Arri Alexa, anamorphic lens flare, shallow depth of field, color-graded cinematic look, ultra-detailed, photorealistic"
-- Example: "Dark forest path at dusk, soft golden hour rays cutting through fog, mysterious mood, cinematic, photorealistic, vertical 9:16, no faces, no identifiable people, no portraits"
-- At least 1 prompt MUST be unsettling, surreal, or visually impossible.`;
+IMAGE MODE — SCENE (environment only):
+- NO people, NO faces, NO characters, NO silhouettes of people in any prompt.
+- Focus entirely on environments, objects, atmosphere, lighting.
+- Format: [environment], [lighting], [mood], ${suffix}, ${safetySuffix}, no people
+- Each prompt must end with: "no faces, no identifiable people, no portraits, ${safetySuffix.replace("vertical 9:16","")}"
+- At least 1 prompt should feel unsettling, surreal, or visually impossible.`;
   }
+
+  if (imageMode === "mixed") {
+    return baseHeader + `
+
+IMAGE MODE — MIXED (character + environment):
+- Generate 3 CHARACTER prompts (close-up of fictional character's face) and 2 SCENE prompts (environment only).
+- Character prompts MUST be: extreme close-up of face, strong facial expression, emotional intensity, fictional character, no real identity. ${faceIntensityBlock}
+- Scene prompts MUST contain NO people.
+- Avoid wide shots, empty rooms, distant figures in character prompts.
+- Format (character): "Extreme close-up of fictional character's face, [expression], [lighting], [mood], ${suffix}, ${safetySuffix}"
+- Format (scene): "[environment], [lighting], [mood], ${suffix}, ${safetySuffix}, no people"`;
+  }
+
+  // CHARACTER (default)
+  return baseHeader + `
+
+IMAGE MODE — CHARACTER (default, human-centered):
+- Every prompt MUST feature a fictional human character — close-up of face, strong emotional expression.
+- Always include: "extreme close-up of face", "strong facial expression", "emotional intensity".
+- ${faceIntensityBlock}
+- Avoid: wide shots, empty rooms, distant figures, hallway-only shots, environment-only scenes.
+- Vary the fictional character across the 5 prompts (age range, gender, ethnicity), but ALWAYS fictional — never real people or celebrities.
+- Format: "Extreme close-up of fictional character's face, [emotion/expression], [lighting], [mood], ${suffix}, ${safetySuffix}"
+- Example (horror): "Extreme close-up of a fictional young adult's face, terrified wide eyes, panic expression, harsh single-source lighting from below, deep shadows, dark horror ink illustration, semi-realistic, sharp ink lines, cross-hatching shading, gritty texture, analog horror grain, fictional character, generic person, no real identity, not a celebrity, vertical 9:16"
+- All 5 prompts must be character close-ups. No environment-only fallback.`;
 }
 
 function buildPrompt(input: PromptInput) {
@@ -1505,16 +1532,16 @@ COMMENT TRIGGER RULE:
   - A theory viewers will debate
 - Goal: maximize comments and interaction`;
 
-  const imagePromptRules = getImagePromptRules(input.imageStyle);
+  const imagePromptRules = getImagePromptRules(input.imageStyle, (input as any).imageMode, (input as any).faceIntensity);
 
   const thumbnailRules = `
 THUMBNAIL IDEAS:
 - Generate exactly 2 thumbnail ideas
 - Each must include:
-  - image: A plain string thumbnail prompt (NOT an object), vertical 9:16, visually strong, platform-ready, high contrast, clickable, no faces, no identifiable people, no portraits
+  - image: A plain string thumbnail prompt (NOT an object), vertical 9:16, visually strong, platform-ready, high contrast, clickable. Should feature a fictional character's face (extreme close-up, strong emotion) — fictional character, generic person, no real identity, not a celebrity.
   - text: Overlay text, UPPERCASE, max 5 words, punchy and attention-grabbing
 - CRITICAL: thumbnail "image" field must be a plain string, never an object
-- CRITICAL: Every thumbnail image prompt MUST include "no faces, no identifiable people, no portraits"
+- CRITICAL: Every thumbnail image prompt MUST include "fictional character, no real identity, not a celebrity"
 - Match thumbnail style to the selected Hook Style
 - Make prompts visually clickable and high-contrast
 - Keep text short and punchy
