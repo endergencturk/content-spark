@@ -1532,16 +1532,16 @@ COMMENT TRIGGER RULE:
   - A theory viewers will debate
 - Goal: maximize comments and interaction`;
 
-  const imagePromptRules = getImagePromptRules(input.imageStyle);
+  const imagePromptRules = getImagePromptRules(input.imageStyle, (input as any).imageMode, (input as any).faceIntensity);
 
   const thumbnailRules = `
 THUMBNAIL IDEAS:
 - Generate exactly 2 thumbnail ideas
 - Each must include:
-  - image: A plain string thumbnail prompt (NOT an object), vertical 9:16, visually strong, platform-ready, high contrast, clickable, no faces, no identifiable people, no portraits
+  - image: A plain string thumbnail prompt (NOT an object), vertical 9:16, visually strong, platform-ready, high contrast, clickable. Should feature a fictional character's face (extreme close-up, strong emotion) — fictional character, generic person, no real identity, not a celebrity.
   - text: Overlay text, UPPERCASE, max 5 words, punchy and attention-grabbing
 - CRITICAL: thumbnail "image" field must be a plain string, never an object
-- CRITICAL: Every thumbnail image prompt MUST include "no faces, no identifiable people, no portraits"
+- CRITICAL: Every thumbnail image prompt MUST include "fictional character, no real identity, not a celebrity"
 - Match thumbnail style to the selected Hook Style
 - Make prompts visually clickable and high-contrast
 - Keep text short and punchy
