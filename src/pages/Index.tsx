@@ -29,7 +29,7 @@ import { SettingsDialog } from "@/components/SettingsDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGamification } from "@/hooks/useGamification";
 import { Menu } from "lucide-react";
-import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync, IMAGE_STYLE_OPTIONS, type ImageStyle } from "@/contexts/SettingsContext";
+import { useSettings, CHAR_TARGETS_BY_SPEED, useRouteThemeSync, IMAGE_STYLE_OPTIONS, IMAGE_MODE_OPTIONS, FACE_INTENSITY_OPTIONS, type ImageStyle, type ImageMode, type FaceIntensity } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { t, type Locale } from "@/lib/i18n";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
