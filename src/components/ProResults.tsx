@@ -14,6 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { t, type Locale } from "@/lib/i18n";
 import { ScriptEditor } from "@/components/ScriptEditor";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
+import { ViralScoreCard } from "@/components/ViralScoreCard";
 
 interface EditingScene {
   scene: number;
@@ -90,6 +91,16 @@ export const ProResults = memo(function ProResults({
 
   return (
     <div className="space-y-6">
+      {/* Viral Score + Retention Graph */}
+      {safeResult.script && (
+        <ViralScoreCard
+          script={safeResult.script}
+          bestHook={safeResult.bestHook}
+          scriptLength={scriptLength}
+          locale={locale}
+          baseScore={safeResult.viralAnalysis?.score}
+        />
+      )}
       {/* Best Hook — hero card */}
       <Card className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">
       <CardContent className="p-5">
