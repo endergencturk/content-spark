@@ -11,6 +11,7 @@ import { t, type Locale } from "@/lib/i18n";
 import { BlurredPreview } from "@/components/BlurredPreview";
 import { ScriptEditor } from "@/components/ScriptEditor";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
+import { ViralScoreCard } from "@/components/ViralScoreCard";
 
 interface EditingScene {
   scene: number;
@@ -78,6 +79,16 @@ export const GeneralResults = memo(function GeneralResults({
 
   return (
     <div className="space-y-5">
+      {/* Viral Score + Retention Graph */}
+      {result.script && (
+        <ViralScoreCard
+          script={result.script}
+          bestHook={result.bestHook}
+          scriptLength={scriptLength}
+          locale={locale}
+          baseScore={result.viralAnalysis?.score}
+        />
+      )}
       {/* ⭐ Best Hook - full width */}
       {result.bestHook && (
         <Card className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">

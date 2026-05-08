@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { WorkspaceSidebar } from "@/components/WorkspaceSidebar";
 import { CommandPalette } from "@/components/CommandPalette";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import { DailyChallenge } from "@/components/DailyChallenge";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -1405,6 +1406,7 @@ Viral Score: ${viralScore}/10
         onRandomTopic={() => setTopic(getRandomTopic(contentType, style))}
       />
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <OnboardingModal locale={locale} onPickTopic={(t) => setTopic(t)} />
 
       {/* Main content area */}
       <div className="flex-1 min-w-0 flex flex-col">
