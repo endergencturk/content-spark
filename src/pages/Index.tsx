@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { WorkspaceSidebar } from "@/components/WorkspaceSidebar";
 import { CommandPalette } from "@/components/CommandPalette";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import { DailyChallenge } from "@/components/DailyChallenge";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
