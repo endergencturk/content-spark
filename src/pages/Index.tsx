@@ -1406,6 +1406,7 @@ Viral Score: ${viralScore}/10
         onRandomTopic={() => setTopic(getRandomTopic(contentType, style))}
       />
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <OnboardingModal locale={locale} onPickTopic={(t) => setTopic(t)} />
 
       {/* Main content area */}
       <div className="flex-1 min-w-0 flex flex-col">
