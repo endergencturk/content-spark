@@ -953,10 +953,16 @@ SELF-CHECK BEFORE RETURNING:
 function getImagePromptRules(imageStyle: string, imageMode: string = "character", faceIntensity: string = "medium"): string {
   // Style suffix per visual style
   const styleSuffix: Record<string, string> = {
-    cartoon:   "anime / Studio Ghibli inspired illustration, cel-shaded, expressive saturated colors, clean bold outlines, hand-drawn feel, dramatic anime lighting",
-    horror:    "dark horror ink illustration, semi-realistic, sharp ink lines, cross-hatching shading, gritty texture, high contrast lighting, analog horror grain, deep blacks, single cold blue or blood-red accent, eerie uncanny mood",
-    "3d":      "high-quality 3D render, Pixar / DreamWorks animation aesthetic, soft volumetric lighting, subtle subsurface scattering, polished materials, cinematic depth of field",
-    cinematic: "shot on Arri Alexa, anamorphic lens flare, shallow depth of field, color-graded cinematic look, ultra-detailed, photorealistic",
+    cartoon:     "anime / Studio Ghibli inspired illustration, cel-shaded, expressive saturated colors, clean bold outlines, hand-drawn feel, dramatic anime rim lighting, painterly background",
+    horror:      "dark horror ink illustration, semi-realistic, sharp ink lines, cross-hatching shading, gritty texture, high contrast lighting, analog horror grain, deep blacks, single cold blue or blood-red accent, eerie uncanny mood",
+    "3d":        "high-quality 3D render, Pixar / DreamWorks animation aesthetic, soft volumetric lighting, subtle subsurface scattering, polished materials, cinematic depth of field, octane render quality",
+    cinematic:   "shot on Arri Alexa LF, 35mm anamorphic lens, T1.4, shallow depth of field, natural cinematic color grade, teal-and-orange palette, soft volumetric haze, ultra-detailed, photorealistic, IMAX clarity",
+    documentary: "raw documentary photography, available natural light, slight motion blur, photojournalistic framing, Magnum Photos style, neutral tone, true-to-life skin tones, 35mm grain",
+    editorial:   "high-fashion editorial photography, Vogue / National Geographic cover quality, dramatic studio lighting, bold color palette, magazine-cover composition, hyperdetailed, glossy print finish",
+    cyberpunk:   "neon cyberpunk aesthetic, magenta and cyan rim lighting, rain-slicked reflective surfaces, glowing holographic signage bokeh, Blade Runner 2049 inspired, cinematic anamorphic flare, moody atmosphere",
+    noir:        "classic film noir, high-contrast black and white, hard chiaroscuro lighting, venetian blind shadows, smoke in the air, 1940s detective mood, 35mm film grain, deep shadows",
+    vintage35mm: "vintage 35mm film photography, Kodak Portra 400, warm faded colors, light leaks, soft halation, slight grain, nostalgic 1970s mood, analog imperfections",
+    hyperreal:   "hyperreal macro photography, 100mm macro lens, ultra-shallow depth of field, microscopic skin texture and pore detail, dewdrop sharpness, studio softbox lighting, 8k clarity",
   };
   const suffix = styleSuffix[imageStyle] || styleSuffix.cinematic;
 
@@ -964,17 +970,34 @@ function getImagePromptRules(imageStyle: string, imageMode: string = "character"
   const faceIntensityBlock = (() => {
     switch (faceIntensity) {
       case "low":
-        return "Subtle expression: thoughtful eyes, slight tension, calm but unsettled.";
+        return "Subtle expression: thoughtful eyes, slight tension in the brow, calm but quietly unsettled, micro-emotion only.";
       case "extreme":
-        return "EXTREME expression: terrified expression, wide eyes, visible fear, tense facial muscles, mouth slightly open, sweat detail, panic energy.";
+        return "EXTREME expression: terrified wide eyes, dilated pupils, visible fear, tense facial muscles, mouth open mid-gasp, sweat beading on temple, vein on neck, raw panic energy frozen at peak intensity.";
       case "medium":
       default:
-        return "Strong expression: wide eyes, clear emotion (fear/shock/curiosity), tense brow, parted lips, palpable intensity.";
+        return "Strong expression: wide eyes, clear emotion (fear / shock / curiosity / awe), tense brow, parted lips, palpable intensity, micro-expression caught mid-realization.";
     }
   })();
 
   // Safety language for human characters (NO real identities)
-  const safetySuffix = "fictional character, generic person, no real identity, not a celebrity, not a real public figure, no text, no logos, vertical 9:16";
+  const safetySuffix = "fictional character, generic person, no real identity, not a celebrity, not a real public figure, no text, no logos, no watermarks, vertical 9:16 portrait orientation";
+
+  // Cinematic shot vocabulary — enforce variety across the 5 prompts
+  const shotVariety = [
+    "extreme close-up of eyes only (macro, eyelash detail)",
+    "tight close-up of face (chin to forehead, fills frame)",
+    "medium close-up (shoulders up, slight low angle)",
+    "over-the-shoulder shot (subject's POV reveal)",
+    "profile silhouette against strong rim light",
+    "Dutch angle close-up (tilted, unsettling)",
+    "hands-only detail shot (trembling, gripping object)",
+  ].join(" / ");
+
+  // Lighting vocabulary
+  const lightingVocab = "cinematic three-point lighting, motivated practical lights, hard single-source key, low-key chiaroscuro, neon rim, window-light backlight, underlit horror key";
+
+  // Composition vocabulary
+  const compositionVocab = "rule-of-thirds, negative space, leading lines, deep foreground/background separation, off-center framing, symmetrical headroom for text overlay";
 
   const baseHeader = `
 IMAGE PROMPTS:
@@ -984,7 +1007,13 @@ IMAGE PROMPTS:
 - Each prompt must be vertical 9:16, no text, no logos.
 - IMPORTANT: Human faces and characters ARE allowed and encouraged. Use ONLY fictional characters. Never depict, name, or resemble real people, celebrities, politicians, or public figures.
 - Every prompt MUST include the safety phrase: "${safetySuffix}".
-- Visual style suffix to append to every prompt: "${suffix}".`;
+- Visual style suffix to append to every prompt: "${suffix}".
+- LIGHTING palette to draw from: ${lightingVocab}.
+- COMPOSITION palette to draw from: ${compositionVocab}.
+- Each prompt MUST contain at least: [subject + action/expression] + [lighting cue] + [composition cue] + [mood] + [style suffix] + [safety suffix].
+- Avoid generic words: "beautiful", "amazing", "cool". Use concrete sensory and cinematographic detail instead.
+- Vary lens choice across the 5 prompts (e.g. 24mm wide / 50mm portrait / 85mm telephoto / 100mm macro / anamorphic).
+- Each prompt should be 25–45 words — dense, specific, scroll-stopping.`;
 
   if (imageMode === "scene") {
     return baseHeader + `
@@ -992,21 +1021,60 @@ IMAGE PROMPTS:
 IMAGE MODE — SCENE (environment only):
 - NO people, NO faces, NO characters, NO silhouettes of people in any prompt.
 - Focus entirely on environments, objects, atmosphere, lighting.
-- Format: [environment], [lighting], [mood], ${suffix}, ${safetySuffix}, no people
+- Vary scale across the 5 prompts: macro detail / interior space / exterior wide / aerial / impossible surreal vista.
+- Format: [environment / object], [time of day], [lighting], [composition], [mood], ${suffix}, ${safetySuffix}, no people
 - Each prompt must end with: "no faces, no identifiable people, no portraits, ${safetySuffix.replace("vertical 9:16","")}"
-- At least 1 prompt should feel unsettling, surreal, or visually impossible.`;
+- At least 1 prompt should feel unsettling, surreal, or visually impossible (gravity wrong, doubled object, impossible architecture).
+- At least 1 prompt should be a tight macro detail (texture, single object) — not all wide shots.`;
   }
 
   if (imageMode === "mixed") {
     return baseHeader + `
 
-IMAGE MODE — MIXED (character + environment):
-- Generate 3 CHARACTER prompts (close-up of fictional character's face) and 2 SCENE prompts (environment only).
-- Character prompts MUST be: extreme close-up of face, strong facial expression, emotional intensity, fictional character, no real identity. ${faceIntensityBlock}
-- Scene prompts MUST contain NO people.
-- Avoid wide shots, empty rooms, distant figures in character prompts.
-- Format (character): "Extreme close-up of fictional character's face, [expression], [lighting], [mood], ${suffix}, ${safetySuffix}"
-- Format (scene): "[environment], [lighting], [mood], ${suffix}, ${safetySuffix}, no people"`;
+IMAGE MODE — MIXED (character + environment, cinematic edit feel):
+- Generate exactly: 2 CHARACTER close-ups, 1 ACTION/HANDS shot, 1 SCENE/ENVIRONMENT shot, 1 SYMBOLIC OBJECT shot. Sequence them so the 5 images feel like a film cut: hook → reveal → tension → world → symbol.
+- Character prompts: extreme close-up of fictional character's face, strong facial expression, emotional intensity. ${faceIntensityBlock}
+- Action/hands shot: trembling hands, gripping/reaching/dropping an object, shallow DOF, motion blur acceptable, NO face required.
+- Scene shot: environment only, NO people, atmosphere-driven, mood-rich.
+- Symbolic shot: a single charged object or detail (door slightly ajar, broken mirror, locked phone, footprint, blood drop on white) — macro framing, metaphorical.
+- Vary shot types across the set (use shot vocabulary): ${shotVariety}.
+- Format (character): "[shot type] of fictional character's face, [expression], [lighting cue], [composition cue], [mood], ${suffix}, ${safetySuffix}"
+- Format (action): "Close-up of [body part / object interaction], [lighting], [composition], [mood], ${suffix}, ${safetySuffix}, no face visible"
+- Format (scene): "[environment], [time/lighting], [composition], [mood], ${suffix}, ${safetySuffix}, no people"
+- Format (symbolic): "Macro shot of [single charged object], [lighting], [mood], ${suffix}, ${safetySuffix}, no people"`;
+  }
+
+  if (imageMode === "pov") {
+    return baseHeader + `
+
+IMAGE MODE — POV (first-person perspective):
+- Every prompt is a first-person POV shot — what the character sees, not the character's face.
+- Include POV cues: "first-person view", "looking down at hands", "looking through a doorway", "looking up at ceiling", "GoPro chest-mount perspective", "phone screen POV".
+- Vary the 5 POVs (hands / mirror reflection / through window / down a hallway / phone screen).
+- 1 prompt may include a fictional character glimpsed in a mirror or reflection (apply ${faceIntensityBlock}).
+- Format: "First-person POV, [what the viewer sees], [lighting], [composition], [mood], ${suffix}, ${safetySuffix}"`;
+  }
+
+  if (imageMode === "action") {
+    return baseHeader + `
+
+IMAGE MODE — ACTION (dynamic motion):
+- Every prompt captures a frozen moment of intense motion or interaction.
+- Use motion vocabulary: "frozen mid-action", "motion blur trail", "shutter drag", "split-second peak action", "dust kicked up", "object mid-fall".
+- Mix close-up character action (face + body in motion) with object action (hands gripping, item shattering, door slamming).
+- Apply face intensity for character shots: ${faceIntensityBlock}
+- Format: "[shot type] of [subject + dynamic action], [lighting], [motion cue], [mood], ${suffix}, ${safetySuffix}"`;
+  }
+
+  if (imageMode === "symbolic") {
+    return baseHeader + `
+
+IMAGE MODE — SYMBOLIC (metaphor & object-driven):
+- Each prompt is a single, charged metaphorical object or detail shot — NO faces, NO people.
+- Examples of symbolic frames: cracked mirror reflecting nothing, locked door with light leaking under it, hourglass with red sand, broken phone screen, single chair in empty room, key on dark wood, footprints leading nowhere.
+- Macro framing, dramatic lighting, museum-still feel.
+- Vary the 5 objects across emotional categories: secrecy / time / loss / surveillance / threshold.
+- Format: "Macro / still-life shot of [single object + state], [lighting], [composition], [symbolic mood], ${suffix}, ${safetySuffix}, no people"`;
   }
 
   // CHARACTER (default)
@@ -1014,13 +1082,14 @@ IMAGE MODE — MIXED (character + environment):
 
 IMAGE MODE — CHARACTER (default, human-centered):
 - Every prompt MUST feature a fictional human character — close-up of face, strong emotional expression.
-- Always include: "extreme close-up of face", "strong facial expression", "emotional intensity".
+- Vary the SHOT TYPE across the 5 prompts (do NOT make all 5 identical extreme close-ups). Pick from: ${shotVariety}.
+- Each prompt must include: shot type + expression + lighting cue + composition cue + style suffix + safety suffix.
 - ${faceIntensityBlock}
-- Avoid: wide shots, empty rooms, distant figures, hallway-only shots, environment-only scenes.
+- Avoid: empty rooms, distant figures, environment-only scenes, generic stock-photo poses.
 - Vary the fictional character across the 5 prompts (age range, gender, ethnicity), but ALWAYS fictional — never real people or celebrities.
-- Format: "Extreme close-up of fictional character's face, [emotion/expression], [lighting], [mood], ${suffix}, ${safetySuffix}"
-- Example (horror): "Extreme close-up of a fictional young adult's face, terrified wide eyes, panic expression, harsh single-source lighting from below, deep shadows, dark horror ink illustration, semi-realistic, sharp ink lines, cross-hatching shading, gritty texture, analog horror grain, fictional character, generic person, no real identity, not a celebrity, vertical 9:16"
-- All 5 prompts must be character close-ups. No environment-only fallback.`;
+- Format: "[shot type] of fictional character's face, [emotion/expression], [lighting], [composition], [mood], ${suffix}, ${safetySuffix}"
+- Example (horror): "Extreme close-up of a fictional young adult's face, terrified wide eyes mid-gasp, harsh single-source key from below, deep shadows carving cheekbones, off-center framing, dark horror ink illustration, semi-realistic, sharp ink lines, cross-hatching shading, gritty texture, analog horror grain, fictional character, generic person, no real identity, not a celebrity, vertical 9:16 portrait orientation"
+- All 5 prompts must center a fictional character. No environment-only fallback.`;
 }
 
 function buildPrompt(input: PromptInput) {

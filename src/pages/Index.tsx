@@ -1703,7 +1703,7 @@ Viral Score: ${viralScore}/10
             </div>
             )}
 
-            {!isHorrorMode && settings.imageMode !== "scene" && (
+            {!isHorrorMode && settings.imageMode !== "scene" && settings.imageMode !== "symbolic" && (
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                 {locale === "tr" ? "Yüz Yoğunluğu" : "Face Intensity"}
