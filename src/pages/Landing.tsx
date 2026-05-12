@@ -858,7 +858,9 @@ export default function Landing() {
     <div className="min-h-screen bg-background text-foreground">
       <LandingNav />
       <Hero />
+      <WhatsNew />
       <Features />
+      <ViralIntelligence />
       <HowItWorks />
       <ExampleOutput />
       <Testimonials />
