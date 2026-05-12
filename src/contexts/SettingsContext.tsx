@@ -29,14 +29,27 @@ export interface Settings {
   faceIntensity: FaceIntensity;
 }
 
-export type ImageStyle = "cinematic" | "cartoon" | "horror" | "3d";
-export type ImageMode = "character" | "scene" | "mixed";
+export type ImageStyle =
+  | "cinematic"
+  | "cartoon"
+  | "horror"
+  | "3d"
+  | "documentary"
+  | "editorial"
+  | "cyberpunk"
+  | "noir"
+  | "vintage35mm"
+  | "hyperreal";
+export type ImageMode = "character" | "scene" | "mixed" | "pov" | "action" | "symbolic";
 export type FaceIntensity = "low" | "medium" | "extreme";
 
 export const IMAGE_MODE_OPTIONS: { value: ImageMode; label: string; labelTr: string; emoji: string }[] = [
   { value: "character", label: "Character", labelTr: "Karakter",  emoji: "😱" },
   { value: "scene",     label: "Scene",     labelTr: "Sahne",     emoji: "🌃" },
   { value: "mixed",     label: "Mixed",     labelTr: "Karışık",   emoji: "🎭" },
+  { value: "pov",       label: "POV",       labelTr: "Birinci Şahıs", emoji: "👁️" },
+  { value: "action",    label: "Action",    labelTr: "Aksiyon",   emoji: "⚡" },
+  { value: "symbolic",  label: "Symbolic",  labelTr: "Sembolik",  emoji: "🗝️" },
 ];
 
 export const FACE_INTENSITY_OPTIONS: { value: FaceIntensity; label: string; labelTr: string }[] = [
@@ -50,6 +63,12 @@ export const IMAGE_STYLE_OPTIONS: { value: ImageStyle; label: string; labelTr: s
   { value: "cartoon",   label: "Cartoon / Anime",       labelTr: "Çizgi Film / Anime",   emoji: "🎨" },
   { value: "horror",    label: "Horror / Dark",         labelTr: "Korku / Karanlık",     emoji: "💀" },
   { value: "3d",        label: "3D / Pixar",            labelTr: "3D / Pixar",           emoji: "🧊" },
+  { value: "documentary", label: "Documentary",         labelTr: "Belgesel",             emoji: "📰" },
+  { value: "editorial",   label: "Editorial / Magazine",labelTr: "Editöryal / Dergi",    emoji: "📸" },
+  { value: "cyberpunk",   label: "Neon Cyberpunk",      labelTr: "Neon Cyberpunk",       emoji: "🌆" },
+  { value: "noir",        label: "Film Noir",           labelTr: "Film Noir",            emoji: "🕵️" },
+  { value: "vintage35mm", label: "Vintage 35mm",        labelTr: "Vintage 35mm",         emoji: "📽️" },
+  { value: "hyperreal",   label: "Hyperreal Macro",     labelTr: "Hipergerçek Makro",    emoji: "🔬" },
 ];
 
 const DEFAULT_SETTINGS: Settings = {
