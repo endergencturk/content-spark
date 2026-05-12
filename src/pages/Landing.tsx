@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon, LogIn, LogOut, User, Flame, Rocket, Wand2 } from "lucide-react";
+import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon, LogIn, LogOut, User, Flame, Rocket, Wand2, Activity, Target, Layers, Search, Brain, Gauge, Film, ShieldCheck, LineChart, Mic2, Hash, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -269,12 +269,18 @@ function Hero() {
 
 /* ───── Features ───── */
 const FEATURES = [
-  { icon: Zap, title: "Hook Engine", desc: "5 psychological hook types that stop the scroll in under 2 seconds." },
-  { icon: Clock, title: "Script Timing", desc: "Real voiceover timing with ElevenLabs speed calibration." },
-  { icon: Image, title: "Thumbnail Ideas", desc: "AI-generated image prompts ready for Midjourney or DALL·E." },
-  { icon: TrendingUp, title: "Trending Topics", desc: "Live viral ideas across 50+ niches, updated daily." },
-  { icon: Calendar, title: "Weekly Content Plan", desc: "7-day content calendar tailored to your channel." },
-  { icon: Monitor, title: "Platform Adapt", desc: "Optimized output for TikTok, YouTube Shorts & Instagram Reels." },
+  { icon: Gauge, title: "Viral Score + Retention Graph", desc: "Every script gets a 0–100 viral score with a per-second retention curve and AI fix tips.", badge: "NEW" },
+  { icon: Search, title: "Competitor Hook Mining", desc: "Paste any niche and surface high-performing hook patterns from real viral videos.", badge: "NEW" },
+  { icon: Layers, title: "Title & Thumbnail A/B Lab", desc: "5 title variants × 5 thumbnail concepts, scored and ranked for click-through.", badge: "NEW" },
+  { icon: Film, title: "Cinematic Image Engine", desc: "9 styles × 6 modes — Documentary, Cyberpunk, Noir, POV, Symbolic. Real shot grammar.", badge: "NEW" },
+  { icon: Brain, title: "Hook Engine", desc: "5 psychological frames (Aggressive, Curiosity, Emotional, Dark) — under 3 words, scroll-stop guaranteed." },
+  { icon: Clock, title: "Voice-Synced Script Timing", desc: "Word-perfect 15s / 30s / 60s targets calibrated to ElevenLabs speed." },
+  { icon: TrendingUp, title: "Trending Topics", desc: "Live viral ideas across 50+ niches, refreshed every cycle with duplicate guard." },
+  { icon: Calendar, title: "Weekly Content Plan", desc: "7-day calendar tailored to your channel niche, audience & posting cadence." },
+  { icon: Target, title: "A/B Hook Testing", desc: "Fear vs Curiosity head-to-head. We learn your winning style and bias future outputs." },
+  { icon: Rocket, title: "Bulk Pack Generator", desc: "5 topics → 5 full content packs in parallel. One ZIP, ready to upload." },
+  { icon: Hash, title: "SEO Pack", desc: "Platform-tuned titles, tags, descriptions and best posting time per region." },
+  { icon: Monitor, title: "Multi-Platform Adapt", desc: "Output reshaped for TikTok, YouTube Shorts and Instagram Reels — captions, hooks, pacing." },
 ];
 
 function Features() {
@@ -300,8 +306,15 @@ function Features() {
               style={{ animationDelay: `${i * 80}ms` }}
             >
               <CardHeader className="pb-3">
-              <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-fuchsia-500/10 text-primary transition-all duration-300 group-hover:from-primary group-hover:to-fuchsia-500 group-hover:text-primary-foreground group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-[0_8px_20px_-4px_hsl(var(--primary)/0.5)]">
-                <f.icon className="h-5 w-5" />
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-fuchsia-500/10 text-primary transition-all duration-300 group-hover:from-primary group-hover:to-fuchsia-500 group-hover:text-primary-foreground group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-[0_8px_20px_-4px_hsl(var(--primary)/0.5)]">
+                  <f.icon className="h-5 w-5" />
+                </div>
+                {(f as any).badge && (
+                  <span className="rounded-full bg-gradient-to-r from-primary to-fuchsia-500 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-primary-foreground shadow-[0_4px_14px_-2px_hsl(var(--primary)/0.5)]">
+                    {(f as any).badge}
+                  </span>
+                )}
               </div>
               <CardTitle className="text-lg">{f.title}</CardTitle>
               </CardHeader>
