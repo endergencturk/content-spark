@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon, LogIn, LogOut, User, Flame, Rocket, Wand2 } from "lucide-react";
+import { Sparkles, Zap, Clock, Image, TrendingUp, Calendar, Monitor, ChevronRight, Star, Check, Play, Crown, Sun, Moon, LogIn, LogOut, User, Flame, Rocket, Wand2, Activity, Target, Layers, Search, Brain, Gauge, Film, ShieldCheck, LineChart, Mic2, Hash, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -269,12 +269,18 @@ function Hero() {
 
 /* ───── Features ───── */
 const FEATURES = [
-  { icon: Zap, title: "Hook Engine", desc: "5 psychological hook types that stop the scroll in under 2 seconds." },
-  { icon: Clock, title: "Script Timing", desc: "Real voiceover timing with ElevenLabs speed calibration." },
-  { icon: Image, title: "Thumbnail Ideas", desc: "AI-generated image prompts ready for Midjourney or DALL·E." },
-  { icon: TrendingUp, title: "Trending Topics", desc: "Live viral ideas across 50+ niches, updated daily." },
-  { icon: Calendar, title: "Weekly Content Plan", desc: "7-day content calendar tailored to your channel." },
-  { icon: Monitor, title: "Platform Adapt", desc: "Optimized output for TikTok, YouTube Shorts & Instagram Reels." },
+  { icon: Gauge, title: "Viral Score + Retention Graph", desc: "Every script gets a 0–100 viral score with a per-second retention curve and AI fix tips.", badge: "NEW" },
+  { icon: Search, title: "Competitor Hook Mining", desc: "Paste any niche and surface high-performing hook patterns from real viral videos.", badge: "NEW" },
+  { icon: Layers, title: "Title & Thumbnail A/B Lab", desc: "5 title variants × 5 thumbnail concepts, scored and ranked for click-through.", badge: "NEW" },
+  { icon: Film, title: "Cinematic Image Engine", desc: "9 styles × 6 modes — Documentary, Cyberpunk, Noir, POV, Symbolic. Real shot grammar.", badge: "NEW" },
+  { icon: Brain, title: "Hook Engine", desc: "5 psychological frames (Aggressive, Curiosity, Emotional, Dark) — under 3 words, scroll-stop guaranteed." },
+  { icon: Clock, title: "Voice-Synced Script Timing", desc: "Word-perfect 15s / 30s / 60s targets calibrated to ElevenLabs speed." },
+  { icon: TrendingUp, title: "Trending Topics", desc: "Live viral ideas across 50+ niches, refreshed every cycle with duplicate guard." },
+  { icon: Calendar, title: "Weekly Content Plan", desc: "7-day calendar tailored to your channel niche, audience & posting cadence." },
+  { icon: Target, title: "A/B Hook Testing", desc: "Fear vs Curiosity head-to-head. We learn your winning style and bias future outputs." },
+  { icon: Rocket, title: "Bulk Pack Generator", desc: "5 topics → 5 full content packs in parallel. One ZIP, ready to upload." },
+  { icon: Hash, title: "SEO Pack", desc: "Platform-tuned titles, tags, descriptions and best posting time per region." },
+  { icon: Monitor, title: "Multi-Platform Adapt", desc: "Output reshaped for TikTok, YouTube Shorts and Instagram Reels — captions, hooks, pacing." },
 ];
 
 function Features() {
@@ -300,8 +306,15 @@ function Features() {
               style={{ animationDelay: `${i * 80}ms` }}
             >
               <CardHeader className="pb-3">
-              <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-fuchsia-500/10 text-primary transition-all duration-300 group-hover:from-primary group-hover:to-fuchsia-500 group-hover:text-primary-foreground group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-[0_8px_20px_-4px_hsl(var(--primary)/0.5)]">
-                <f.icon className="h-5 w-5" />
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-fuchsia-500/10 text-primary transition-all duration-300 group-hover:from-primary group-hover:to-fuchsia-500 group-hover:text-primary-foreground group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-[0_8px_20px_-4px_hsl(var(--primary)/0.5)]">
+                  <f.icon className="h-5 w-5" />
+                </div>
+                {(f as any).badge && (
+                  <span className="rounded-full bg-gradient-to-r from-primary to-fuchsia-500 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-primary-foreground shadow-[0_4px_14px_-2px_hsl(var(--primary)/0.5)]">
+                    {(f as any).badge}
+                  </span>
+                )}
               </div>
               <CardTitle className="text-lg">{f.title}</CardTitle>
               </CardHeader>
@@ -341,6 +354,149 @@ function HowItWorks() {
               <span className="inline-block text-5xl font-black bg-gradient-to-br from-primary to-fuchsia-500 bg-clip-text text-transparent transition-transform duration-300 group-hover:scale-110">{s.num}</span>
               <h3 className="mt-2 text-lg font-bold text-foreground">{s.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ───── Viral Intelligence Showcase (NEW) ───── */
+function ViralIntelligence() {
+  const points = [82, 96, 88, 74, 70, 78, 84, 76, 68, 72, 80, 86];
+  const w = 320;
+  const h = 110;
+  const max = 100;
+  const path = points
+    .map((p, i) => {
+      const x = (i / (points.length - 1)) * w;
+      const y = h - (p / max) * h;
+      return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(" ");
+
+  return (
+    <section className="relative py-20 sm:py-28 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/3 top-1/3 h-[420px] w-[420px] rounded-full bg-fuchsia-500/15 blur-[120px] animate-orb-1" />
+        <div className="absolute right-1/4 bottom-0 h-[360px] w-[360px] rounded-full bg-primary/15 blur-[120px] animate-orb-2" />
+      </div>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-primary">
+              <Activity className="h-3 w-3" /> Viral Intelligence
+            </span>
+            <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold text-foreground leading-[1.1]">
+              Know if it'll pop <span className="text-gradient-animated">before you publish</span>
+            </h2>
+            <p className="mt-4 text-muted-foreground text-lg max-w-lg">
+              Every script gets a 0–100 Viral Score and a per-second Retention Graph. See exactly where viewers drop off — and one click to fix it.
+            </p>
+            <ul className="mt-6 space-y-3 text-sm">
+              {[
+                ["Hook strength scoring", "≤3 word rule, curiosity gap, pattern interrupt detection."],
+                ["Retention drop-off map", "12-point curve simulating viewer behavior across the script."],
+                ["Auto-Fix suggestions", "AI rewrites the weakest beat — loop, hook, CTA — in one click."],
+                ["Loop & CTA validator", "Make sure your ending re-hooks viewers back to the start."],
+              ].map(([t, d]) => (
+                <li key={t} className="flex gap-3">
+                  <Check className="h-5 w-5 mt-0.5 shrink-0 text-primary" />
+                  <div>
+                    <p className="font-semibold text-foreground">{t}</p>
+                    <p className="text-muted-foreground">{d}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="relative">
+            <div className="pointer-events-none absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-br from-primary/30 via-fuchsia-500/20 to-violet-500/20 blur-2xl opacity-60 animate-pulse-glow" />
+            <Card className="rounded-2xl border-border/50 bg-card/90 backdrop-blur p-6 shadow-2xl shadow-primary/10 glow-border">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Viral Score</p>
+                  <p className="mt-1 text-5xl font-black text-gradient-animated leading-none">87</p>
+                  <p className="mt-1 text-xs text-muted-foreground">High-performing · Top 12%</p>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <span className="rounded-full bg-green-500/10 px-2.5 py-0.5 text-[10px] font-bold text-green-500 text-center">Hook 92</span>
+                  <span className="rounded-full bg-fuchsia-500/10 px-2.5 py-0.5 text-[10px] font-bold text-fuchsia-500 text-center">Retention 84</span>
+                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary text-center">Loop 90</span>
+                </div>
+              </div>
+
+              <div className="mt-6 rounded-xl border border-border/50 bg-muted/30 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                    <LineChart className="h-3.5 w-3.5" /> Retention Curve
+                  </p>
+                  <span className="text-[10px] text-muted-foreground">0s → 30s</span>
+                </div>
+                <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[110px]">
+                  <defs>
+                    <linearGradient id="retentionFill" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.45" />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <path d={`${path} L ${w} ${h} L 0 ${h} Z`} fill="url(#retentionFill)" />
+                  <path d={path} fill="none" stroke="hsl(var(--primary))" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  {points.map((p, i) => {
+                    const x = (i / (points.length - 1)) * w;
+                    const y = h - (p / max) * h;
+                    return <circle key={i} cx={x} cy={y} r="2.2" fill="hsl(var(--primary))" />;
+                  })}
+                </svg>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3 flex items-start gap-2.5">
+                <Wand2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="text-xs">
+                  <p className="font-bold text-foreground">Auto-Fix tip</p>
+                  <p className="text-muted-foreground">Tighten line 3 — drop-off detected at 11s. Add a pattern interrupt.</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ───── What's New strip ───── */
+const NEW_THINGS = [
+  { icon: Gauge, label: "Viral Score Engine" },
+  { icon: LineChart, label: "Retention Graph" },
+  { icon: Search, label: "Hook Mining" },
+  { icon: Layers, label: "Title × Thumbnail Lab" },
+  { icon: Film, label: "Cinematic Image Engine" },
+  { icon: Target, label: "A/B Hook Tester" },
+  { icon: Rocket, label: "Bulk Pack" },
+  { icon: Trophy, label: "Daily Challenge" },
+];
+
+function WhatsNew() {
+  return (
+    <section className="py-12 border-y border-border/40 bg-muted/20 overflow-hidden">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-gradient-to-r from-primary to-fuchsia-500 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-primary-foreground">
+              v2.6 · Just shipped
+            </span>
+            <p className="text-sm font-semibold text-foreground">8 new tools, one workspace</p>
+          </div>
+          <p className="text-xs text-muted-foreground">Updated this week — designed for serious creators.</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {NEW_THINGS.map((t) => (
+            <div key={t.label} className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-card/60 backdrop-blur px-3 py-2.5 hover:border-primary/40 transition-colors">
+              <t.icon className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-xs font-semibold text-foreground truncate">{t.label}</span>
             </div>
           ))}
         </div>
@@ -702,7 +858,9 @@ export default function Landing() {
     <div className="min-h-screen bg-background text-foreground">
       <LandingNav />
       <Hero />
+      <WhatsNew />
       <Features />
+      <ViralIntelligence />
       <HowItWorks />
       <ExampleOutput />
       <Testimonials />
