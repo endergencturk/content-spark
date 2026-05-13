@@ -1409,7 +1409,7 @@ Viral Score: ${viralScore}/10
       <OnboardingModal locale={locale} onPickTopic={(t) => setTopic(t)} />
 
       {/* Main content area */}
-      <div className="flex-1 min-w-0 flex flex-col">
+      <main className="flex-1 min-w-0 flex flex-col">
       <Navbar onEditProfile={() => setProfileForceOpen(true)} />
 
       {/* Mobile sidebar trigger (visible < lg) */}
@@ -2492,7 +2492,7 @@ Viral Score: ${viralScore}/10
           </div>{/* end flex */}
         </div>
       </div>
-      </div>{/* end main content area */}
+      </main>{/* end main content area */}
 
       {/* Channel Profile Dialog — opened from sidebar/navbar/onboarding */}
       {!isHorrorMode && (

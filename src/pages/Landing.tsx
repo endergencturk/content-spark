@@ -857,15 +857,17 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <LandingNav />
-      <Hero />
-      <WhatsNew />
-      <Features />
-      <ViralIntelligence />
-      <HowItWorks />
-      <ExampleOutput />
-      <Testimonials />
-      <Pricing />
-      <FinalCTA />
+      <main>
+        <Hero />
+        <WhatsNew />
+        <Features />
+        <ViralIntelligence />
+        <HowItWorks />
+        <ExampleOutput />
+        <Testimonials />
+        <Pricing />
+        <FinalCTA />
+      </main>
       <Footer />
     </div>
   );
