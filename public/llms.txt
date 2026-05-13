@@ -1,0 +1,12 @@
+# AI Content Engine
+
+> Turn any idea into viral short-form content in seconds — hooks, scripts, captions, thumbnails and full content plans powered by AI.
+
+## Pages
+
+- [Home](/): Product overview, features, pricing and examples.
+- [App](/app): Workspace to generate viral hooks, scripts, image prompts, SEO metadata and weekly plans.
+
+## Optional
+
+- [Admin](/admin): Internal admin dashboard (auth-gated).
