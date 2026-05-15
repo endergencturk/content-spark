@@ -1374,7 +1374,16 @@ Viral Score: ${viralScore}/10
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="relative min-h-screen bg-background flex">
+      {/* Ambient living background — animated orbs + soft grid */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-fade opacity-30" />
+        <div className="absolute -top-32 -left-32 h-[560px] w-[560px] rounded-full bg-primary/30 blur-[120px] animate-orb-1" />
+        <div className="absolute top-1/4 -right-24 h-[500px] w-[500px] rounded-full bg-fuchsia-500/25 blur-[120px] animate-orb-2" />
+        <div className="absolute -bottom-32 left-1/4 h-[460px] w-[460px] rounded-full bg-violet-500/20 blur-[120px] animate-orb-1" />
+      </div>
+      <div className="relative z-10 flex w-full">
+
       {/* Premium Sidebar (desktop sticky + mobile sheet) */}
       <WorkspaceSidebar
         locale={locale}
@@ -2511,6 +2520,7 @@ Viral Score: ${viralScore}/10
           </DialogContent>
         </Dialog>
       )}
+      </div>
     </div>
   );
 }

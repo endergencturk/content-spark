@@ -318,7 +318,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebar(props: Props) {
   return (
     <>
       {/* Desktop */}
-      <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 border-r border-border/40 bg-card/40 h-screen sticky top-0">
+      <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 border-r border-border/40 bg-card/40 backdrop-blur-xl h-screen sticky top-0">
         <SidebarBody {...rest} />
       </aside>
 

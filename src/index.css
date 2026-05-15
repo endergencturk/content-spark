@@ -54,16 +54,16 @@
 
   .dark {
     /* Softer, higher-contrast SaaS dark palette (Linear/Vercel inspired) */
-    --background: 240 8% 10%;
+    --background: 245 18% 9%;
     --foreground: 0 0% 96%;
 
-    --card: 240 8% 13%;
+    --card: 245 14% 13%;
     --card-foreground: 0 0% 96%;
 
-    --popover: 240 8% 13%;
+    --popover: 245 14% 13%;
     --popover-foreground: 0 0% 96%;
 
-    --primary: 252 70% 68%;
+    --primary: 258 90% 70%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 6% 18%;
