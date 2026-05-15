@@ -1250,6 +1250,9 @@ Viral Score: ${viralScore}/10
   const [commandOpen, setCommandOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    try { return localStorage.getItem("cs:sidebar-collapsed") === "true"; } catch { return false; }
+  });
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const { recordGeneration } = useGamification();
 
