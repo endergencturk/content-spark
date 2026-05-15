@@ -1396,6 +1396,13 @@ Viral Score: ${viralScore}/10
         recentRefreshKey={historyRefreshKey}
         mobileOpen={mobileSidebarOpen}
         onMobileOpenChange={setMobileSidebarOpen}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={() => {
+          setSidebarCollapsed((v) => {
+            try { localStorage.setItem("cs:sidebar-collapsed", String(!v)); } catch {}
+            return !v;
+          });
+        }}
       />
 
       {/* Command palette + settings dialog */}
