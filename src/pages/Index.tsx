@@ -2520,6 +2520,7 @@ Viral Score: ${viralScore}/10
           </DialogContent>
         </Dialog>
       )}
+      </div>
     </div>
   );
 }
