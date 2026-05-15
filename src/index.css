@@ -53,36 +53,37 @@
   }
 
   .dark {
-    --background: 240 10% 6%;
-    --foreground: 0 0% 95%;
+    /* Softer, higher-contrast SaaS dark palette (Linear/Vercel inspired) */
+    --background: 240 8% 10%;
+    --foreground: 0 0% 96%;
 
-    --card: 240 10% 9%;
-    --card-foreground: 0 0% 95%;
+    --card: 240 8% 13%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 240 10% 9%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 240 8% 13%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 252 60% 62%;
+    --primary: 252 70% 68%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 6% 16%;
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 240 6% 18%;
+    --secondary-foreground: 0 0% 92%;
 
-    --muted: 240 6% 16%;
-    --muted-foreground: 240 5% 55%;
+    --muted: 240 6% 17%;
+    --muted-foreground: 240 5% 70%;
 
-    --accent: 252 30% 18%;
-    --accent-foreground: 252 60% 75%;
+    --accent: 252 30% 22%;
+    --accent-foreground: 252 70% 80%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive: 0 62.8% 45%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 240 6% 16%;
-    --input: 240 6% 16%;
-    --ring: 252 60% 62%;
+    --border: 240 6% 22%;
+    --input: 240 6% 22%;
+    --ring: 252 70% 68%;
 
-    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.2);
-    --shadow-card-hover: 0 4px 12px 0 hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.25), 0 0 0 1px hsl(240 6% 22% / 0.4);
+    --shadow-card-hover: 0 8px 24px -8px hsl(0 0% 0% / 0.4), 0 0 0 1px hsl(252 60% 50% / 0.2);
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -249,7 +250,7 @@
     inset: -1px;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.55), hsl(280 80% 65% / 0.35) 50%, hsl(320 75% 60% / 0.45));
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.25), hsl(280 80% 65% / 0.12) 50%, hsl(320 75% 60% / 0.18));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
             mask-composite: exclude;
