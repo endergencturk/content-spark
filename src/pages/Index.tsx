@@ -1374,7 +1374,16 @@ Viral Score: ${viralScore}/10
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="relative min-h-screen bg-background flex overflow-hidden">
+      {/* Ambient living background — animated orbs + soft grid */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-fade opacity-40" />
+        <div className="absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-primary/25 blur-[140px] animate-orb-1" />
+        <div className="absolute top-1/3 -right-32 h-[460px] w-[460px] rounded-full bg-fuchsia-500/20 blur-[140px] animate-orb-2" />
+        <div className="absolute bottom-0 left-1/3 h-[420px] w-[420px] rounded-full bg-violet-500/15 blur-[140px] animate-orb-1" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/40 to-background/80" />
+      </div>
+
       {/* Premium Sidebar (desktop sticky + mobile sheet) */}
       <WorkspaceSidebar
         locale={locale}
