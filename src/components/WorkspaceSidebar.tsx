@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useCallback } from "react";
 import {
   Sparkles, PenTool, Crown, LogIn, LogOut, Settings as SettingsIcon,
   Flame, Trophy, ChevronRight, History as HistoryIcon, User, Pencil, Star,
-  Search, Command, X,
+  Search, Command, X, PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import { type Locale } from "@/lib/i18n";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,6 +33,9 @@ interface Props {
   // mobile sheet
   mobileOpen: boolean;
   onMobileOpenChange: (v: boolean) => void;
+  // desktop collapse
+  collapsed?: boolean;
+  onToggleCollapsed?: () => void;
 }
 
 const NICHE_EMOJI: Record<string, string> = {
@@ -41,7 +44,7 @@ const NICHE_EMOJI: Record<string, string> = {
   "tech-ai": "🤖", space: "🚀", history: "🏛️", storytime: "📖",
 };
 
-function SidebarBody({ locale, deviceId, onEditProfile, onOpenHistory, onOpenCommandPalette, onOpenSettings, onSelectTopic, recentRefreshKey }: Omit<Props, "mobileOpen" | "onMobileOpenChange">) {
+function SidebarBody({ locale, deviceId, onEditProfile, onOpenHistory, onOpenCommandPalette, onOpenSettings, onSelectTopic, recentRefreshKey, onToggleCollapsed }: Omit<Props, "mobileOpen" | "onMobileOpenChange" | "collapsed">) {
   const { user, planType, setShowAuthModal, signOut } = useAuth();
   const isPro = planType === "pro";
   const profile = loadChannelProfile();
@@ -78,7 +81,16 @@ function SidebarBody({ locale, deviceId, onEditProfile, onOpenHistory, onOpenCom
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-fuchsia-600 shadow-[0_0_16px_-4px_hsl(var(--primary)/0.6)]">
             <Sparkles className="h-4 w-4 text-primary-foreground" />
           </div>
-          <span className="text-sm font-bold tracking-tight text-foreground">Content Spark</span>
+          <span className="text-sm font-bold tracking-tight text-foreground flex-1">Content Spark</span>
+          {onToggleCollapsed && (
+            <button
+              onClick={onToggleCollapsed}
+              className="hidden lg:flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              title={locale === "tr" ? "Kenar çubuğunu gizle" : "Hide sidebar"}
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto scrollbar-thin px-3 py-3 space-y-3">
@@ -314,13 +326,47 @@ function SidebarBody({ locale, deviceId, onEditProfile, onOpenHistory, onOpenCom
 }
 
 export const WorkspaceSidebar = memo(function WorkspaceSidebar(props: Props) {
-  const { mobileOpen, onMobileOpenChange, ...rest } = props;
+  const { mobileOpen, onMobileOpenChange, collapsed, onToggleCollapsed, ...rest } = props;
   return (
     <>
       {/* Desktop */}
-      <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 border-r border-border/40 bg-card/40 backdrop-blur-xl h-screen sticky top-0">
-        <SidebarBody {...rest} />
-      </aside>
+      {collapsed ? (
+        <aside className="hidden lg:flex flex-col w-12 shrink-0 border-r border-border/40 bg-card/40 backdrop-blur-xl h-screen sticky top-0 items-center py-3 gap-2">
+          <button
+            onClick={onToggleCollapsed}
+            className="h-9 w-9 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+            title={props.locale === "tr" ? "Kenar çubuğunu göster" : "Show sidebar"}
+          >
+            <PanelLeftOpen className="h-4 w-4" />
+          </button>
+          <button
+            onClick={props.onOpenCommandPalette}
+            className="h-9 w-9 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+            title={props.locale === "tr" ? "Hızlı arama (⌘K)" : "Quick search (⌘K)"}
+          >
+            <Search className="h-4 w-4" />
+          </button>
+          <button
+            onClick={props.onOpenHistory}
+            className="h-9 w-9 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+            title={props.locale === "tr" ? "Geçmiş" : "History"}
+          >
+            <HistoryIcon className="h-4 w-4" />
+          </button>
+          <div className="flex-1" />
+          <button
+            onClick={props.onOpenSettings}
+            className="h-9 w-9 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+            title={props.locale === "tr" ? "Ayarlar" : "Settings"}
+          >
+            <SettingsIcon className="h-4 w-4" />
+          </button>
+        </aside>
+      ) : (
+        <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 border-r border-border/40 bg-card/40 backdrop-blur-xl h-screen sticky top-0">
+          <SidebarBody {...rest} onToggleCollapsed={onToggleCollapsed} />
+        </aside>
+      )}
 
       {/* Mobile sheet */}
       <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
