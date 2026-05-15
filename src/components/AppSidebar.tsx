@@ -29,7 +29,7 @@ export const AppSidebar = memo(function AppSidebar({
   const isPro = planType === "pro";
 
   return (
-    <aside className="hidden lg:flex flex-col w-[220px] xl:w-[240px] shrink-0 border-r border-border/40 bg-card/50 h-screen sticky top-0">
+    <aside className="hidden lg:flex flex-col w-[220px] xl:w-[240px] shrink-0 border-r border-border/40 bg-card/40 backdrop-blur-xl h-screen sticky top-0">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 h-14 border-b border-border/40">
         <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
