@@ -643,6 +643,7 @@ export default function Index() {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"generate" | "results">("generate");
   const [profileForceOpen, setProfileForceOpen] = useState(false);
+  const [currentGenerationId, setCurrentGenerationId] = useState<string | null>(null);
 
   // Quick Start expansion + AI topic generator
   const [showAllPresets, setShowAllPresets] = useState(false);
@@ -987,7 +988,7 @@ export default function Index() {
       }
 
       try {
-        await supabase.from("generations").insert({
+        const { data: inserted } = await supabase.from("generations").insert({
           user_id: user?.id,
           device_id: deviceId,
           topic: (effectiveTopic === "__horror_random__" ? data?.title || "Horror Mode" : effectiveTopic),
@@ -999,7 +1000,8 @@ export default function Index() {
           plan_type: isHorrorMode ? "horror" : isProMode ? "pro" : "free",
           output_json: data,
           language: locale,
-        } as any);
+        } as any).select("id").maybeSingle();
+        if (inserted?.id) setCurrentGenerationId(inserted.id as string);
         toast.success(t("history.saved", locale), { duration: 2000 });
       } catch (saveErr) {
         console.warn("Failed to save to history:", saveErr);
@@ -2346,6 +2348,7 @@ Viral Score: ${viralScore}/10
                      generalResult?.youtube?.tags || proResult?.youtube?.tags || []) as string[]
                   }
                   script={(generalResult?.script || proResult?.script || "") as string}
+                  generationId={currentGenerationId}
                 />
               </div>
             )}

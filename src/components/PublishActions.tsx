@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from "react";
 import { ExternalLink, Copy, Music2, Youtube, Instagram } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import type { Locale } from "@/lib/i18n";
 
 interface Props {
@@ -8,6 +9,8 @@ interface Props {
   caption: string;
   hashtags?: string[];
   script?: string;
+  generationId?: string | null;
+  onUsed?: (platform: string) => void;
 }
 
 type Platform = "tiktok" | "shorts" | "reels";
@@ -39,7 +42,7 @@ const CFG: Record<Platform, { label: string; url: string; icon: React.ElementTyp
   },
 };
 
-export const PublishActions = memo(function PublishActions({ locale, caption, hashtags = [], script }: Props) {
+export const PublishActions = memo(function PublishActions({ locale, caption, hashtags = [], script, generationId, onUsed }: Props) {
   const tr = locale === "tr";
   const fullCaption = useMemo(() => {
     const tags = hashtags.length ? "\n\n" + hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ") : "";
@@ -53,6 +56,15 @@ export const PublishActions = memo(function PublishActions({ locale, caption, ha
     const cfg = CFG[p];
     toast.success(tr ? cfg.hintTr : cfg.hintEn, { duration: 5000 });
     window.open(cfg.url, "_blank", "noopener,noreferrer");
+    // Mark as used (analytics) — fire and forget
+    if (generationId) {
+      supabase
+        .from("generations")
+        .update({ used_at: new Date().toISOString(), used_platform: p })
+        .eq("id", generationId)
+        .then(({ error }) => { if (error) console.warn("mark used failed", error); });
+    }
+    onUsed?.(p);
   }
 
   async function copyScript() {
