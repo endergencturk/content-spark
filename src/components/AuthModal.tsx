@@ -9,8 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 export function AuthModal() {
-  const { showAuthModal, setShowAuthModal, signIn, signUp, authPromptReason } = useAuth();
-  const [tab, setTab] = useState<"login" | "register">("login");
+  const { showAuthModal, setShowAuthModal, signIn, signUp, resetPassword, authPromptReason } = useAuth();
+  const [tab, setTab] = useState<"login" | "register" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [inviteCode, setInviteCode] = useState("");
@@ -41,7 +41,7 @@ export function AuthModal() {
           toast.success("Welcome back!");
           reset();
         }
-      } else {
+      } else if (tab === "register") {
         const result = await signUp(email, password, inviteCode || undefined);
         if (result.error) {
           setError(result.error);
@@ -50,6 +50,15 @@ export function AuthModal() {
             "🎉 Account created! You have 3 days of free Pro access.",
             { duration: 6000 }
           );
+          reset();
+        }
+      } else {
+        const result = await resetPassword(email);
+        if (result.error) {
+          setError(result.error);
+        } else {
+          toast.success("Password reset link sent! Check your email.", { duration: 6000 });
+          setTab("login");
           reset();
         }
       }
@@ -72,12 +81,14 @@ export function AuthModal() {
             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
               <Sparkles className="h-4 w-4 text-primary" />
             </div>
-            {tab === "login" ? "Sign In" : "Create Account"}
+            {tab === "login" ? "Sign In" : tab === "register" ? "Create Account" : "Reset Password"}
           </DialogTitle>
           <DialogDescription>
             {tab === "login"
               ? "Sign in to access the app and your saved generations."
-              : "Create an account to start your 3-day Pro trial and use the app."}
+              : tab === "register"
+                ? "Create an account to start your 3-day Pro trial and use the app."
+                : "Enter your email and we'll send you a reset link."}
           </DialogDescription>
         </DialogHeader>
 
@@ -88,6 +99,7 @@ export function AuthModal() {
         )}
 
         {/* Tab toggle */}
+        {tab !== "forgot" && (
         <div className="flex gap-1 p-0.5 rounded-xl bg-muted/60">
           <button
             type="button"
@@ -110,6 +122,7 @@ export function AuthModal() {
             Register
           </button>
         </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -125,6 +138,7 @@ export function AuthModal() {
             />
           </div>
 
+          {tab !== "forgot" && (
           <div className="space-y-2">
             <Label htmlFor="auth-password">Password</Label>
             <div className="relative">
@@ -137,18 +151,23 @@ export function AuthModal() {
                 required
                 minLength={6}
                 autoComplete={tab === "login" ? "current-password" : "new-password"}
+                className="pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                tabIndex={-1}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
+          )}
 
           {tab === "login" && (
+            <>
             <div className="flex items-center gap-2">
               <Checkbox
                 id="remember-me"
@@ -158,7 +177,15 @@ export function AuthModal() {
               <Label htmlFor="remember-me" className="text-sm font-normal text-muted-foreground cursor-pointer">
                 Remember me
               </Label>
+              <button
+                type="button"
+                onClick={() => { setTab("forgot"); setError(""); }}
+                className="ml-auto text-xs font-medium text-primary hover:underline"
+              >
+                Forgot password?
+              </button>
             </div>
+            </>
           )}
 
           {tab === "register" && (
@@ -196,13 +223,25 @@ export function AuthModal() {
                 <LogIn className="h-4 w-4 mr-2" />
                 Sign In
               </>
-            ) : (
+            ) : tab === "register" ? (
               <>
                 <UserPlus className="h-4 w-4 mr-2" />
                 {inviteCode ? "Create Pro Account" : "Create Free Account"}
               </>
+            ) : (
+              <>Send Reset Link</>
             )}
           </Button>
+
+          {tab === "forgot" && (
+            <button
+              type="button"
+              onClick={() => { setTab("login"); setError(""); }}
+              className="w-full text-xs text-muted-foreground hover:text-foreground"
+            >
+              ← Back to sign in
+            </button>
+          )}
         </form>
       </DialogContent>
     </Dialog>
