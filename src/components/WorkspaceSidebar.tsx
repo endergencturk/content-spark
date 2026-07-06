@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { loadChannelProfile } from "@/components/ChannelProfile";
 import { useGamification, ACHIEVEMENTS } from "@/hooks/useGamification";
 import { supabase } from "@/integrations/supabase/client";
+import { UsageStatsCard } from "@/components/UsageStatsCard";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
