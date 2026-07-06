@@ -219,6 +219,9 @@ function SidebarBody({ locale, deviceId, onEditProfile, onOpenHistory, onOpenCom
             )}
           </div>
 
+          {/* Usage stats — appears once user has posted something */}
+          <UsageStatsCard deviceId={deviceId} locale={locale} refreshKey={recentRefreshKey} />
+
           {/* History panel */}
           <div className="rounded-2xl border border-border/50 bg-card/40 overflow-hidden">
             <div className="flex items-center gap-1 p-1 bg-muted/40 border-b border-border/40">
