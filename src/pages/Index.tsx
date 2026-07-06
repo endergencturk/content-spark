@@ -45,6 +45,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { HookLab } from "@/components/HookLab";
 import { TitleThumbnailLab } from "@/components/TitleThumbnailLab";
 import { HookMiningPanel } from "@/components/HookMiningPanel";
+import { EmptyStateShowcase } from "@/components/EmptyStateShowcase";
+import { HeroScoreBanner } from "@/components/HeroScoreBanner";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
@@ -1254,7 +1256,7 @@ Viral Score: ${viralScore}/10
     try { return localStorage.getItem("cs:sidebar-collapsed") === "true"; } catch { return false; }
   });
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
-  const { recordGeneration } = useGamification();
+  const { recordGeneration, totalGenerations } = useGamification();
 
   // Global shortcuts: ⌘K palette, ⌘Enter generate, ⌘H history
   useEffect(() => {
@@ -1588,6 +1590,18 @@ Viral Score: ${viralScore}/10
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
           <>
+          {/* First-time visitor showcase */}
+          {totalGenerations === 0 && !topic && !isHorrorMode && (
+            <EmptyStateShowcase
+              locale={locale}
+              onPick={(t) => {
+                setTopic(t);
+                setDiscoveryResult(null);
+                toast.success(locale === "tr" ? "Konu hazır — 'Oluştur'a bas 🚀" : "Topic ready — hit Generate 🚀");
+              }}
+            />
+          )}
+
           {/* Daily Challenge */}
           {!isHorrorMode && (
             <DailyChallenge
@@ -2285,31 +2299,25 @@ Viral Score: ${viralScore}/10
             {/* Results header */}
             {hasResults && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-foreground">
-                    {locale === "tr" ? "📦 Oluşturulan İçerik Paketi" : "📦 Generated Content Pack"}
-                  </h2>
+                <HeroScoreBanner
+                  score={(() => {
+                    const raw = Number(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) || 0;
+                    // API returns 1-10; if already >10 assume 0-100
+                    return raw > 10 ? Math.round(raw) : Math.round(raw * 10) || 75;
+                  })()}
+                  topic={topic}
+                  locale={locale}
+                  copiedLabel={copied === "all"}
+                  onCopyAll={copyAll}
+                />
+                <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+                  <span className="uppercase tracking-widest font-bold">
+                    {locale === "tr" ? "📦 İçerik Paketi" : "📦 Content Pack"}
+                  </span>
+                  <span className="font-semibold">
+                    {((isProMode || isHorrorMode) ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(" · ")}
+                  </span>
                 </div>
-                <Card className="rounded-2xl shadow-sm">
-                <CardContent className="p-4 flex flex-wrap items-center gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Topic</p>
-                    <p className="text-sm font-bold text-foreground truncate">{topic}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-center">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Platform</p>
-                      <p className="text-xs font-semibold text-foreground">{((isProMode || isHorrorMode) ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(", ")}</p>
-                    </div>
-                    {(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) && (
-                      <Badge variant="secondary" className="bg-primary/10 text-primary border-0 gap-1.5 px-3 py-1.5">
-                        <TrendingUp className="h-3.5 w-3.5" />
-                        {Math.round((Number(generalResult?.viralAnalysis?.score || proResult?.viralAnalysis?.score) || 0) * 10)}/100
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-                </Card>
               </div>
             )}
 

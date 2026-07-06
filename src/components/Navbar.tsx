@@ -1,5 +1,5 @@
 import React, { memo, useState } from "react";
-import { Settings, Sparkles, Pencil, ArrowLeft, LogIn } from "lucide-react";
+import { Settings, Sparkles, Pencil, ArrowLeft, LogIn, Flame, Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SettingsDialog } from "@/components/SettingsDialog";
@@ -7,6 +7,8 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { t } from "@/lib/i18n";
 import { loadChannelProfile } from "@/components/ChannelProfile";
+import { useGamification } from "@/hooks/useGamification";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface NavbarProps {
   onEditProfile?: () => void;
@@ -18,6 +20,8 @@ export const Navbar = memo(function Navbar({ onEditProfile }: NavbarProps) {
   const { user, setShowAuthModal, signOut } = useAuth();
   const locale = settings.language;
   const profile = loadChannelProfile();
+  const { streak, level, totalGenerations } = useGamification();
+  const showStreakChip = totalGenerations > 0;
 
   return (
     <>
@@ -46,6 +50,34 @@ export const Navbar = memo(function Navbar({ onEditProfile }: NavbarProps) {
             )}
           </div>
           <div className="flex items-center gap-1">
+            {showStreakChip && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="hidden sm:flex items-center gap-2 h-8 rounded-full border border-border/50 bg-gradient-to-r from-primary/10 via-fuchsia-500/5 to-transparent pl-2 pr-3 mr-1">
+                      <div className="flex items-center gap-1 pr-1.5 border-r border-border/40">
+                        <Flame className={`h-3.5 w-3.5 text-orange-400 ${streak > 0 ? "animate-flame" : ""}`} />
+                        <span className="text-xs font-black tabular-nums text-foreground">{streak}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Trophy className="h-3 w-3 text-primary" />
+                        <span className="text-[10px] font-black text-primary">LV {level.level}</span>
+                      </div>
+                      <div className="ml-1 h-1 w-10 rounded-full bg-muted/60 overflow-hidden">
+                        <div className="h-full xp-bar rounded-full" style={{ width: `${Math.max(4, level.progress * 100)}%` }} />
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <div className="text-xs space-y-0.5">
+                      <div><span className="font-bold">{streak}</span> {locale === "tr" ? "günlük seri" : "day streak"}</div>
+                      <div>Level {level.level} · {level.current} / {level.next} XP</div>
+                      <div className="text-muted-foreground">{totalGenerations} {locale === "tr" ? "toplam üretim" : "total generations"}</div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
             {profile?.channelName && onEditProfile && (
               <Button
                 variant="ghost"
