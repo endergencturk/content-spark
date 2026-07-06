@@ -159,7 +159,7 @@ export const WeeklyPlan = memo(function WeeklyPlan({ isPro, locale, onSelectTopi
       </button>
 
       <div className="p-4 space-y-4">
-        {!isPro ? (
+        {!canGenerate ? (
           <div className="relative">
             <div className="grid grid-cols-7 gap-1.5 blur-[6px] select-none pointer-events-none">
               {DAYS.map((d) => (
@@ -173,9 +173,11 @@ export const WeeklyPlan = memo(function WeeklyPlan({ isPro, locale, onSelectTopi
             <div className="absolute inset-0 flex items-center justify-center bg-background/60 rounded-2xl">
               <div className="text-center space-y-2">
                 <Lock className="h-5 w-5 text-primary mx-auto" />
-                <p className="text-sm font-semibold text-foreground">Pro only</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {locale === "tr" ? "Bu haftaki ücretsiz planını kullandın" : "You've used this week's free plan"}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  {locale === "tr" ? "Haftalık plan oluşturmak için Pro'ya geçin" : "Switch to Pro to generate weekly plans"}
+                  {locale === "tr" ? "Sınırsız plan için Pro'ya geç veya yeni haftayı bekle." : "Go Pro for unlimited plans or wait for the new week."}
                 </p>
               </div>
             </div>
