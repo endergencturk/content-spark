@@ -48,6 +48,8 @@ import { HookMiningPanel } from "@/components/HookMiningPanel";
 import { EmptyStateShowcase } from "@/components/EmptyStateShowcase";
 import { HeroScoreBanner } from "@/components/HeroScoreBanner";
 import { PublishActions } from "@/components/PublishActions";
+import { TopicPerformanceMeter } from "@/components/TopicPerformanceMeter";
+import { FirstStepsChecklist } from "@/components/FirstStepsChecklist";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
