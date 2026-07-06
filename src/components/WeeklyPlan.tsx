@@ -190,6 +190,14 @@ export const WeeklyPlan = memo(function WeeklyPlan({ isPro, locale, onSelectTopi
           </div>
         ) : plan ? (
           <>
+            {!isPro && (
+              <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/8 px-3 py-2 text-[11px] text-emerald-400 flex items-center gap-2">
+                <Gift className="h-3.5 w-3.5" />
+                {locale === "tr"
+                  ? "Bu haftaki ücretsiz planını aldın. Sınırsız için Pro'ya geç."
+                  : "You claimed this week's free plan. Upgrade to Pro for unlimited."}
+              </div>
+            )}
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
               {plan.map((d, i) => (
                 <div
