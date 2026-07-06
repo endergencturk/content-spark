@@ -1590,6 +1590,18 @@ Viral Score: ${viralScore}/10
           {/* ─── GENERATE TAB CONTENT ─── */}
           {activeTab === "generate" && (
           <>
+          {/* First-time visitor showcase */}
+          {totalGenerations === 0 && !topic && !isHorrorMode && (
+            <EmptyStateShowcase
+              locale={locale}
+              onPick={(t) => {
+                setTopic(t);
+                setDiscoveryResult(null);
+                toast.success(locale === "tr" ? "Konu hazır — 'Oluştur'a bas 🚀" : "Topic ready — hit Generate 🚀");
+              }}
+            />
+          )}
+
           {/* Daily Challenge */}
           {!isHorrorMode && (
             <DailyChallenge
