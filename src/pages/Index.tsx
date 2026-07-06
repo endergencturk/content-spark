@@ -1605,6 +1605,16 @@ Viral Score: ${viralScore}/10
             />
           )}
 
+          {/* Onboarding checklist for first-time users */}
+          {!isHorrorMode && (
+            <FirstStepsChecklist
+              locale={locale}
+              hasProfile={!!loadChannelProfile()?.channelName}
+              hasTopic={!!topic.trim()}
+              totalGenerations={totalGenerations}
+            />
+          )}
+
           {/* Daily Challenge */}
           {!isHorrorMode && (
             <DailyChallenge
