@@ -29,6 +29,8 @@ export type Database = {
           platforms: string[]
           style: string
           topic: string
+          used_at: string | null
+          used_platform: string | null
           user_id: string | null
         }
         Insert: {
@@ -45,6 +47,8 @@ export type Database = {
           platforms?: string[]
           style?: string
           topic: string
+          used_at?: string | null
+          used_platform?: string | null
           user_id?: string | null
         }
         Update: {
@@ -61,6 +65,8 @@ export type Database = {
           platforms?: string[]
           style?: string
           topic?: string
+          used_at?: string | null
+          used_platform?: string | null
           user_id?: string | null
         }
         Relationships: []
