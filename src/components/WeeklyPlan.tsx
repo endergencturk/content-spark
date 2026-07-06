@@ -84,13 +84,18 @@ export const WeeklyPlan = memo(function WeeklyPlan({ isPro, locale, onSelectTopi
         viralScore: idea.viralScore || Math.floor(Math.random() * 3) + 7,
       }));
       setPlan(ideas);
+      // Consume the free-weekly allowance for non-Pro users.
+      if (!isPro) {
+        try { localStorage.setItem(FREE_WEEKLY_KEY, weekKey); } catch { /* ignore */ }
+        setUsedFreeWeek(weekKey);
+      }
     } catch (err: any) {
       console.error("Weekly plan failed:", err);
       toast.error(err?.message || "Failed to generate weekly plan");
     } finally {
       setLoading(false);
     }
-  }, [profile, locale]);
+  }, [profile, locale, isPro, weekKey]);
 
   const downloadPlan = useCallback(() => {
     if (!plan) return;
