@@ -987,7 +987,7 @@ export default function Index() {
       }
 
       try {
-        await supabase.from("generations").insert({
+        const { data: inserted } = await supabase.from("generations").insert({
           user_id: user?.id,
           device_id: deviceId,
           topic: (effectiveTopic === "__horror_random__" ? data?.title || "Horror Mode" : effectiveTopic),
@@ -999,7 +999,8 @@ export default function Index() {
           plan_type: isHorrorMode ? "horror" : isProMode ? "pro" : "free",
           output_json: data,
           language: locale,
-        } as any);
+        } as any).select("id").maybeSingle();
+        if (inserted?.id) setCurrentGenerationId(inserted.id as string);
         toast.success(t("history.saved", locale), { duration: 2000 });
       } catch (saveErr) {
         console.warn("Failed to save to history:", saveErr);
