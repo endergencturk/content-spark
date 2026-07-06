@@ -20,6 +20,8 @@ interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, inviteCode?: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error?: string }>;
+  updatePassword: (password: string) => Promise<{ error?: string }>;
   showAuthModal: boolean;
   setShowAuthModal: (show: boolean) => void;
   authPromptReason: string;
@@ -40,6 +42,8 @@ const AuthContext = createContext<AuthContextValue>({
   signIn: async () => ({}),
   signUp: async () => ({}),
   signOut: async () => {},
+  resetPassword: async () => ({}),
+  updatePassword: async () => ({}),
   showAuthModal: false,
   setShowAuthModal: () => {},
   authPromptReason: "",
@@ -158,6 +162,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTrialEndsAt(null);
   }, []);
 
+  const resetPassword = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) return { error: error.message };
+    return {};
+  }, []);
+
+  const updatePassword = useCallback(async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) return { error: error.message };
+    return {};
+  }, []);
+
   const requireAuth = useCallback((reason = "this feature") => {
     if (user) return false;
     setAuthPromptReason(reason);
@@ -179,6 +197,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signOut,
+        resetPassword,
+        updatePassword,
         showAuthModal,
         setShowAuthModal,
         authPromptReason,
