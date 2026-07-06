@@ -1915,6 +1915,9 @@ Viral Score: ${viralScore}/10
                   </Button>
                 )}
               </div>
+              {!isHorrorMode && topic.trim().length >= 4 && (
+                <TopicPerformanceMeter topic={topic} locale={locale} platform={platform} />
+              )}
               {isHorrorMode && (
                 <p className="text-[10px] text-muted-foreground">
                   Enter a country + phenomenon, or leave blank for AI to choose randomly
