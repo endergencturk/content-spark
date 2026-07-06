@@ -2319,6 +2319,19 @@ Viral Score: ${viralScore}/10
                     {((isProMode || isHorrorMode) ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(" · ")}
                   </span>
                 </div>
+                <PublishActions
+                  locale={locale}
+                  caption={
+                    (generalResult?.tiktok?.caption || proResult?.tiktok?.caption ||
+                     generalResult?.youtube?.title || proResult?.youtube?.title ||
+                     topic) as string
+                  }
+                  hashtags={
+                    (generalResult?.tiktok?.hashtags || proResult?.tiktok?.hashtags ||
+                     generalResult?.youtube?.tags || proResult?.youtube?.tags || []) as string[]
+                  }
+                  script={(generalResult?.script || proResult?.script || "") as string}
+                />
               </div>
             )}
 
