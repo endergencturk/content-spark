@@ -234,16 +234,24 @@ export const WeeklyPlan = memo(function WeeklyPlan({ isPro, locale, onSelectTopi
               </button>
               <button
                 onClick={generatePlan}
-                disabled={loading}
+                disabled={loading || (!isPro && usedFreeWeek === weekKey)}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-sm font-medium text-primary hover:bg-primary/15 transition-colors"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-                {locale === "tr" ? "Yeniden Oluştur" : "Regenerate Week"}
+                {isPro
+                  ? (locale === "tr" ? "Yeniden Oluştur" : "Regenerate Week")
+                  : (locale === "tr" ? "Pro: Yeniden Oluştur" : "Pro: Regenerate")}
               </button>
             </div>
           </>
         ) : (
-          <div className="text-center py-6">
+          <div className="text-center py-6 space-y-2">
+            {!isPro && (
+              <p className="text-[11px] text-emerald-400 font-semibold">
+                <Gift className="inline h-3 w-3 mr-1" />
+                {locale === "tr" ? "Bu hafta 1 ücretsiz plan hakkın var" : "You have 1 free plan this week"}
+              </p>
+            )}
             <button
               onClick={generatePlan}
               disabled={loading}
