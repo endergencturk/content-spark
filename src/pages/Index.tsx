@@ -1256,7 +1256,7 @@ Viral Score: ${viralScore}/10
     try { return localStorage.getItem("cs:sidebar-collapsed") === "true"; } catch { return false; }
   });
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
-  const { recordGeneration } = useGamification();
+  const { recordGeneration, totalGenerations } = useGamification();
 
   // Global shortcuts: ⌘K palette, ⌘Enter generate, ⌘H history
   useEffect(() => {
