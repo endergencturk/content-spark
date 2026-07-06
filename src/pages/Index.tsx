@@ -47,6 +47,7 @@ import { TitleThumbnailLab } from "@/components/TitleThumbnailLab";
 import { HookMiningPanel } from "@/components/HookMiningPanel";
 import { EmptyStateShowcase } from "@/components/EmptyStateShowcase";
 import { HeroScoreBanner } from "@/components/HeroScoreBanner";
+import { PublishActions } from "@/components/PublishActions";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
@@ -2318,6 +2319,19 @@ Viral Score: ${viralScore}/10
                     {((isProMode || isHorrorMode) ? platforms : [platform]).map(p => p === "tiktok" ? "TikTok" : p === "youtube-shorts" ? "Shorts" : "Reels").join(" · ")}
                   </span>
                 </div>
+                <PublishActions
+                  locale={locale}
+                  caption={
+                    (generalResult?.tiktok?.caption || proResult?.tiktok?.caption ||
+                     generalResult?.youtube?.title || proResult?.youtube?.title ||
+                     topic) as string
+                  }
+                  hashtags={
+                    (generalResult?.tiktok?.hashtags || proResult?.tiktok?.hashtags ||
+                     generalResult?.youtube?.tags || proResult?.youtube?.tags || []) as string[]
+                  }
+                  script={(generalResult?.script || proResult?.script || "") as string}
+                />
               </div>
             )}
 
