@@ -48,6 +48,8 @@ import { HookMiningPanel } from "@/components/HookMiningPanel";
 import { EmptyStateShowcase } from "@/components/EmptyStateShowcase";
 import { HeroScoreBanner } from "@/components/HeroScoreBanner";
 import { PublishActions } from "@/components/PublishActions";
+import { TopicPerformanceMeter } from "@/components/TopicPerformanceMeter";
+import { FirstStepsChecklist } from "@/components/FirstStepsChecklist";
 
 // Normalize API responses where fields may be objects {type, hook} instead of strings
 function normalizeResult(data: any): any {
@@ -1603,6 +1605,16 @@ Viral Score: ${viralScore}/10
             />
           )}
 
+          {/* Onboarding checklist for first-time users */}
+          {!isHorrorMode && (
+            <FirstStepsChecklist
+              locale={locale}
+              hasProfile={!!loadChannelProfile()?.channelName}
+              hasTopic={!!topic.trim()}
+              totalGenerations={totalGenerations}
+            />
+          )}
+
           {/* Daily Challenge */}
           {!isHorrorMode && (
             <DailyChallenge
@@ -1903,6 +1915,9 @@ Viral Score: ${viralScore}/10
                   </Button>
                 )}
               </div>
+              {!isHorrorMode && topic.trim().length >= 4 && (
+                <TopicPerformanceMeter topic={topic} locale={locale} platform={platform} />
+              )}
               {isHorrorMode && (
                 <p className="text-[10px] text-muted-foreground">
                   Enter a country + phenomenon, or leave blank for AI to choose randomly
