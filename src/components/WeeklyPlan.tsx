@@ -129,10 +129,16 @@ export const WeeklyPlan = memo(function WeeklyPlan({ isPro, locale, onSelectTopi
         <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <Calendar className="h-4 w-4 text-primary" />
           📅 {locale === "tr" ? "Haftalık Plan" : "Weekly Plan"}
+          {!isPro && freeWeeklyAvailable && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-400">
+              <Gift className="h-2.5 w-2.5" />
+              {locale === "tr" ? "Bu hafta ücretsiz" : "Free this week"}
+            </span>
+          )}
         </span>
         <span className="flex items-center gap-1 text-xs text-primary font-medium">
-          {isPro ? (locale === "tr" ? "Aç" : "Open") : "Pro"}
-          {!isPro && <Lock className="h-3 w-3" />}
+          {canGenerate ? (locale === "tr" ? "Aç" : "Open") : "Pro"}
+          {!canGenerate && <Lock className="h-3 w-3" />}
           <ArrowRight className="h-3.5 w-3.5" />
         </span>
       </button>
