@@ -2348,6 +2348,7 @@ Viral Score: ${viralScore}/10
                      generalResult?.youtube?.tags || proResult?.youtube?.tags || []) as string[]
                   }
                   script={(generalResult?.script || proResult?.script || "") as string}
+                  generationId={currentGenerationId}
                 />
               </div>
             )}
