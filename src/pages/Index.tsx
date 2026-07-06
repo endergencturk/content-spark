@@ -643,6 +643,7 @@ export default function Index() {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"generate" | "results">("generate");
   const [profileForceOpen, setProfileForceOpen] = useState(false);
+  const [currentGenerationId, setCurrentGenerationId] = useState<string | null>(null);
 
   // Quick Start expansion + AI topic generator
   const [showAllPresets, setShowAllPresets] = useState(false);
