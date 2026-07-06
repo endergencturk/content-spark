@@ -1,5 +1,5 @@
-import React, { memo, useState, useCallback } from "react";
-import { Calendar, Loader2, Download, RefreshCw, Sparkles, Lock, ArrowRight } from "lucide-react";
+import React, { memo, useState, useCallback, useMemo } from "react";
+import { Calendar, Loader2, Download, RefreshCw, Sparkles, Lock, ArrowRight, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { loadChannelProfile } from "@/components/ChannelProfile";
@@ -23,6 +23,18 @@ interface WeeklyPlanProps {
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+// ISO week key like "2026-W27" — one free plan per week for Free users.
+function currentWeekKey(): string {
+  const d = new Date();
+  const target = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNr = (target.getUTCDay() + 6) % 7;
+  target.setUTCDate(target.getUTCDate() - dayNr + 3);
+  const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4));
+  const week = 1 + Math.round(((target.getTime() - firstThursday.getTime()) / 86400000 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7);
+  return `${target.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}
+const FREE_WEEKLY_KEY = "cs-weekly-plan-free-week";
+
 const POSTING_TIMES: Record<string, string[]> = {
   usa: ["21:00", "20:00", "21:00", "19:00", "21:00", "11:00", "10:00"],
   europe: ["19:00", "18:00", "19:00", "20:00", "19:00", "10:00", "11:00"],
@@ -36,6 +48,12 @@ export const WeeklyPlan = memo(function WeeklyPlan({ isPro, locale, onSelectTopi
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState<DayPlan[] | null>(null);
   const profile = loadChannelProfile();
+  const weekKey = useMemo(() => currentWeekKey(), []);
+  const [usedFreeWeek, setUsedFreeWeek] = useState<string | null>(() => {
+    try { return localStorage.getItem(FREE_WEEKLY_KEY); } catch { return null; }
+  });
+  const freeWeeklyAvailable = !isPro && usedFreeWeek !== weekKey;
+  const canGenerate = isPro || freeWeeklyAvailable;
 
   const generatePlan = useCallback(async () => {
     if (!profile?.channelName) {
