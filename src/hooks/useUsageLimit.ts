@@ -3,6 +3,23 @@ import { useState, useCallback, useEffect, useRef } from "react";
 const CREDITS_KEY = "viralengine-credits";
 const MAX_CREDITS = 3;
 const REFILL_MS = 2 * 60 * 60 * 1000; // 2 hours
+const BONUS_KEY = "viralengine-bonus-credits";
+
+function loadBonus(): number {
+  try {
+    const raw = localStorage.getItem(BONUS_KEY);
+    return raw ? Math.max(0, parseInt(raw, 10) || 0) : 0;
+  } catch { return 0; }
+}
+function saveBonus(n: number) {
+  try { localStorage.setItem(BONUS_KEY, String(Math.max(0, n))); } catch {}
+}
+
+/** Grant extra generations that stack on top of the normal 3-credit pool. */
+export function grantBonusCredits(n: number) {
+  saveBonus(loadBonus() + n);
+  try { window.dispatchEvent(new CustomEvent("cs:bonus-credits-updated")); } catch {}
+}
 
 interface CreditData {
   credits: number;
@@ -38,11 +55,20 @@ function save(data: CreditData) {
 
 export function useUsageLimit() {
   const [data, setData] = useState<CreditData>(loadCredits);
+  const [bonus, setBonus] = useState<number>(loadBonus);
   const [nextRefillLabel, setNextRefillLabel] = useState("");
   const timerRef = useRef<ReturnType<typeof setInterval>>();
 
   // Persist whenever data changes
   useEffect(() => { save(data); }, [data]);
+  useEffect(() => { saveBonus(bonus); }, [bonus]);
+
+  // Sync when other components grant bonus
+  useEffect(() => {
+    const handler = () => setBonus(loadBonus());
+    window.addEventListener("cs:bonus-credits-updated", handler);
+    return () => window.removeEventListener("cs:bonus-credits-updated", handler);
+  }, []);
 
   // Tick every 30s to update refill timer + check for new credits
   useEffect(() => {
@@ -69,16 +95,21 @@ export function useUsageLimit() {
     return () => clearInterval(timerRef.current);
   }, []);
 
-  const remaining = data.credits;
-  const isAtLimit = data.credits <= 0;
-  const isNearLimit = data.credits === 1;
+  const remaining = data.credits + bonus;
+  const isAtLimit = remaining <= 0;
+  const isNearLimit = remaining === 1;
 
   const increment = useCallback(() => {
+    // Spend bonus first, then regular credits
+    if (loadBonus() > 0) {
+      setBonus((b) => Math.max(0, b - 1));
+      return;
+    }
     setData((prev) => {
       const next = { credits: Math.max(0, prev.credits - 1), lastRefillAt: prev.credits >= MAX_CREDITS ? Date.now() : prev.lastRefillAt };
       return next;
     });
   }, []);
 
-  return { remaining, isAtLimit, isNearLimit, increment, count: MAX_CREDITS - data.credits, nextRefillLabel };
+  return { remaining, isAtLimit, isNearLimit, increment, count: MAX_CREDITS - data.credits, nextRefillLabel, bonus };
 }
