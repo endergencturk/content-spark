@@ -15,6 +15,7 @@ import { t, type Locale } from "@/lib/i18n";
 import { ScriptEditor } from "@/components/ScriptEditor";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
 import { ViralScoreCard } from "@/components/ViralScoreCard";
+import { ThumbnailImageGen } from "@/components/ThumbnailImageGen";
 
 interface EditingScene {
   scene: number;
