@@ -393,6 +393,7 @@ export const ProResults = memo(function ProResults({
                 <p className="text-sm font-bold text-foreground">{thumb.text}</p>
               </div>
               <CopyBtn text={`Image: ${thumb.image}\nText: ${thumb.text}`} label={`thumb-pro-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+              <ThumbnailImageGen visual={thumb.image} overlay={thumb.text} index={i} locale={locale} />
             </div>
           ))}
         </section>

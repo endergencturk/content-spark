@@ -12,6 +12,7 @@ import { BlurredPreview } from "@/components/BlurredPreview";
 import { ScriptEditor } from "@/components/ScriptEditor";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
 import { ViralScoreCard } from "@/components/ViralScoreCard";
+import { ThumbnailImageGen } from "@/components/ThumbnailImageGen";
 
 interface EditingScene {
   scene: number;
