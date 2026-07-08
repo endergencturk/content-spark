@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Layout, Trophy, Copy, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ThumbnailImageGen } from "@/components/ThumbnailImageGen";
 
 interface Variant {
   lever: string;
@@ -124,6 +125,12 @@ export function TitleThumbnailLab({ topic, hook, language, platform, audience, i
                       <Copy className="h-3 w-3" />
                     </Button>
                   </div>
+                  <ThumbnailImageGen
+                    visual={v.thumbnail.visual}
+                    overlay={v.thumbnail.overlay}
+                    index={i}
+                    locale={language}
+                  />
                 </div>
 
                 <p className="text-[11px] text-muted-foreground italic leading-snug">{v.reason}</p>
