@@ -18,7 +18,8 @@ export function ThumbnailImageGen({ visual, overlay, index, locale }: Props) {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const { user, planType, setShowAuthModal } = useAuth();
-  const { imageStyle } = useSettings();
+  const { settings } = useSettings();
+  const imageStyle = settings.imageStyle;
   const isTr = locale === "tr";
   const isPro = planType === "pro";
 
