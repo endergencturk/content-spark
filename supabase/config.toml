@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.hook-mining]
 verify_jwt = false
+
+[functions.generate-thumbnail-image]
+verify_jwt = false

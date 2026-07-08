@@ -12,6 +12,7 @@ import { BlurredPreview } from "@/components/BlurredPreview";
 import { ScriptEditor } from "@/components/ScriptEditor";
 import { ViralAnalysisCard, type ViralAnalysis } from "@/components/ViralAnalysisCard";
 import { ViralScoreCard } from "@/components/ViralScoreCard";
+import { ThumbnailImageGen } from "@/components/ThumbnailImageGen";
 
 interface EditingScene {
   scene: number;
@@ -236,6 +237,7 @@ export const GeneralResults = memo(function GeneralResults({
                 <p className="text-sm font-bold text-foreground">{thumb.text}</p>
               </div>
               <CopyBtn text={`Image: ${thumb.image}\nText: ${thumb.text}`} label={`thumb-${i}`} copied={copied} onCopy={onCopy} locale={locale} />
+              <ThumbnailImageGen visual={thumb.image} overlay={thumb.text} index={i} locale={locale} />
             </div>
           ))}
         </section>
