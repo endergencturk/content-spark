@@ -10,6 +10,7 @@ import { loadChannelProfile } from "@/components/ChannelProfile";
 import { useGamification, ACHIEVEMENTS } from "@/hooks/useGamification";
 import { supabase } from "@/integrations/supabase/client";
 import { UsageStatsCard } from "@/components/UsageStatsCard";
+import { ReferralCard } from "@/components/ReferralCard";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -221,6 +222,9 @@ function SidebarBody({ locale, deviceId, onEditProfile, onOpenHistory, onOpenCom
 
           {/* Usage stats — appears once user has posted something */}
           <UsageStatsCard deviceId={deviceId} locale={locale} refreshKey={recentRefreshKey} />
+
+          {/* Referral — invite friends for bonus credits */}
+          <ReferralCard deviceId={deviceId} locale={locale} />
 
           {/* History panel */}
           <div className="rounded-2xl border border-border/50 bg-card/40 overflow-hidden">
