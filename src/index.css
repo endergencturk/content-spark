@@ -106,8 +106,9 @@
   }
 
   h1, h2, h3, h4, .font-display {
-    font-family: 'Syne', 'Plus Jakarta Sans', system-ui, sans-serif;
-    letter-spacing: -0.02em;
+    font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
+    letter-spacing: -0.035em;
+    font-feature-settings: "ss01", "ss02";
   }
 }
 
